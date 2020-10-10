@@ -1,0 +1,30 @@
+
+ram item
+
+pre MACRO = 42
+
+
+/*
+// oh we need this
+loop:
+for (ldr g, 0; cmp g, 22; add g, 1) {
+
+  str g, UART
+
+}
+*/
+
+// it would be assembled as:
+
+loop:
+ldr g, 0
+__loop1_start:
+  cmp g, 22
+  joc equal, __loop1_end
+
+  str g, UART
+
+  add g, 1
+  jmp __loop1_start
+
+  __loop1_end:
