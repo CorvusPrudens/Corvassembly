@@ -10,7 +10,7 @@ def usage():
   print("\n\t-D bits\n\t   specify the number of bits in the data rom address")
   print("\n\t--debug-vars\n\t   print out the organized variables for debugging checks")
   print("\n\t--debug-lines\n\t   print out the organized program lines for debugging checks")
-  print("\n\t--log\n\t   write the above debug messages to \"log.txt\" instead of the terminal")
+  print("\n\t--log logname\n\t   write the above debug messages to \"logname.txt\" instead of the terminal")
   print()
   exit(0)
 
@@ -39,9 +39,9 @@ def writeMem(code, outfile, memAddBits, memBits):
 def writeBin(code, outfile, promAddBits, dromAddBits, promDataWidth, dromDataWidth):
   pass
 
-def debug(options_noargs, instructions, variables, labels):
-  if options_noargs['--log']:
-    with open('log.txt', 'w') as file:
+def debug(options_args, options_noargs, instructions, variables, labels):
+  if options_args['--log'] != '':
+    with open(options_args['--log'] + '.txt', 'w') as file:
       if options_noargs['--debug-lines']:
         file.write('\n  Program Instructions:\n')
         for line in instructions.getInstructions():

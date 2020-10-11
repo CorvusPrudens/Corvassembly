@@ -1,0 +1,40 @@
+import divide
+const var nut = 10
+var smol
+
+// non-const pointers need memory type
+// ptr ram nutter
+// ptr rom nutterr
+
+// const pointers do not need these typings
+// const ptr wow = &nut
+// const ptr im = &smol
+
+// tfm ROM, RAM
+// tfm ROM, GPU
+// tfm RAM, GPU
+// tfm GPU, RAM
+
+// 
+
+// lpt 
+
+// loading a pointer should be easy, ie
+// ldr nutter // implicit ldr f, nutter since nutter is a pointer to ram
+// str nutter // same thing here
+
+// typical pointer initialization:
+// ptr ram nutty
+// ldr a, &smol
+// str a, nutty
+
+main:
+  ldr a, 10
+  ldr b, 3
+  ldr c, 0
+
+  jsr divide.divide
+  jsr divide.display
+
+stop:
+  jmp stop

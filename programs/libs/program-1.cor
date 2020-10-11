@@ -1,0 +1,40 @@
+// consider adding store/restore on all registers?
+var x
+var y
+var temp
+def LIMIT = 2**15
+
+main:
+  ldr e, 0
+  jsr reset
+
+stop:
+  jmp stop
+
+reset:
+  ldr a, 1
+  ldr b, 0
+  ldr c, 0
+
+begin:
+  cmp a, LIMIT
+  joc greater, reset
+  add a, 0, c // temp hack in place of pseudo op 'tfr a, c'
+  add a, b
+  add c, 0, b
+  str a, UART
+  lsr a, 8, d
+  str d, UART
+  add e, 2
+  cmp e, 255
+  joc greater, wait
+  jmp begin
+
+wait:
+  rts
+  /*
+  ldr f, UART
+  and f, TX_EMPTY
+  joc zero, wait
+  jmp begin
+  */

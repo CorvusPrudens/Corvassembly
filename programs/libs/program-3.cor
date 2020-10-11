@@ -1,0 +1,38 @@
+import strings as s
+
+rom string[] = "Hello, world!"
+pre string = $string[0]
+
+pre C_IDX0 = (153 << 8) + 2
+pre COLOR = 255 | (255 << 8) | (255 << 16)
+pre PIXELXY = 10 | (10 << 8)
+
+ldr h, C_IDX0
+// spt COLOR, gpu // not currently supported, but needs to be implemented
+ldr a, COLOR & 65535
+spt a, gpu
+add h, 1
+ldr a, COLOR >> 16
+spt a, gpu
+
+
+ldr g, s.string0
+lpt a, rom
+
+ldr h, PIXELXY
+ldr c, 1
+spt c, gpu
+
+printloop:
+  cmp a, 0
+  joc equal, stop
+  str a, UART
+  lsr a, 8, b
+  str b, UART
+  add g, 1
+  lpt a, rom
+  jmp printloop
+
+stop:
+  //spt c, gpu
+  jmp stop

@@ -1,0 +1,26 @@
+import libs/tracker as t
+import libs/freqs as freqs
+
+ldr g, 0 // rom pointer
+ldr f, 0 // rom pointer mem
+
+//ldr a, 3
+//str a, R4015
+//ldr a, 15
+//str a, R4000
+//str a, R4004
+//ldr a, 2
+//str a, R4003
+
+//stop:
+  //jmp stop
+
+
+
+ldr a, 8 | 0b10000000
+str a, RB002
+ldr a, 0b00111111
+str a, RB000
+
+stop:
+  jmp stop

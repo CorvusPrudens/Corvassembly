@@ -20,8 +20,8 @@ def main(argv):
   # programs/program file.cor
 
   infile = ''
-  options_args = {'-o': '', '-p': '', '-d': '', '-P': 10, '-D': 10}
-  options_noargs = {'--debug-vars': False, '--debug-lines': False, '--log': False}
+  options_args = {'-o': '', '-p': '', '-d': '', '-P': 10, '-D': 10, '--log': ''}
+  options_noargs = {'--debug-vars': False, '--debug-lines': False}
 
   if len(argv) < 2:
     usage()
@@ -37,31 +37,31 @@ def main(argv):
   length = len(argv)
   for i in range(length):
     if argv[i] in options_args:
-      if i == length or argv[i + 1] in options_args or argv[i + 1] in options_noargs:
+      if i == length - 1 or argv[i + 1] in options_args or argv[i + 1] in options_noargs:
         print(f"\nError: expected argument after option {argv[i]}", end='\n\n')
         exit(1)
       options_args[argv[i]] = argv[i + 1]
     elif argv[i] in options_noargs:
       options_noargs[argv[i]] = True
 
-  # obviously this can break if the infile has a forward slash in the
-  # name. That's on the user if they do that.
-  prefix = ''
-  for i in range(len(infile) - 1, -1, -1):
-      if infile[i] == '/':
-          prefix = infile[:i + 1]
-          infile = infile[i + 1:]
-          break
-
-  lines = []
-
-  try:
-    with open(prefix + infile, 'r') as file:
-      for numLines, line in enumerate(file):
-        lines.append(['{} {}'.format(infile[:-4], numLines + 1), line.strip(" \n")])
-  except FileNotFoundError:
-    print(f"\nError: unable to find input file \"{infile}\"", end='\n\n')
-    exit(1)
+  # # obviously this can break if the infile has a forward slash in the
+  # # name. That's on the user if they do that.
+  # prefix = ''
+  # for i in range(len(infile) - 1, -1, -1):
+  #     if infile[i] == '/':
+  #         prefix = infile[:i + 1]
+  #         infile = infile[i + 1:]
+  #         break
+  #
+  # lines = []
+  #
+  # try:
+  #   with open(prefix + infile, 'r') as file:
+  #     for numLines, line in enumerate(file):
+  #       lines.append(['{} {}'.format(infile[:-4], numLines + 1), line.strip(" \n")])
+  # except FileNotFoundError:
+  #   print(f"\nError: unable to find input file \"{infile}\"", end='\n\n')
+  #   exit(1)
 
 
   ##############################################################
@@ -84,7 +84,7 @@ def main(argv):
   print(importListener.imports)
 
   # proper parsing
-  listener = VusListener(importListener.getImports()[-1]['name'])
+  listener = VusListener(importListener.getImports()[-1]['name'], RAM_ADDRESS_BEGIN)
   labels = Labels()
   instructions = Instructions()
 
@@ -107,7 +107,7 @@ def main(argv):
   labels.insert(listener.getLabels().getLabels(), numInstructions)
   instructions.insert(listener.getInstructions().getInstructions(), numInstructions)
 
-  debug(options_noargs, instructions, listener.getVariables(), labels)
+  debug(options_args, options_noargs, instructions, listener.getVariables(), labels)
 
   code = []
 

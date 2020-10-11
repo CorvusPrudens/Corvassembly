@@ -6,14 +6,18 @@ from gen.CorListener import CorListener
 from gen.CorLexer import CorLexer
 from gen.CorParser import CorParser
 
+import re
+import math
 
 
 class Variables:
 
-  def __init__(self):
+  def __init__(self, ramStartAddress=41):
     self.vars = []
-    self.size = {'ram': 0, 'rom': 0, 'pre': 0}
+    self.size = {'ram': ramStartAddress, 'rom': 0, 'pre': 0}
     self.evalDict = {}
+    self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
+    self.addressRegex = re.compile('\\b\\$[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
   # ['varType', 'name', 'address', 'value']
   def add(self, varType, name, value):
@@ -41,7 +45,32 @@ class Variables:
   def getVariables(self):
     return self.vars
 
-  def calc(self, mathString):
+  def getAddress(self, variable):
+    variable = variable[1:]
+    found = False
+    for var in self.vars:
+      if var['name'] == variable:
+        return var['address']
+    # TODO -- proper error throwing
+    print(f'\nError: could not find address of undefined variable {variable}!\n')
+    exit(1)
+
+  def decrementAddress(self, varType):
+    # to overload variable names
+    self.size[varType] -= 1
+
+  def calc(self, mathString, listener):
+
+    match = self.variableRegex.search(mathString)
+    while match != None:
+      mathString = mathString[:match.start()] + listener.scope(match.group(0)) + mathString[match.end():]
+      match = self.addressRegex.search(mathString, pos=match.end())
+
+    match = self.addressRegex.search(mathString)
+    while match != None:
+      mathString = mathString[:match.start()] + str(self.getAddress(match.group(0))) + mathString[match.end():]
+      match = self.addressRegex.search(mathString, pos=match.end())
+
     solution = 0
     # try:
     solution = round(eval(mathString, {}, self.evalDict))
@@ -111,8 +140,8 @@ class Labels:
 
 class VusListener(CorListener) :
 
-  def __init__(self, mainName):
-    self.variables = Variables()
+  def __init__(self, mainName, ramStartAddress):
+    self.variables = Variables(ramStartAddress)
     self.instructions = Instructions()
     self.labels = Labels()
     self.mainName = mainName
@@ -126,10 +155,15 @@ class VusListener(CorListener) :
       'GPIO', 'GPIO_DIR', 'TX_EMPTY',
       'TX_FULL', 'RX_EMPTY', 'RX_FULL'
     ]
+    self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
   def scope(self, input):
-    if self.currentName != self.mainName and '.' not in input and input not in self.keywords:
-      input = self.currentName + '.' + input
+    if self.variableRegex.search(input) != None:
+      if self.currentName != self.mainName and '.' not in input and input not in self.keywords:
+        if '$' in input:
+          input = '$' + self.currentName + '.' + input[1:]
+        else:
+          input = self.currentName + '.' + input
     return input
 
   def setName(self, name):
@@ -166,15 +200,88 @@ class VusListener(CorListener) :
       self.labels.add(templabel, self.instructions)
       pass
 
+  def convertString(self, string):
+    string = string.strip('\"')
+    chars = []
+
+    for c in string:
+      # TODO -- doesn't sanitize escaped characters
+      chars.append(ord(c))
+
+    chars.append(0) #terminating character
+
+    return chars
+
+    # out = '{ '
+    # for i in range(len(chars)):
+    #   out += str(chars[i]) + ', '
+    #
+    # return out
+
+
+  # Exit a parse tree produced by CorParser#assignment_arr.
+  def exitAssignment_arr(self, ctx:CorParser.Assignment_arrContext):
+      varType = ctx.CONST().getText()
+      name = ctx.array().VARIABLE().getText()
+      numDimensions = ctx.array().getChildCount() - 3
+      dimensions = []
+
+      if numDimensions > 2:
+        print('\n error constant array cannot be initialized with more than two dimension\n')
+        exit(1)
+
+      if numDimensions == 1 and ctx.array().arr_data() != None and (len(ctx.array().arr_data().string()) != 0 or len(ctx.array().arr_data().arr_data()) != 0):
+        print(f'\n error one dimensional array \"{name}\" contains subarrays\n')
+        exit(1)
+
+      self.variables.add('pre', name, self.variables.size[varType])
+
+      if numDimensions == 1:
+        if ctx.array().string() != None:
+          chars = self.convertString(ctx.array().string().getText())
+          for i in range(len(chars)):
+            self.variables.add(varType, name + f'[{i}]', chars[i])
+        else:
+          width = math.ceil((ctx.array().arr_data().getChildCount() - 2)/2.0)
+          for i in range(width):
+            tempval = self.variables.calc(ctx.array().arr_data().getChild(1 + i*2).getText(), self)
+            self.variables.add(varType, name + f'[{i}]', tempval)
+
+      pass
+
+
+  # Exit a parse tree produced by CorParser#declaration.
+  def exitDeclaration(self, ctx:CorParser.DeclarationContext):
+      if ctx.getChildCount() == 2: # simple declaration
+        self.variables.add(ctx.RAM().getText(), ctx.VARIABLE().getText(), 'NaN')
+      else: # array
+        # adding sneaky precompiler variable to mimic the behavior of C arrays
+        self.variables.add('pre', ctx.VARIABLE().getText(), self.variables.size['ram'])
+
+        varType = ctx.RAM().getText()
+        name = ctx.VARIABLE().getText()
+        dimensions = ctx.getChildCount() - 2
+
+        if dimensions > 1:
+          print('\n error ram array can only be initialized as one dimension\n')
+          exit(1)
+
+        size = self.variables.calc(ctx.getChild(2).expression().getText(), self)
+
+        for i in range(size):
+          self.variables.add(varType, name + f'[{i}]', 'NaN')
+
+
+
+
 
   # Exit a parse tree produced by CorParser#assignment.
   def exitAssignment(self, ctx:CorParser.AssignmentContext):
       var = self.scope(ctx.VARIABLE().getText())
+
       self.variables.add(ctx.CONST().getText(),
                          var,
-                         # TODO -- math boys aren't scoped properly yet, this
-                         # will cause errors
-                         self.variables.calc(ctx.expression().getChild(0).getText())
+                         self.variables.calc(ctx.expression().getText(), self)
                          )
 
   # Exit a parse tree produced by CorParser#instruction.
@@ -182,38 +289,29 @@ class VusListener(CorListener) :
       mnem = ctx.MNEMONIC().getText()
       tempargs = []
       for arg in ctx.argument():
-        if arg.expression() != None and arg.expression().math() != None:
-          scopedLine = ''
-          for i in range(arg.expression().math().getChildCount()):
-            if not arg.expression().math().getChild(i).getText()[0].isnumeric():
-              scopedLine += self.scope(arg.expression().math().getChild(i).getText())
-            else:
-              scopedLine += arg.expression().math().getChild(i).getText()
-
-          tempargs.append(self.variables.calc(scopedLine))
-        elif arg.expression() != None and arg.expression().exp_var() != None:
-          tempargs.append(self.scope(arg.getText()))
+        if arg.expression() != None and arg.expression().math() != None or '$' in arg.getText():
+          tempargs.append(self.variables.calc(arg.getText(), self))
         else:
-          tempargs.append(arg.getText())
+          tempargs.append(self.scope(arg.getText()))
 
       self.instructions.add(mnem, tempargs)
-      # self.output.write(f'{mnem}, {tempargs}\n')
-      pass
+
 
 class ImportListener(CorListener):
 
   def __init__(self, infile):
     tempfile = infile[:infile.rfind('.')]
     nameIndex = tempfile.rfind('/')
-    nameIndex = nameIndex if nameIndex >= 0 else 0
+    nameIndex = nameIndex + 1 if nameIndex >= 0 else 0
     # We're extracting the path to the file from where the assembler
     # was invoked so that any files imported are searched for correctly
     # from any arbitrary calling path
     self.workingDirectory = infile[:nameIndex] if nameIndex > 0 else './'
     self.currentPrefix = ''
+    print(infile)
     name = infile[nameIndex:].replace('.cor', '')
 
-    self.imports = [{'name': name, 'path': self.workingDirectory + name + '.cor'}]
+    self.imports = [{'name': name, 'path': infile}]
 
   def getImports(self):
     return self.imports
@@ -266,6 +364,12 @@ class ImportListener(CorListener):
               break
 
           if new:
+            # TODO -- this does not quite properly place files. If one import
+            # depends on another, like:
+            # import one
+            # import depends_on_one
+            # the variables in depends_on_one will appear before one, potentially
+            # causing errors
             self.imports.insert(0, tempdict)
 
             input = FileStream(tempdict['path'])

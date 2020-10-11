@@ -1,0 +1,10 @@
+def HELLO = 67
+var x
+const var idea = HELLO
+const var calc = HELLO*2 + 5
+
+label:
+  ldr d, 16
+  /* just testing stuff
+  for ya know */
+  add d, HELLO*20

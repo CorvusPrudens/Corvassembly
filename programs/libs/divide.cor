@@ -1,0 +1,18 @@
+divide:
+  sub a, b
+  joc negative, divide_result
+  add c, 1
+  jmp divide
+
+  divide_result:
+    add a, b
+    rts
+
+display:
+  str a, UART
+  lsr a, 8, d
+  str d, UART
+  str c, UART
+  lsr c, 8, d
+  str d, UART
+  rts

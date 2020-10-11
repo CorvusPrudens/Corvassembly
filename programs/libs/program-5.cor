@@ -1,0 +1,70 @@
+
+ldr a, 0
+ldr b, 0
+ldr c, 0
+
+ldr a, 0b10001111
+str a, R4000
+
+ldr a, 0b00001111
+str a, R4004
+
+//ldr a, 2
+//str a, R4003
+
+ldr a, 0b1111
+str a, R4015
+
+ldr a, 0b00001111
+str a, R400C
+
+ldr a, 0
+
+delay:
+  add b, 1
+  cmp b, 2000
+  joc equal, go
+  jmp delay
+/*
+delay1:
+  ldr b, 0
+  add c, 1
+  cmp c, 5
+  joc equal, go
+  jmp delay
+*/
+/*
+go:
+  ldr a, 0b10101010
+  str a, UART
+  ldr b, 0
+  jmp delay
+*/
+go:
+
+  ldr b, 0
+  ldr c, 0
+  sub a, 1
+
+  add a, 100, d
+
+  str d, R4002
+  lsr d, 8, e
+  str e, R4003
+
+  sub a, 100, d
+  str d, R4006
+  lsr d, 8, e
+  str e, R4007
+
+  lsr a, 8, c
+
+  str a, R400A
+  str c, R400B
+
+  str c, R400E
+
+  jmp delay
+
+stop:
+  jmp stop

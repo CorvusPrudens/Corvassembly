@@ -1,0 +1,315 @@
+import libs.tracker as t
+import libs.freqs
+
+ldr g, 0 // rom pointer
+ldr f, 0 // rom pointer mem
+
+ldr a, 30
+str a, RB000 // loading saw accumulator
+
+
+main:
+  jsr readFrame
+  jsr delay
+  jmp main
+
+
+
+incFramePtr:
+  add f, 1
+  add f, tracker.frames, g
+  rts
+
+delay:
+  ldr a, 0
+  ldr b, 0
+
+  delayLoop1:
+    add a, 1
+    cmp a, 20000
+    joc equal, delayLoop2
+    jmp delayLoop1
+
+  delayLoop2:
+    ldr a, 0
+    add b, 1
+    cmp b, 2
+    rsc equal
+    jmp delayLoop1
+
+readFrame:
+  pre FRAME_WIDTH = 4
+  pre EN_PULSE1 = 0b0001
+  pre EN_PULSE2 = 0b0010
+  pre EN_TRI = 0b0100
+  pre EN_NOISE = 0b1000
+  pre EN_PULSE3 = 0b1000_0000
+  pre EN_PULSE4 = 0b1000_0000
+  pre EN_SAW = 0b1000_0000
+
+  add f, tracker.frames, g
+  cmp f, 3584 // end of tracker array
+  joc less, pulse1
+  ldr f, 0
+  ldr g, 0
+
+  pulse1:
+    lpt a, rom
+    and a, 255, b
+
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, pulse1vol // no note
+    cmp b, 254
+    joc equal, pulse1stop // stop
+    // else if note
+
+    ldr d, R4015
+    or  d, EN_PULSE1
+    str d, R4015
+
+    //transfer note to rom register
+    add b, 0, g
+    add g, freqs.freqs
+    lpt b, rom
+    str b, R4002
+    lsr b, 8
+    str b, R4003
+    jmp pulse1vol
+
+    pulse1stop:
+      ldr d, R4015
+      and d, ~EN_PULSE1
+      str d, R4015
+
+    pulse1vol:
+      cmp c, 255
+      joc equal, pulse2
+      str c, R4000
+
+  pulse2:
+
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, pulse2vol // no note
+    cmp b, 254
+    joc equal, pulse2stop // stop
+    // else if note
+
+    ldr d, R4015
+    or  d, EN_PULSE2
+    str d, R4015
+
+    //transfer note to rom register
+    add b, 0, g
+    add g, freqs.freqs
+    lpt b, rom
+    str b, R4006
+    lsr b, 8
+    str b, R4007
+    jmp pulse2vol
+
+    pulse2stop:
+      ldr d, R4015
+      and d, ~EN_PULSE2
+      str d, R4015
+
+    pulse2vol:
+      cmp c, 255
+      joc equal, tri
+      str c, R4004
+
+  tri:
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+
+    cmp b, 255
+    joc equal, noise // no note
+    cmp b, 254
+    joc equal, tristop // stop
+    // else if note
+
+    ldr d, R4015
+    or  d, EN_TRI
+    str d, R4015
+
+    //transfer note to rom register
+    add b, 0, g
+    add g, freqs.freqs
+    lpt b, rom
+    str b, R400A
+    lsr b, 8
+    str b, R400B
+    jmp noise
+
+    tristop:
+      ldr d, R4015
+      and d, ~EN_TRI
+      str d, R4015
+
+  noise:
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, noisevol // no note
+    cmp b, 254
+    joc equal, noisestop // stop
+    // else if note
+
+    ldr d, R4015
+    or  d, EN_NOISE
+    str d, R4015
+
+    // loading noise note directly
+    str b, R400E
+
+    noisevol:
+      cmp c, 255
+      joc equal, pulse3
+      str c, R400C
+      jmp pulse3
+
+    noisestop:
+      ldr d, R4015
+      and d, ~EN_NOISE
+      str d, R4015
+
+  pulse3:
+
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, pulse3vol // no note
+    cmp b, 254
+    joc equal, pulse3stop // stop
+    // else if note
+
+    ldr d, R9002
+    or  d, EN_PULSE3
+    str d, R9002
+
+    //transfer note to rom register
+    add b, 0, g
+    add g, freqs.freqs
+    lpt b, rom
+    lsr b, 1
+    str b, R9001
+    lsr b, 8
+    ldr d, R9002
+    and d, 0b11110000
+    or  d, b, b
+    str b, R9002
+    jmp pulse3vol
+
+    pulse3stop:
+      ldr d, R9002
+      and d, ~EN_PULSE3
+      str d, R9002
+
+    pulse3vol:
+      cmp c, 255
+      joc equal, pulse4
+      str c, R9000
+
+  pulse4:
+
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, pulse4vol // no note
+    cmp b, 254
+    joc equal, pulse4stop // stop
+    // else if note
+
+    ldr d, RA002
+    or  d, EN_PULSE4
+    str d, RA002
+
+    //transfer note to rom register
+    add b, 0, g
+    add g, freqs.freqs
+    lpt b, rom
+    lsr b, 1
+    str b, RA001
+    lsr b, 8
+    ldr d, RA002
+    and d, 0b11110000
+    or  d, b, b
+    str b, RA002
+    jmp pulse4vol
+
+    pulse4stop:
+      ldr d, RA002
+      and d, ~EN_PULSE4
+      str d, RA002
+
+    pulse4vol:
+      cmp c, 255
+      joc equal, saw
+      str c, RA000
+
+  saw:
+
+    jsr incFramePtr
+
+    lpt a, rom
+    and a, 255, b
+    lsr a, 8, c
+
+    cmp b, 255
+    joc equal, sawvol // no note
+    cmp b, 254
+    joc equal, sawstop // stop
+    // else if note
+
+    ldr d, RB002
+    or  d, EN_SAW
+    str d, RB002
+
+    //transfer note to rom register
+    add b, 36, g
+    add g, freqs.sawfreqs
+    lpt b, rom
+    lsl b, 1
+    str b, RB001
+    lsr b, 8
+    ldr d, RB002
+    and d, 0b11110000
+    or  d, b, b
+    str b, RB002
+    jmp sawvol
+
+    sawstop:
+      ldr d, RB002
+      and d, ~EN_SAW
+      str d, RB002
+
+    sawvol:
+      cmp c, 255
+      joc equal, end
+      str c, RB000
+
+  end:
+    jsr incFramePtr
+    rts

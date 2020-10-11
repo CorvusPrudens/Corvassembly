@@ -20,7 +20,9 @@ declaration     : RAM VARIABLE array_init*;
 
 expression      : exp_number | exp_var | math;
 
-math            : ((NUMBER | VARIABLE) OPERATOR)+ (NUMBER | VARIABLE);
+math            : (((NUMBER | VARIABLE) OPERATOR)+ (NUMBER | VARIABLE))
+                | OPERATOR (NUMBER | VARIABLE)
+                ;
 
 exp_number      : NUMBER;
 
@@ -32,12 +34,17 @@ string          : STRING;
 
 array_init      : OBRACKET expression? CBRACKET;
 
-arr_data        : '{' ((expression | arr_data | string) ',')*
-                  (expression | arr_data | string) ','? '}';
+arr_data        : OBRACE ((expression | arr_data | string) ',')*
+                  (expression | arr_data | string) ','? CBRACE;
 
 instruction     : MNEMONIC (argument (',' argument)*)?;
 
-argument        : register | expression;
+argument        : register
+                | expression
+                | RAM
+                | CONST
+                | GPU
+                ;
 
 register        : REGISTER;
 
@@ -48,6 +55,8 @@ RAM : 'ram';
 fragment ROM : 'rom';
 fragment PRE : 'pre';
 CONST : ROM | PRE;
+
+GPU                    : 'gpu';
 
 IMPORT                 : 'import';
 AS                     : 'as';
@@ -66,6 +75,9 @@ COMMENT_BLOCK                   : '/*' .*? '*/' -> skip;
 OBRACKET               : '[';
 CBRACKET               : ']';
 
+OBRACE                 : '{';
+CBRACE                 : '}';
+
 REGISTER               : [a-h];
 
 // TODO -- make these case case insensitive
@@ -77,7 +89,9 @@ MNEMONIC               :  'nop'| 'ldr'| 'str'| 'lpt'|
                           'jmp'| 'jsr'| 'rts'| 'joc'|
                           'jsc'| 'rsc'| 'tfm';
 
-VARIABLE               : [A-Za-z_][A-Za-z_0-9.]*;
+// we won't be able to detect array names as variable (i.e. arr[0])
+// we'll have to come up with a workaround
+VARIABLE               : '$'?[A-Za-z_][A-Za-z_0-9.]*;
 
 WHITESPACE             : [ \t\n\r] -> skip;
 

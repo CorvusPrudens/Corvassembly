@@ -1,4 +1,5 @@
 
+# NOT PORTABLE!!
 ANTLR_HOME = ~/Applications
 ANTLR_JAR = ${ANTLR_HOME}/antlr-4.8-complete.jar
 
@@ -10,7 +11,7 @@ PYTHON_PATH = ./python_out/gen
 JAVA_PATH = ./java_out
 
 ASSEMBLER = ./python_out/assembler.py
-EXAMPLE  = ./example.cor
+EXAMPLE  = ./programs/example.cor
 
 
 
@@ -32,4 +33,4 @@ build_java: ${GRAMMAR}
 
 test_java:
 	cd ${JAVA_PATH}; \
-	${GRUN} Cor parse ../example.cor -gui
+	${GRUN} Cor parse ../programs/example.cor -gui

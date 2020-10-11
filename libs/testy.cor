@@ -1,5 +1,0 @@
-
-pre BOOYA = 2020
-
-stop:
-  jmp stop

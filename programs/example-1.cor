@@ -1,5 +1,7 @@
-import "libs/lib.cor" as l
-import libs.testy as t
+
+// both methods of importing are supported
+import libs.deep.testy
+import "libs/lib.cor"
 
 
 pre DAD = 20
@@ -15,36 +17,24 @@ pre TEST2 = 27 + 3 / 2.6
 
 ram hi
 
+pre WIDTH = 20
+pre HEIGHT = 16
 
-rom arr[] = {
- 1,
- {3, 4, 5}, // this should throw an error unless explicitly 2d
- 3 + 200,
- 4/32.5,
- "Well hello!",
+ram temp[WIDTH*HEIGHT]
+
+rom strings[][] = {
+  "Hello there",
+  "How are you doing?",
+  "I dunno, how about you?"
 }
 
-ram temp[20][20]
-
-rom deep[][][] = {
-  {
-    {
-      1, 2, 3, 4
-    },
-    {
-      5, 6, 7, 8
-    }
-  },
-
-  {
-    {
-      1, 2, 3, 4
-    },
-    {
-      5, 6, 7, 8
-    }
-  },
+rom table[] = {
+  0x00AA,
+  0x77AA,
+  0xAA77
 }
+
+rom single[] = "single string"
 
 
 //pre DADDY = 20 * 300
@@ -53,6 +43,8 @@ ldr a, 15
 str a, R4000
 ldr a, 2
 str a, R4003
+
+ldr g, $hi
 
 main:
   jsr toggleChannel
@@ -76,7 +68,7 @@ delay:
   ldr b, 0
 
   loop1:
-    add a, 1
+    add a, $hi
     cmp a, 65530 + TEST
     joc equal, loop2
     jmp loop1
