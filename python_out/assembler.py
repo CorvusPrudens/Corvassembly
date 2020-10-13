@@ -46,25 +46,6 @@ def main(argv):
     elif argv[i] in options_noargs:
       options_noargs[argv[i]] = True
 
-  # # obviously this can break if the infile has a forward slash in the
-  # # name. That's on the user if they do that.
-  # prefix = ''
-  # for i in range(len(infile) - 1, -1, -1):
-  #     if infile[i] == '/':
-  #         prefix = infile[:i + 1]
-  #         infile = infile[i + 1:]
-  #         break
-  #
-  # lines = []
-  #
-  # try:
-  #   with open(prefix + infile, 'r') as file:
-  #     for numLines, line in enumerate(file):
-  #       lines.append(['{} {}'.format(infile[:-4], numLines + 1), line.strip(" \n")])
-  # except FileNotFoundError:
-  #   print(f"\nError: unable to find input file \"{infile}\"", end='\n\n')
-  #   exit(1)
-
 
   ##############################################################
   ### PARSING
@@ -86,7 +67,7 @@ def main(argv):
   # print(importListener.imports)
 
   # proper parsing
-  listener = VusListener(importListener.getImports()[-1]['name'], RAM_ADDRESS_BEGIN, importListener.imports[-1]['path'])
+  listener = VusListener(importListener.getImports()[-1]['name'], RAM_ADDRESS_BEGIN, importListener.imports[-1]['path'], SYSVARS)
   labels = Labels()
   instructions = Instructions()
 
@@ -126,13 +107,14 @@ def main(argv):
   prom = assembleInstructions(listener.getInstructions().getInstructions(),
                               listener.getVariables().getVariables(),
                               listener.getLabels().getLabels())
+  drom = assembleVariables(listener.getVariables().getVariables(), DATA_WORD_WIDTH)
 
   endExecution()
 
   if options_args['-p'] != '':
-    writeMem(prom, options_args['-p'], int(options_args['-P']), PROGRAM_WORD_WIDTH)
+    writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']), PROGRAM_WORD_WIDTH)
   if options_args['-d'] != '':
-    writeMem(drom, options_args['-d'], int(options_args['-D']), DATA_WORD_WIDTH)
+    writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']), DATA_WORD_WIDTH)
 
 
 

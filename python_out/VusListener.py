@@ -12,10 +12,13 @@ import math
 
 class Variables:
 
-  def __init__(self, ramStartAddress=41):
-    self.vars = []
+  def __init__(self, sysvars=[], ramStartAddress=41):
+    self.vars = sysvars
     self.size = {'ram': ramStartAddress, 'rom': 0, 'pre': 0}
     self.evalDict = {}
+    for var in sysvars:
+      if var['type'] == 'rom' or var['type'] == 'pre':
+        self.evalDict[var['name']] = var['value']
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.addressRegex = re.compile('\\b\\$[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
@@ -141,8 +144,8 @@ class Labels:
 
 class VusListener(CorListener) :
 
-  def __init__(self, mainName, ramStartAddress, fullpath):
-    self.variables = Variables(ramStartAddress)
+  def __init__(self, mainName, ramStartAddress_init, fullpath, sysvars_init):
+    self.variables = Variables(ramStartAddress=ramStartAddress_init, sysvars=sysvars_init)
     self.instructions = Instructions()
     self.labels = Labels()
     self.mainName = mainName

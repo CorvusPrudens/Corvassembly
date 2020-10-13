@@ -1,5 +1,10 @@
+import math
 import numpy as np
 import re
+
+##############################################################
+### I/O
+##############################################################
 
 def usage():
   print("\nUsage: <infile> [[options] [parameters] ...]")
@@ -17,12 +22,12 @@ def usage():
   exit(0)
 
 def writeMem(code, outfile, memAddBits, memBits):
-  memWidth = m.ceil(memBits/4)
-  wordsPerLine = m.floor((8/memWidth)*8)
+  memWidth = math.ceil(memBits/4)
+  wordsPerLine = math.floor((8/memWidth)*8)
   if wordsPerLine < 1:
     wordsPerLine = 1
-  memAddWidth = m.ceil(memAddBits/4)
-  numLines = m.ceil((2**memAddBits)/wordsPerLine)
+  memAddWidth = math.ceil(memAddBits/4)
+  numLines = math.ceil((2**memAddBits)/wordsPerLine)
   with open(outfile, 'w') as file:
     for i in range(numLines):
       file.write('@{:0>{w}X} '.format(i*wordsPerLine, w=memAddWidth))
@@ -105,7 +110,6 @@ def endExecution():
   if len(errorList) > 0:
     warningPrint(warningList)
     errorPrint(errorList)
-    # TODO -- we need to exit after like 5 errors or something
     warnS = 's' if len(warningList) != 1 else ''
     errS = 's' if len(errorList) != 1 else ''
     print(f'{len(warningList)} warning{warnS}, {len(errorList)} error{errS}, exiting...')
@@ -127,7 +131,7 @@ def warning(message, lineNumber, filepath, errorcode):
                       'path': filepath, 'code': errorcode})
 
 def errorPrint(entries):
-  # oh shit, this won't work with multiple files... we'll have to sort and stuff
+  # uh oh, this won't work with multiple files... we'll have to sort and stuff
   with open(entries[0]['path'], 'r') as file:
     lines = file.readlines()
     for entry in entries:
@@ -144,6 +148,67 @@ def warningPrint(entries):
       original = lines[entry['line'] - 1].strip(' \n')
       print(f'  {original}')
       print(f'-> {entry["message"]}\n')
+
+##############################################################
+### Assembly Data
+##############################################################
+
+sysvarTable = [
+  ['ram', 'STATUS', '0'],
+  ['ram', 'STACK', '2'],
+  ['ram', 'UART', '3'],
+  ['ram', 'GPIO', '4'],
+  ['ram', 'GPIO_DIR', '5'],
+
+  ['ram', 'R4000', '6'],
+  ['ram', 'R4001', '7'],
+  ['ram', 'R4002', '8'],
+  ['ram', 'R4003', '9'],
+  ['ram', 'R4004', '10'],
+  ['ram', 'R4005', '11'],
+  ['ram', 'R4006', '12'],
+  ['ram', 'R4007', '13'],
+  ['ram', 'R4008', '14'],
+  ['ram', 'R4009', '15'],
+  ['ram', 'R400A', '16'],
+  ['ram', 'R400B', '17'],
+  ['ram', 'R400C', '18'],
+  ['ram', 'R400D', '19'],
+  ['ram', 'R400E', '20'],
+  ['ram', 'R400F', '21'],
+  ['ram', 'R4010', '22'],
+  ['ram', 'R4011', '23'],
+  ['ram', 'R4012', '24'],
+  ['ram', 'R4013', '25'],
+  ['ram', 'R4014', '26'],
+  ['ram', 'R4015', '27'],
+  ['ram', 'R4016', '28'],
+  ['ram', 'R4017', '29'],
+
+  ['ram', 'R9000', '30'],
+  ['ram', 'R9001', '31'],
+  ['ram', 'R9002', '32'],
+  ['ram', 'R9003', '33'],
+  ['ram', 'RA000', '34'],
+  ['ram', 'RA001', '35'],
+  ['ram', 'RA002', '36'],
+  ['ram', 'RB000', '37'],
+  ['ram', 'RB001', '38'],
+  ['ram', 'RB002', '39'],
+
+  ['pre', 'TX_EMPTY', '512'],
+  ['pre', 'TX_FULL', '256'],
+  ['pre', 'RX_EMPTY', '2048'],
+  ['pre', 'RX_FULL', '1024'],
+]
+
+SYSVARS = []
+
+for var in sysvarTable:
+  if var[0] == 'ram':
+    SYSVARS.append({'type': 'ram', 'name': var[1], 'address': int(var[2]), 'value': 0, 'line': -1, 'path': -1})
+  elif var[0] == 'pre':
+    SYSVARS.append({'type': 'pre', 'name': var[1], 'address': 0, 'value': var[2], 'line': -1, 'path': -1})
 
 
 MNEM2OP        = {'nop': 0, 'ldr': 1, 'str': 2, 'lpt': 3, 'spt': 4, 'cmp': 5,
@@ -173,7 +238,42 @@ MATH_REG = 0b01
 MATH_GPU = 0b10
 MATH_IMM = 0b11
 
-MATH_DICT = {'ram': MATH_RAM, 'rom': MATH_IMM, 'pre': MATH_IMM, 'reg': MATH_REG}
+LOAD_ROM = 0b01
+
+STORE_RAM = 0b00
+STORE_GPU = 0b10
+
+LOAD_PTR_RAM = 0b00
+LOAD_PTR_ROM = 0b01
+LOAD_PTR_GPU = 0b10
+
+STORE_PTR_RAM = 0b00
+STORE_PTR_GPU = 0b01
+
+LOAD_CONST = ['rom', 'pre']
+LOAD_MEM = ['ram', 'gpu']
+
+MATH_DICT = {'ram': MATH_RAM, 'rom': MATH_IMM,
+             'pre': MATH_IMM, 'reg': MATH_REG, 'number': MATH_IMM}
+
+LOAD_DICT = {'ram': MATH_RAM, 'rom': LOAD_ROM, 'gpu': MATH_GPU,
+             'pre': MATH_IMM, 'number': MATH_IMM}
+
+# The extra keys are so that an incorrect instruction doesn't throw a KeyError
+STORE_DICT = {'ram': STORE_RAM, 'gpu': STORE_GPU, 'rom': 0, 'pre': 0}
+
+LOAD_PTR_DICT = {'ram': LOAD_PTR_RAM, 'rom': LOAD_PTR_ROM, 'gpu': LOAD_PTR_GPU}
+STORE_PTR_DICT = {'ram': STORE_PTR_RAM, 'gpu': STORE_PTR_GPU}
+
+CONDITIONS = {
+  'zero': 0b000000,
+  'carry': 0b000010,
+  'negative': 0b000100,
+  'equal': 0b001000,
+  'greater': 0b010000,
+  'less': 0b100000,
+}
+
 
 def setOperand1(word, register):
   word |= REGISTERS[register] << OPERAND1_SHIFT
@@ -199,12 +299,100 @@ def setWord2(word, word2):
   word |= word2 << WORD2_SHIFT
   return word
 
+def assembleRegister(word, reg, operand, instruction):
+  opdict = {'operand1': OPERAND1_SHIFT,
+            'operand2': OPERAND2_SHIFT,
+            'results': RESULTS_SHIFT}
+  try:
+    word |= REGISTERS[reg] << opdict[operand]
+  except KeyError:
+    errmess = f'\"{args[0]}\" is not a valid register'
+    error(errmess, instruction['line'], instruction['path'], 3)
+  return word
+
+def assembleArgument2(word, argument, dict, instruction, variables, number):
+  found = False
+  for var in variables:
+    if argument == var['name']:
+      found = True
+      if var['type'] in LOAD_CONST:
+        word = setWord2(word, int(var['value']))
+      else:
+        word = setWord2(word, int(var['address']))
+      word = setOpvar(word, dict[var['type']])
+      if var['type'] == 'rom':
+        warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
+        warning(warnmess, instruction['line'], instruction['path'], 6)
+      break
+  if not found:
+    # could still be a number XD
+    numstring = str(argument)
+    if re.search(number, numstring) != None:
+      word = setWord2(word, eval(numstring))
+      word = setOpvar(word, dict['number'])
+    else:
+      errmess = f'\"{argument}\" is not defined'
+      error(errmess, instruction['line'], instruction['path'], 1)
+  return word
+
+def assembleArgument2Store(word, argument, dict, instruction, variables, number):
+  validTable = ['ram', 'gpu']
+  found = False
+  for var in variables:
+    if argument == var['name']:
+      found = True
+      if var['type'] not in validTable:
+        errmess = f'\"{argument}\" must be a writable variable'
+        error(errmess, instruction['line'], instruction['path'], 1)
+      word = setWord2(word, int(var['address']))
+      word = setOpvar(word, dict[var['type']])
+      break
+  if not found:
+    # could still be a number XD
+    numstring = str(argument)
+    if re.search(number, numstring) != None:
+      errmess = f'\"{argument}\" must be a writable variable'
+      error(errmess, instruction['line'], instruction['path'], 1)
+    else:
+      errmess = f'\"{argument}\" is not defined'
+      error(errmess, instruction['line'], instruction['path'], 1)
+  return word
+
+def assembleLabel(word, arg, labels, instruction):
+  found = False
+  for label in labels:
+    if label['name'] == arg:
+      found = True
+      word = setWord2(word, label['address'])
+      break
+  if not found:
+    errmess = f'\"{inst}\" is not defined'
+    error(errmess, instruction['line'], instruction['path'], 4)
+  return word
+
+def checkNumArgs(args, argtarget, name, instruction):
+  if len(args) != argtarget:
+    errmess = f'\"{name}\" takes exactly two arguments'
+    error(errmess, instruction['line'], instruction['path'], 4)
+
+def assembleCondJump(word, arg, instruction):
+  try:
+    word |= CONDITIONS[arg] << OPERAND1_SHIFT
+  except KeyError:
+    errmess = f'\"{arg}\" must be a valid condition'
+    error(errmess, instruction['line'], instruction['path'], 4)
+  return word
+
+##############################################################
+### Assembly Main Loop
+##############################################################
+
 def assembleInstructions(instructions, variables, labels):
 
-  number = re.compile('([1-9][0-9_]*)|(0x[0-9A-Fa-f][0-9A-Fa-f_]*)|(0b[10][10_]*)|0')
+  number = re.compile('\\b(([1-9][0-9_]*)|(0x[0-9A-Fa-f][0-9A-Fa-f_]*)|(0b[10][10_]*)|0)\\b')
 
-  mathops = ['add', 'sub', 'mul', 'div', 'mod',
-             'and', 'or', 'xor', 'not', 'lsr', 'lsl']
+  mathops = ['cmp', 'add', 'sub', 'mul', 'div', 'mod',
+             'and', 'or',  'xor', 'not', 'lsr', 'lsl']
 
   machine = np.empty(len(instructions), dtype='u4')
 
@@ -212,19 +400,15 @@ def assembleInstructions(instructions, variables, labels):
     word = 0
     inst = instructions[i]['mnemonic']
     word = setOpcode(word, inst)
+    args = instructions[i]['arguments']
 
     if inst in mathops:
-      args = instructions[i]['arguments']
 
       if len(args) < 2 or len(args) > 3:
         errmess = f'\"{inst}\" needs at least two arguments and takes no more than three'
         error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
 
-      try:
-        word = setOperand1(word, args[0])
-      except KeyError:
-        errmess = f'\"{args[0]}\" is not a valid register'
-        error(errmess, instructions[i]['line'], instructions[i]['path'], 3)
+      word = assembleRegister(word, args[0], 'operand1', instructions[i])
 
       # since the second argument can be many different things,
       # it's not immdiately an error if the argument is not a register
@@ -232,40 +416,82 @@ def assembleInstructions(instructions, variables, labels):
         word = setOperand2(word, args[1])
         word = setOpvar(word, MATH_DICT['reg'])
       except KeyError:
-        found = False
-        for var in variables:
-          if args[1] == var['name']:
-            found = True
-            word = setWord2(word, int(var['value']))
-            word = setOpvar(word, MATH_DICT[var['type']])
-            if var['type'] == 'rom':
-              warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
-              warning(warnmess, instructions[i]['line'], instructions[i]['path'], 6)
-            break
-        if not found:
-          # could still be a number XD
-          numstring = str(args[1])
-          if re.search(number, numstring) != None:
-            word = setWord2(word, eval(numstring))
-            word = setOpvar(word, MATH_IMM)
-          else:
-            errmess = f'\"{args[1]}\" is not defined'
-            error(errmess, instructions[i]['line'], instructions[i]['path'], 1)
+        word = assembleArgument2(word, args[1], MATH_DICT, instructions[i], variables, number)
 
-        if len(args) == 3:
-          try:
-            word = setResults(word, args[2])
-          except KeyError:
-            errmess = f'\"{args[2]}\" is not a valid register'
-            error(errmess, instructions[i]['line'], instructions[i]['path'], 2)
-        else:
-          word = setResults(word, args[0])
+      if len(args) == 3:
+        if 'inst' == 'cmp':
+          errmess = f'\"{inst}\" takes exactly two arguments, ignoring \"{args[2]}\"'
+          warning(errmess, instructions[i]['line'], instructions[i]['path'], 4)
+        word = assembleRegister(word, args[2], 'results', instructions[i])
+      else:
+        word = assembleRegister(word, args[0], 'results', instructions[i])
 
     elif inst == 'nop':
-      pass
+      checkNumArgs(args, 0, inst, instructions[i])
+
     elif inst == 'ldr':
-      pass
+      checkNumArgs(args, 2, inst, instructions[i])
+
+      word = assembleRegister(word, args[0], 'results', instructions[i])
+      # TODO -- this doesn't quite work, since ldr CAN load rom values directly,
+      # but this method throws a warning if you try to load a rom value
+      word = assembleArgument2(word, args[1], LOAD_DICT, instructions[i], variables, number)
+    elif inst == 'str':
+      checkNumArgs(args, 2, inst, instructions[i])
+
+      word = assembleRegister(word, args[0], 'operand1', instructions[i])
+      word = assembleArgument2Store(word, args[1], STORE_DICT, instructions[i], variables, number)
+    elif inst == 'lpt':
+      checkNumArgs(args, 2, inst, instructions[i])
+
+      word = assembleRegister(word, args[0], 'results', instructions[i])
+      try:
+        word = setOpvar(word, LOAD_PTR_DICT[args[1]])
+      except KeyError:
+        errmess = f'\"{inst}\" must be \"ram,\" \"rom,\" or \"gpu\"'
+        error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
+
+    elif inst == 'spt':
+      checkNumArgs(args, 2, inst, instructions[i])
+
+      word = assembleRegister(word, args[0], 'operand1', instructions[i])
+      try:
+        word = setOpvar(word, STORE_PTR_DICT[args[1]])
+      except KeyError:
+        errmess = f'\"{inst}\" must be \"ram\" or \"gpu\"'
+        error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
+
+    elif inst == 'jmp' or inst == 'jsr':
+      checkNumArgs(args, 1, inst, instructions[i])
+
+      word = assembleLabel(word, args[0], labels, instructions[i])
+
+    elif inst == 'joc' or inst == 'jsc':
+      checkNumArgs(args, 2, inst, instructions[i])
+
+      word = assembleLabel(word, args[1], labels, instructions[i])
+      word = assembleCondJump(word, args[0], instructions[i])
+
+    elif inst == 'rts':
+      checkNumArgs(args, 0, inst, instructions[i])
+
+    elif inst == 'rsc':
+      checkNumArgs(args, 1, inst, instructions[i])
+      word = assembleCondJump(word, args[0], instructions[i])
 
     machine[i] = word
+
+  return machine
+
+def assembleVariables(variables, ramBitWidth):
+  biggestAddress = 0
+  for var in variables:
+    if var['type'] == 'rom' and int(var['address']) > biggestAddress:
+      biggestAddress = var['address']
+  machine = np.empty(biggestAddress + 1, dtype=f'u{math.ceil(ramBitWidth/8)}')
+
+  for var in variables:
+    if var['type'] == 'rom':
+      machine[int(var['address'])] = var['value']
 
   return machine
