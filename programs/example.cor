@@ -1,4 +1,4 @@
-import libs.tracker as t
+import libs.tracker
 import libs.freqs
 
 ldr g, 0 // rom pointer
@@ -7,8 +7,10 @@ ldr f, 0 // rom pointer mem
 ldr a, 30
 str a, RB000 // loading saw accumulator
 
+rom test = 10
 
 main:
+  add a, test
   jsr readFrame
   jsr delay
   jmp main

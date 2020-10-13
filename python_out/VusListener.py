@@ -102,10 +102,11 @@ class Instructions:
     self.size = 0
 
   # ['mnemonic', 'address', 'args']
-  def add(self, mnemonic, args):
+  def add(self, mnemonic, args, line, path):
     address = self.size
     self.size += 1
-    self.instructions.append({'mnemonic': mnemonic, 'address': address, 'args': args})
+    self.instructions.append({'mnemonic': mnemonic, 'address': address,
+                              'arguments': args, 'line': line, 'path': path})
 
   def getAddress(self):
     return self.size
@@ -140,7 +141,7 @@ class Labels:
 
 class VusListener(CorListener) :
 
-  def __init__(self, mainName, ramStartAddress):
+  def __init__(self, mainName, ramStartAddress, fullpath):
     self.variables = Variables(ramStartAddress)
     self.instructions = Instructions()
     self.labels = Labels()
@@ -156,6 +157,8 @@ class VusListener(CorListener) :
       'TX_FULL', 'RX_EMPTY', 'RX_FULL'
     ]
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
+    self.fullpath = fullpath
+    self.stream = None
 
   def scope(self, input):
     if self.variableRegex.search(input) != None:
@@ -166,8 +169,10 @@ class VusListener(CorListener) :
           input = self.currentName + '.' + input
     return input
 
-  def setName(self, name):
+  def setName(self, name, fullpath, stream):
     self.currentName = name
+    self.fullpath = fullpath
+    self.stream = stream
 
   def getVariables(self):
     return self.variables
@@ -184,6 +189,7 @@ class VusListener(CorListener) :
   def reset(self):
     self.instructions = Instructions()
     self.labels = Labels()
+
 
   # Enter a parse tree produced by CorParser#parse.
   def enterParse(self, ctx:CorParser.ParseContext):
@@ -222,7 +228,7 @@ class VusListener(CorListener) :
   # Exit a parse tree produced by CorParser#assignment_arr.
   def exitAssignment_arr(self, ctx:CorParser.Assignment_arrContext):
       varType = ctx.CONST().getText()
-      name = ctx.array().VARIABLE().getText()
+      name = self.scope(ctx.array().VARIABLE().getText())
       numDimensions = ctx.array().getChildCount() - 3
       dimensions = []
 
@@ -253,13 +259,13 @@ class VusListener(CorListener) :
   # Exit a parse tree produced by CorParser#declaration.
   def exitDeclaration(self, ctx:CorParser.DeclarationContext):
       if ctx.getChildCount() == 2: # simple declaration
-        self.variables.add(ctx.RAM().getText(), ctx.VARIABLE().getText(), 'NaN')
+        self.variables.add(self.scope(ctx.RAM().getText()), ctx.VARIABLE().getText(), 0)
       else: # array
         # adding sneaky precompiler variable to mimic the behavior of C arrays
-        self.variables.add('pre', ctx.VARIABLE().getText(), self.variables.size['ram'])
+        self.variables.add('pre', self.scope(ctx.VARIABLE().getText()), self.variables.size['ram'])
 
         varType = ctx.RAM().getText()
-        name = ctx.VARIABLE().getText()
+        name = self.scope(ctx.VARIABLE().getText())
         dimensions = ctx.getChildCount() - 2
 
         if dimensions > 1:
@@ -269,7 +275,7 @@ class VusListener(CorListener) :
         size = self.variables.calc(ctx.getChild(2).expression().getText(), self)
 
         for i in range(size):
-          self.variables.add(varType, name + f'[{i}]', 'NaN')
+          self.variables.add(varType, name + f'[{i}]', 0)
 
 
 
@@ -294,7 +300,8 @@ class VusListener(CorListener) :
         else:
           tempargs.append(self.scope(arg.getText()))
 
-      self.instructions.add(mnem, tempargs)
+      linenum = self.stream.get(ctx.getSourceInterval()[0]).line
+      self.instructions.add(mnem, tempargs, linenum, self.fullpath)
 
 
 class ImportListener(CorListener):
@@ -308,7 +315,7 @@ class ImportListener(CorListener):
     # from any arbitrary calling path
     self.workingDirectory = infile[:nameIndex] if nameIndex > 0 else './'
     self.currentPrefix = ''
-    print(infile)
+    # print(infile)
     name = infile[nameIndex:].replace('.cor', '')
 
     self.imports = [{'name': name, 'path': infile}]
