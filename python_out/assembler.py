@@ -37,14 +37,22 @@ def main(argv):
     exit(1)
 
   length = len(argv)
-  for i in range(length):
-    if argv[i] in options_args:
-      if i == length - 1 or argv[i + 1] in options_args or argv[i + 1] in options_noargs:
-        print(f"Error: expected argument after option {argv[i]}", end='\n\n')
+  tempargs = argv
+  for i in range(length - 1, -1, -1):
+    if tempargs[i] in options_args:
+      if i == length - 1 or tempargs[i + 1] in options_args or tempargs[i + 1] in options_noargs:
+        print(f"Error: expected argument after option {tempargs[i]}", end='\n\n')
         exit(1)
-      options_args[argv[i]] = argv[i + 1]
-    elif argv[i] in options_noargs:
-      options_noargs[argv[i]] = True
+      options_args[tempargs[i]] = tempargs[i + 1]
+      tempargs.pop(i)
+      tempargs.pop(i)
+    elif tempargs[i] in options_noargs:
+      options_noargs[tempargs[i]] = True
+      tempargs.pop(i)
+
+  if len(tempargs) > 2:
+    print(f'Error: undefined option \"{tempargs[2]}\"\n')
+    exit(1)
 
 
   ##############################################################
@@ -54,7 +62,11 @@ def main(argv):
   # sorting out file imports
   importListener = ImportListener(infile)
 
-  input = FileStream(infile)
+  try:
+    input = FileStream(infile)
+  except FileNotFoundError:
+    print(f'Error: cannot find file \"{infile}\"\n')
+    exit(1)
   lexer = CorLexer(input)
   stream = CommonTokenStream(lexer)
   parser = CorParser(stream)
@@ -63,8 +75,6 @@ def main(argv):
 
   # recursively seraches through files until all are added to imports list
   walker.walk(importListener, tree)
-
-  # print(importListener.imports)
 
   # proper parsing
   listener = VusListener(importListener.getImports()[-1]['name'], RAM_ADDRESS_BEGIN, importListener.imports[-1]['path'], SYSVARS)
@@ -89,6 +99,10 @@ def main(argv):
   numInstructions = listener.getNumInstructions()
   labels.insert(listener.getLabels().getLabels(), numInstructions)
   instructions.insert(listener.getInstructions().getInstructions(), numInstructions)
+
+  ##############################################################
+  ### OUTPUT
+  ##############################################################
 
   debug(options_args, options_noargs, instructions, listener.getVariables(), labels)
 

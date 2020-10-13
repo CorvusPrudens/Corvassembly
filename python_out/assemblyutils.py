@@ -403,13 +403,10 @@ def assembleInstructions(instructions, variables, labels):
     args = instructions[i]['arguments']
 
     if inst in mathops:
-
       if len(args) < 2 or len(args) > 3:
         errmess = f'\"{inst}\" needs at least two arguments and takes no more than three'
         error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
-
       word = assembleRegister(word, args[0], 'operand1', instructions[i])
-
       # since the second argument can be many different things,
       # it's not immdiately an error if the argument is not a register
       try:
@@ -417,7 +414,6 @@ def assembleInstructions(instructions, variables, labels):
         word = setOpvar(word, MATH_DICT['reg'])
       except KeyError:
         word = assembleArgument2(word, args[1], MATH_DICT, instructions[i], variables, number)
-
       if len(args) == 3:
         if 'inst' == 'cmp':
           errmess = f'\"{inst}\" takes exactly two arguments, ignoring \"{args[2]}\"'
@@ -431,19 +427,18 @@ def assembleInstructions(instructions, variables, labels):
 
     elif inst == 'ldr':
       checkNumArgs(args, 2, inst, instructions[i])
-
       word = assembleRegister(word, args[0], 'results', instructions[i])
       # TODO -- this doesn't quite work, since ldr CAN load rom values directly,
       # but this method throws a warning if you try to load a rom value
       word = assembleArgument2(word, args[1], LOAD_DICT, instructions[i], variables, number)
+
     elif inst == 'str':
       checkNumArgs(args, 2, inst, instructions[i])
-
       word = assembleRegister(word, args[0], 'operand1', instructions[i])
       word = assembleArgument2Store(word, args[1], STORE_DICT, instructions[i], variables, number)
+
     elif inst == 'lpt':
       checkNumArgs(args, 2, inst, instructions[i])
-
       word = assembleRegister(word, args[0], 'results', instructions[i])
       try:
         word = setOpvar(word, LOAD_PTR_DICT[args[1]])
@@ -453,7 +448,6 @@ def assembleInstructions(instructions, variables, labels):
 
     elif inst == 'spt':
       checkNumArgs(args, 2, inst, instructions[i])
-
       word = assembleRegister(word, args[0], 'operand1', instructions[i])
       try:
         word = setOpvar(word, STORE_PTR_DICT[args[1]])
@@ -463,12 +457,10 @@ def assembleInstructions(instructions, variables, labels):
 
     elif inst == 'jmp' or inst == 'jsr':
       checkNumArgs(args, 1, inst, instructions[i])
-
       word = assembleLabel(word, args[0], labels, instructions[i])
 
     elif inst == 'joc' or inst == 'jsc':
       checkNumArgs(args, 2, inst, instructions[i])
-
       word = assembleLabel(word, args[1], labels, instructions[i])
       word = assembleCondJump(word, args[0], instructions[i])
 

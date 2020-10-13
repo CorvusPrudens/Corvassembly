@@ -381,8 +381,13 @@ class ImportListener(CorListener):
             # the variables in depends_on_one will appear before one, potentially
             # causing errors
             self.imports.insert(0, tempdict)
-
-            input = FileStream(tempdict['path'])
+            # TODO -- this needs to be expanded so that it is clear where
+            # the file is imported!
+            try:
+              input = FileStream(tempdict['path'])
+            except FileNotFoundError:
+              print(f'Error: cannot find file \"{tempdict["path"]}\"\n')
+              exit(1)
             lexer = CorLexer(input)
             stream = CommonTokenStream(lexer)
             parser = CorParser(stream)
