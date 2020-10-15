@@ -11,75 +11,91 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\27")
-        buf.write("\u00b3\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\34")
+        buf.write("\u00d1\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
-        buf.write("\4\24\t\24\4\25\t\25\3\2\3\2\7\2-\n\2\f\2\16\2\60\13\2")
-        buf.write("\3\2\3\2\3\3\3\3\7\3\66\n\3\f\3\16\39\13\3\3\4\3\4\3\4")
-        buf.write("\3\4\5\4?\n\4\3\5\3\5\7\5C\n\5\f\5\16\5F\13\5\3\6\3\6")
-        buf.write("\3\6\3\6\5\6L\n\6\3\7\3\7\3\7\3\7\3\7\3\b\3\b\3\b\3\t")
-        buf.write("\3\t\3\t\7\tY\n\t\f\t\16\t\\\13\t\3\n\3\n\3\n\5\na\n\n")
-        buf.write("\3\13\3\13\6\13e\n\13\r\13\16\13f\3\13\3\13\3\13\5\13")
-        buf.write("l\n\13\3\f\3\f\3\r\3\r\3\16\3\16\6\16t\n\16\r\16\16\16")
-        buf.write("u\3\16\3\16\3\16\5\16{\n\16\3\17\3\17\3\20\3\20\5\20\u0081")
-        buf.write("\n\20\3\20\3\20\3\21\3\21\3\21\3\21\5\21\u0089\n\21\3")
-        buf.write("\21\3\21\7\21\u008d\n\21\f\21\16\21\u0090\13\21\3\21\3")
-        buf.write("\21\3\21\5\21\u0095\n\21\3\21\5\21\u0098\n\21\3\21\3\21")
-        buf.write("\3\22\3\22\3\22\3\22\7\22\u00a0\n\22\f\22\16\22\u00a3")
-        buf.write("\13\22\5\22\u00a5\n\22\3\23\3\23\3\23\3\23\3\23\5\23\u00ac")
-        buf.write("\n\23\3\24\3\24\3\25\3\25\3\25\3\25\2\2\26\2\4\6\b\n\f")
-        buf.write("\16\20\22\24\26\30\32\34\36 \"$&(\2\4\4\2\13\13\24\24")
-        buf.write("\4\2\24\24\27\27\2\u00ba\2*\3\2\2\2\4\63\3\2\2\2\6:\3")
-        buf.write("\2\2\2\bD\3\2\2\2\nK\3\2\2\2\fM\3\2\2\2\16R\3\2\2\2\20")
-        buf.write("U\3\2\2\2\22`\3\2\2\2\24k\3\2\2\2\26m\3\2\2\2\30o\3\2")
-        buf.write("\2\2\32q\3\2\2\2\34|\3\2\2\2\36~\3\2\2\2 \u0084\3\2\2")
-        buf.write("\2\"\u009b\3\2\2\2$\u00ab\3\2\2\2&\u00ad\3\2\2\2(\u00af")
-        buf.write("\3\2\2\2*.\5\b\5\2+-\5\4\3\2,+\3\2\2\2-\60\3\2\2\2.,\3")
-        buf.write("\2\2\2./\3\2\2\2/\61\3\2\2\2\60.\3\2\2\2\61\62\7\2\2\3")
-        buf.write("\62\3\3\2\2\2\63\67\5(\25\2\64\66\5\n\6\2\65\64\3\2\2")
-        buf.write("\2\669\3\2\2\2\67\65\3\2\2\2\678\3\2\2\28\5\3\2\2\29\67")
-        buf.write("\3\2\2\2:;\7\t\2\2;>\t\2\2\2<=\7\n\2\2=?\7\24\2\2><\3")
-        buf.write("\2\2\2>?\3\2\2\2?\7\3\2\2\2@C\5\n\6\2AC\5\6\4\2B@\3\2")
-        buf.write("\2\2BA\3\2\2\2CF\3\2\2\2DB\3\2\2\2DE\3\2\2\2E\t\3\2\2")
-        buf.write("\2FD\3\2\2\2GL\5\20\t\2HL\5\f\7\2IL\5\16\b\2JL\5\"\22")
-        buf.write("\2KG\3\2\2\2KH\3\2\2\2KI\3\2\2\2KJ\3\2\2\2L\13\3\2\2\2")
-        buf.write("MN\7\7\2\2NO\7\24\2\2OP\7\3\2\2PQ\5\22\n\2Q\r\3\2\2\2")
-        buf.write("RS\7\7\2\2ST\5\32\16\2T\17\3\2\2\2UV\7\6\2\2VZ\7\24\2")
-        buf.write("\2WY\5\36\20\2XW\3\2\2\2Y\\\3\2\2\2ZX\3\2\2\2Z[\3\2\2")
-        buf.write("\2[\21\3\2\2\2\\Z\3\2\2\2]a\5\26\f\2^a\5\30\r\2_a\5\24")
-        buf.write("\13\2`]\3\2\2\2`^\3\2\2\2`_\3\2\2\2a\23\3\2\2\2bc\t\3")
-        buf.write("\2\2ce\7\26\2\2db\3\2\2\2ef\3\2\2\2fd\3\2\2\2fg\3\2\2")
-        buf.write("\2gh\3\2\2\2hl\t\3\2\2ij\7\26\2\2jl\t\3\2\2kd\3\2\2\2")
-        buf.write("ki\3\2\2\2l\25\3\2\2\2mn\7\27\2\2n\27\3\2\2\2op\7\24\2")
-        buf.write("\2p\31\3\2\2\2qs\7\24\2\2rt\5\36\20\2sr\3\2\2\2tu\3\2")
-        buf.write("\2\2us\3\2\2\2uv\3\2\2\2vw\3\2\2\2wz\7\3\2\2x{\5 \21\2")
-        buf.write("y{\5\34\17\2zx\3\2\2\2zy\3\2\2\2{\33\3\2\2\2|}\7\13\2")
-        buf.write("\2}\35\3\2\2\2~\u0080\7\16\2\2\177\u0081\5\22\n\2\u0080")
-        buf.write("\177\3\2\2\2\u0080\u0081\3\2\2\2\u0081\u0082\3\2\2\2\u0082")
-        buf.write("\u0083\7\17\2\2\u0083\37\3\2\2\2\u0084\u008e\7\20\2\2")
-        buf.write("\u0085\u0089\5\22\n\2\u0086\u0089\5 \21\2\u0087\u0089")
-        buf.write("\5\34\17\2\u0088\u0085\3\2\2\2\u0088\u0086\3\2\2\2\u0088")
-        buf.write("\u0087\3\2\2\2\u0089\u008a\3\2\2\2\u008a\u008b\7\4\2\2")
-        buf.write("\u008b\u008d\3\2\2\2\u008c\u0088\3\2\2\2\u008d\u0090\3")
-        buf.write("\2\2\2\u008e\u008c\3\2\2\2\u008e\u008f\3\2\2\2\u008f\u0094")
-        buf.write("\3\2\2\2\u0090\u008e\3\2\2\2\u0091\u0095\5\22\n\2\u0092")
-        buf.write("\u0095\5 \21\2\u0093\u0095\5\34\17\2\u0094\u0091\3\2\2")
-        buf.write("\2\u0094\u0092\3\2\2\2\u0094\u0093\3\2\2\2\u0095\u0097")
-        buf.write("\3\2\2\2\u0096\u0098\7\4\2\2\u0097\u0096\3\2\2\2\u0097")
-        buf.write("\u0098\3\2\2\2\u0098\u0099\3\2\2\2\u0099\u009a\7\21\2")
-        buf.write("\2\u009a!\3\2\2\2\u009b\u00a4\7\23\2\2\u009c\u00a1\5$")
-        buf.write("\23\2\u009d\u009e\7\4\2\2\u009e\u00a0\5$\23\2\u009f\u009d")
-        buf.write("\3\2\2\2\u00a0\u00a3\3\2\2\2\u00a1\u009f\3\2\2\2\u00a1")
-        buf.write("\u00a2\3\2\2\2\u00a2\u00a5\3\2\2\2\u00a3\u00a1\3\2\2\2")
-        buf.write("\u00a4\u009c\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5#\3\2\2")
-        buf.write("\2\u00a6\u00ac\5&\24\2\u00a7\u00ac\5\22\n\2\u00a8\u00ac")
-        buf.write("\7\6\2\2\u00a9\u00ac\7\7\2\2\u00aa\u00ac\7\b\2\2\u00ab")
-        buf.write("\u00a6\3\2\2\2\u00ab\u00a7\3\2\2\2\u00ab\u00a8\3\2\2\2")
-        buf.write("\u00ab\u00a9\3\2\2\2\u00ab\u00aa\3\2\2\2\u00ac%\3\2\2")
-        buf.write("\2\u00ad\u00ae\7\22\2\2\u00ae\'\3\2\2\2\u00af\u00b0\7")
-        buf.write("\24\2\2\u00b0\u00b1\7\5\2\2\u00b1)\3\2\2\2\26.\67>BDK")
-        buf.write("Z`fkuz\u0080\u0088\u008e\u0094\u0097\u00a1\u00a4\u00ab")
+        buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\3\2")
+        buf.write("\3\2\7\2\63\n\2\f\2\16\2\66\13\2\3\2\3\2\3\3\3\3\3\3\7")
+        buf.write("\3=\n\3\f\3\16\3@\13\3\3\4\3\4\3\4\3\4\5\4F\n\4\3\5\3")
+        buf.write("\5\7\5J\n\5\f\5\16\5M\13\5\3\6\3\6\3\6\3\6\5\6S\n\6\3")
+        buf.write("\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b")
+        buf.write("\7\bc\n\b\f\b\16\bf\13\b\3\b\3\b\3\t\3\t\3\n\3\n\3\n\3")
+        buf.write("\n\3\n\3\13\3\13\3\13\3\f\3\f\3\f\7\fw\n\f\f\f\16\fz\13")
+        buf.write("\f\3\r\3\r\3\r\5\r\177\n\r\3\16\3\16\6\16\u0083\n\16\r")
+        buf.write("\16\16\16\u0084\3\16\3\16\3\16\5\16\u008a\n\16\3\17\3")
+        buf.write("\17\3\20\3\20\3\21\3\21\6\21\u0092\n\21\r\21\16\21\u0093")
+        buf.write("\3\21\3\21\3\21\5\21\u0099\n\21\3\22\3\22\3\23\3\23\5")
+        buf.write("\23\u009f\n\23\3\23\3\23\3\24\3\24\3\24\3\24\5\24\u00a7")
+        buf.write("\n\24\3\24\3\24\7\24\u00ab\n\24\f\24\16\24\u00ae\13\24")
+        buf.write("\3\24\3\24\3\24\5\24\u00b3\n\24\3\24\5\24\u00b6\n\24\3")
+        buf.write("\24\3\24\3\25\3\25\3\25\3\25\7\25\u00be\n\25\f\25\16\25")
+        buf.write("\u00c1\13\25\5\25\u00c3\n\25\3\26\3\26\3\26\3\26\3\26")
+        buf.write("\5\26\u00ca\n\26\3\27\3\27\3\30\3\30\3\30\3\30\2\2\31")
+        buf.write("\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\2\5\4")
+        buf.write("\2\6\6\31\31\3\2\17\21\4\2\31\31\34\34\2\u00da\2\60\3")
+        buf.write("\2\2\2\49\3\2\2\2\6A\3\2\2\2\bK\3\2\2\2\nR\3\2\2\2\fT")
+        buf.write("\3\2\2\2\16V\3\2\2\2\20i\3\2\2\2\22k\3\2\2\2\24p\3\2\2")
+        buf.write("\2\26s\3\2\2\2\30~\3\2\2\2\32\u0089\3\2\2\2\34\u008b\3")
+        buf.write("\2\2\2\36\u008d\3\2\2\2 \u008f\3\2\2\2\"\u009a\3\2\2\2")
+        buf.write("$\u009c\3\2\2\2&\u00a2\3\2\2\2(\u00b9\3\2\2\2*\u00c9\3")
+        buf.write("\2\2\2,\u00cb\3\2\2\2.\u00cd\3\2\2\2\60\64\5\b\5\2\61")
+        buf.write("\63\5\4\3\2\62\61\3\2\2\2\63\66\3\2\2\2\64\62\3\2\2\2")
+        buf.write("\64\65\3\2\2\2\65\67\3\2\2\2\66\64\3\2\2\2\678\7\2\2\3")
+        buf.write("8\3\3\2\2\29>\5.\30\2:=\5\n\6\2;=\5\f\7\2<:\3\2\2\2<;")
+        buf.write("\3\2\2\2=@\3\2\2\2><\3\2\2\2>?\3\2\2\2?\5\3\2\2\2@>\3")
+        buf.write("\2\2\2AB\7\f\2\2BE\t\2\2\2CD\7\r\2\2DF\7\31\2\2EC\3\2")
+        buf.write("\2\2EF\3\2\2\2F\7\3\2\2\2GJ\5\n\6\2HJ\5\6\4\2IG\3\2\2")
+        buf.write("\2IH\3\2\2\2JM\3\2\2\2KI\3\2\2\2KL\3\2\2\2L\t\3\2\2\2")
+        buf.write("MK\3\2\2\2NS\5\26\f\2OS\5\22\n\2PS\5\24\13\2QS\5(\25\2")
+        buf.write("RN\3\2\2\2RO\3\2\2\2RP\3\2\2\2RQ\3\2\2\2S\13\3\2\2\2T")
+        buf.write("U\5\16\b\2U\r\3\2\2\2VW\7\16\2\2WX\5(\25\2XY\7\22\2\2")
+        buf.write("YZ\5(\25\2Z[\7\22\2\2[\\\5(\25\2\\]\7\22\2\2]d\7\25\2")
+        buf.write("\2^c\5.\30\2_c\5(\25\2`c\5\20\t\2ac\5\16\b\2b^\3\2\2\2")
+        buf.write("b_\3\2\2\2b`\3\2\2\2ba\3\2\2\2cf\3\2\2\2db\3\2\2\2de\3")
+        buf.write("\2\2\2eg\3\2\2\2fd\3\2\2\2gh\7\26\2\2h\17\3\2\2\2ij\t")
+        buf.write("\3\2\2j\21\3\2\2\2kl\7\n\2\2lm\7\31\2\2mn\7\3\2\2no\5")
+        buf.write("\30\r\2o\23\3\2\2\2pq\7\n\2\2qr\5 \21\2r\25\3\2\2\2st")
+        buf.write("\7\t\2\2tx\7\31\2\2uw\5$\23\2vu\3\2\2\2wz\3\2\2\2xv\3")
+        buf.write("\2\2\2xy\3\2\2\2y\27\3\2\2\2zx\3\2\2\2{\177\5\34\17\2")
+        buf.write("|\177\5\36\20\2}\177\5\32\16\2~{\3\2\2\2~|\3\2\2\2~}\3")
+        buf.write("\2\2\2\177\31\3\2\2\2\u0080\u0081\t\4\2\2\u0081\u0083")
+        buf.write("\7\33\2\2\u0082\u0080\3\2\2\2\u0083\u0084\3\2\2\2\u0084")
+        buf.write("\u0082\3\2\2\2\u0084\u0085\3\2\2\2\u0085\u0086\3\2\2\2")
+        buf.write("\u0086\u008a\t\4\2\2\u0087\u0088\7\33\2\2\u0088\u008a")
+        buf.write("\t\4\2\2\u0089\u0082\3\2\2\2\u0089\u0087\3\2\2\2\u008a")
+        buf.write("\33\3\2\2\2\u008b\u008c\7\34\2\2\u008c\35\3\2\2\2\u008d")
+        buf.write("\u008e\7\31\2\2\u008e\37\3\2\2\2\u008f\u0091\7\31\2\2")
+        buf.write("\u0090\u0092\5$\23\2\u0091\u0090\3\2\2\2\u0092\u0093\3")
+        buf.write("\2\2\2\u0093\u0091\3\2\2\2\u0093\u0094\3\2\2\2\u0094\u0095")
+        buf.write("\3\2\2\2\u0095\u0098\7\3\2\2\u0096\u0099\5&\24\2\u0097")
+        buf.write("\u0099\5\"\22\2\u0098\u0096\3\2\2\2\u0098\u0097\3\2\2")
+        buf.write("\2\u0099!\3\2\2\2\u009a\u009b\7\6\2\2\u009b#\3\2\2\2\u009c")
+        buf.write("\u009e\7\23\2\2\u009d\u009f\5\30\r\2\u009e\u009d\3\2\2")
+        buf.write("\2\u009e\u009f\3\2\2\2\u009f\u00a0\3\2\2\2\u00a0\u00a1")
+        buf.write("\7\24\2\2\u00a1%\3\2\2\2\u00a2\u00ac\7\25\2\2\u00a3\u00a7")
+        buf.write("\5\30\r\2\u00a4\u00a7\5&\24\2\u00a5\u00a7\5\"\22\2\u00a6")
+        buf.write("\u00a3\3\2\2\2\u00a6\u00a4\3\2\2\2\u00a6\u00a5\3\2\2\2")
+        buf.write("\u00a7\u00a8\3\2\2\2\u00a8\u00a9\7\4\2\2\u00a9\u00ab\3")
+        buf.write("\2\2\2\u00aa\u00a6\3\2\2\2\u00ab\u00ae\3\2\2\2\u00ac\u00aa")
+        buf.write("\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00b2\3\2\2\2\u00ae")
+        buf.write("\u00ac\3\2\2\2\u00af\u00b3\5\30\r\2\u00b0\u00b3\5&\24")
+        buf.write("\2\u00b1\u00b3\5\"\22\2\u00b2\u00af\3\2\2\2\u00b2\u00b0")
+        buf.write("\3\2\2\2\u00b2\u00b1\3\2\2\2\u00b3\u00b5\3\2\2\2\u00b4")
+        buf.write("\u00b6\7\4\2\2\u00b5\u00b4\3\2\2\2\u00b5\u00b6\3\2\2\2")
+        buf.write("\u00b6\u00b7\3\2\2\2\u00b7\u00b8\7\26\2\2\u00b8\'\3\2")
+        buf.write("\2\2\u00b9\u00c2\7\30\2\2\u00ba\u00bf\5*\26\2\u00bb\u00bc")
+        buf.write("\7\4\2\2\u00bc\u00be\5*\26\2\u00bd\u00bb\3\2\2\2\u00be")
+        buf.write("\u00c1\3\2\2\2\u00bf\u00bd\3\2\2\2\u00bf\u00c0\3\2\2\2")
+        buf.write("\u00c0\u00c3\3\2\2\2\u00c1\u00bf\3\2\2\2\u00c2\u00ba\3")
+        buf.write("\2\2\2\u00c2\u00c3\3\2\2\2\u00c3)\3\2\2\2\u00c4\u00ca")
+        buf.write("\5,\27\2\u00c5\u00ca\5\30\r\2\u00c6\u00ca\7\t\2\2\u00c7")
+        buf.write("\u00ca\7\n\2\2\u00c8\u00ca\7\13\2\2\u00c9\u00c4\3\2\2")
+        buf.write("\2\u00c9\u00c5\3\2\2\2\u00c9\u00c6\3\2\2\2\u00c9\u00c7")
+        buf.write("\3\2\2\2\u00c9\u00c8\3\2\2\2\u00ca+\3\2\2\2\u00cb\u00cc")
+        buf.write("\7\27\2\2\u00cc-\3\2\2\2\u00cd\u00ce\7\31\2\2\u00ce\u00cf")
+        buf.write("\7\5\2\2\u00cf/\3\2\2\2\31\64<>EIKRbdx~\u0084\u0089\u0093")
+        buf.write("\u0098\u009e\u00a6\u00ac\u00b2\u00b5\u00bf\u00c2\u00c9")
         return buf.getvalue()
 
 
@@ -93,13 +109,15 @@ class CorParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "'='", "','", "':'", "'ram'", "<INVALID>", 
-                     "'gpu'", "'import'", "'as'", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'['", "']'", "'{'", "'}'" ]
+    literalNames = [ "<INVALID>", "'='", "','", "':'", "<INVALID>", "<INVALID>", 
+                     "<INVALID>", "'ram'", "<INVALID>", "'gpu'", "'import'", 
+                     "'as'", "'for'", "'continue'", "'breakall'", "'break'", 
+                     "';'", "'['", "']'", "'{'", "'}'" ]
 
     symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "RAM", "CONST", "GPU", "IMPORT", "AS", "STRING", "COMMENT", 
-                      "COMMENT_BLOCK", "OBRACKET", "CBRACKET", "OBRACE", 
+                      "STRING", "COMMENT", "COMMENT_BLOCK", "RAM", "CONST", 
+                      "GPU", "IMPORT", "AS", "FOR", "CONTINUE", "BREAKALL", 
+                      "BREAK", "SEMI", "OBRACKET", "CBRACKET", "OBRACE", 
                       "CBRACE", "REGISTER", "MNEMONIC", "VARIABLE", "WHITESPACE", 
                       "OPERATOR", "NUMBER" ]
 
@@ -108,49 +126,58 @@ class CorParser ( Parser ):
     RULE_file_import = 2
     RULE_initial = 3
     RULE_statement = 4
-    RULE_assignment = 5
-    RULE_assignment_arr = 6
-    RULE_declaration = 7
-    RULE_expression = 8
-    RULE_math = 9
-    RULE_exp_number = 10
-    RULE_exp_var = 11
-    RULE_array = 12
-    RULE_string = 13
-    RULE_array_init = 14
-    RULE_arr_data = 15
-    RULE_instruction = 16
-    RULE_argument = 17
-    RULE_register = 18
-    RULE_label = 19
+    RULE_statement_loop = 5
+    RULE_loop = 6
+    RULE_loop_keyword = 7
+    RULE_assignment = 8
+    RULE_assignment_arr = 9
+    RULE_declaration = 10
+    RULE_expression = 11
+    RULE_math = 12
+    RULE_exp_number = 13
+    RULE_exp_var = 14
+    RULE_array = 15
+    RULE_string = 16
+    RULE_array_init = 17
+    RULE_arr_data = 18
+    RULE_instruction = 19
+    RULE_argument = 20
+    RULE_register = 21
+    RULE_label = 22
 
     ruleNames =  [ "parse", "block", "file_import", "initial", "statement", 
-                   "assignment", "assignment_arr", "declaration", "expression", 
-                   "math", "exp_number", "exp_var", "array", "string", "array_init", 
+                   "statement_loop", "loop", "loop_keyword", "assignment", 
+                   "assignment_arr", "declaration", "expression", "math", 
+                   "exp_number", "exp_var", "array", "string", "array_init", 
                    "arr_data", "instruction", "argument", "register", "label" ]
 
     EOF = Token.EOF
     T__0=1
     T__1=2
     T__2=3
-    RAM=4
-    CONST=5
-    GPU=6
-    IMPORT=7
-    AS=8
-    STRING=9
-    COMMENT=10
-    COMMENT_BLOCK=11
-    OBRACKET=12
-    CBRACKET=13
-    OBRACE=14
-    CBRACE=15
-    REGISTER=16
-    MNEMONIC=17
-    VARIABLE=18
-    WHITESPACE=19
-    OPERATOR=20
-    NUMBER=21
+    STRING=4
+    COMMENT=5
+    COMMENT_BLOCK=6
+    RAM=7
+    CONST=8
+    GPU=9
+    IMPORT=10
+    AS=11
+    FOR=12
+    CONTINUE=13
+    BREAKALL=14
+    BREAK=15
+    SEMI=16
+    OBRACKET=17
+    CBRACKET=18
+    OBRACE=19
+    CBRACE=20
+    REGISTER=21
+    MNEMONIC=22
+    VARIABLE=23
+    WHITESPACE=24
+    OPERATOR=25
+    NUMBER=26
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -202,19 +229,19 @@ class CorParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 40
+            self.state = 46
             self.initial()
-            self.state = 44
+            self.state = 50
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==CorParser.VARIABLE:
-                self.state = 41
+                self.state = 47
                 self.block()
-                self.state = 46
+                self.state = 52
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 47
+            self.state = 53
             self.match(CorParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -242,6 +269,13 @@ class CorParser ( Parser ):
                 return self.getTypedRuleContext(CorParser.StatementContext,i)
 
 
+        def statement_loop(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(CorParser.Statement_loopContext)
+            else:
+                return self.getTypedRuleContext(CorParser.Statement_loopContext,i)
+
+
         def getRuleIndex(self):
             return CorParser.RULE_block
 
@@ -263,15 +297,27 @@ class CorParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 49
+            self.state = 55
             self.label()
-            self.state = 53
+            self.state = 60
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.RAM) | (1 << CorParser.CONST) | (1 << CorParser.MNEMONIC))) != 0):
-                self.state = 50
-                self.statement()
-                self.state = 55
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.RAM) | (1 << CorParser.CONST) | (1 << CorParser.FOR) | (1 << CorParser.MNEMONIC))) != 0):
+                self.state = 58
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [CorParser.RAM, CorParser.CONST, CorParser.MNEMONIC]:
+                    self.state = 56
+                    self.statement()
+                    pass
+                elif token in [CorParser.FOR]:
+                    self.state = 57
+                    self.statement_loop()
+                    pass
+                else:
+                    raise NoViableAltException(self)
+
+                self.state = 62
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -326,22 +372,22 @@ class CorParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 56
+            self.state = 63
             self.match(CorParser.IMPORT)
-            self.state = 57
+            self.state = 64
             _la = self._input.LA(1)
             if not(_la==CorParser.STRING or _la==CorParser.VARIABLE):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
                 self.consume()
-            self.state = 60
+            self.state = 67
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==CorParser.AS:
-                self.state = 58
+                self.state = 65
                 self.match(CorParser.AS)
-                self.state = 59
+                self.state = 66
                 self.match(CorParser.VARIABLE)
 
 
@@ -395,25 +441,25 @@ class CorParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 66
+            self.state = 73
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.RAM) | (1 << CorParser.CONST) | (1 << CorParser.IMPORT) | (1 << CorParser.MNEMONIC))) != 0):
-                self.state = 64
+                self.state = 71
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [CorParser.RAM, CorParser.CONST, CorParser.MNEMONIC]:
-                    self.state = 62
+                    self.state = 69
                     self.statement()
                     pass
                 elif token in [CorParser.IMPORT]:
-                    self.state = 63
+                    self.state = 70
                     self.file_import()
                     pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 68
+                self.state = 75
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -467,34 +513,254 @@ class CorParser ( Parser ):
         localctx = CorParser.StatementContext(self, self._ctx, self.state)
         self.enterRule(localctx, 8, self.RULE_statement)
         try:
-            self.state = 73
+            self.state = 80
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 69
+                self.state = 76
                 self.declaration()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 70
+                self.state = 77
                 self.assignment()
                 pass
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 71
+                self.state = 78
                 self.assignment_arr()
                 pass
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 72
+                self.state = 79
                 self.instruction()
                 pass
 
 
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Statement_loopContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def loop(self):
+            return self.getTypedRuleContext(CorParser.LoopContext,0)
+
+
+        def getRuleIndex(self):
+            return CorParser.RULE_statement_loop
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterStatement_loop" ):
+                listener.enterStatement_loop(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitStatement_loop" ):
+                listener.exitStatement_loop(self)
+
+
+
+
+    def statement_loop(self):
+
+        localctx = CorParser.Statement_loopContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 10, self.RULE_statement_loop)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 82
+            self.loop()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class LoopContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def FOR(self):
+            return self.getToken(CorParser.FOR, 0)
+
+        def instruction(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(CorParser.InstructionContext)
+            else:
+                return self.getTypedRuleContext(CorParser.InstructionContext,i)
+
+
+        def SEMI(self, i:int=None):
+            if i is None:
+                return self.getTokens(CorParser.SEMI)
+            else:
+                return self.getToken(CorParser.SEMI, i)
+
+        def OBRACE(self):
+            return self.getToken(CorParser.OBRACE, 0)
+
+        def CBRACE(self):
+            return self.getToken(CorParser.CBRACE, 0)
+
+        def label(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(CorParser.LabelContext)
+            else:
+                return self.getTypedRuleContext(CorParser.LabelContext,i)
+
+
+        def loop_keyword(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(CorParser.Loop_keywordContext)
+            else:
+                return self.getTypedRuleContext(CorParser.Loop_keywordContext,i)
+
+
+        def loop(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(CorParser.LoopContext)
+            else:
+                return self.getTypedRuleContext(CorParser.LoopContext,i)
+
+
+        def getRuleIndex(self):
+            return CorParser.RULE_loop
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterLoop" ):
+                listener.enterLoop(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitLoop" ):
+                listener.exitLoop(self)
+
+
+
+
+    def loop(self):
+
+        localctx = CorParser.LoopContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 12, self.RULE_loop)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 84
+            self.match(CorParser.FOR)
+            self.state = 85
+            self.instruction()
+            self.state = 86
+            self.match(CorParser.SEMI)
+            self.state = 87
+            self.instruction()
+            self.state = 88
+            self.match(CorParser.SEMI)
+            self.state = 89
+            self.instruction()
+            self.state = 90
+            self.match(CorParser.SEMI)
+            self.state = 91
+            self.match(CorParser.OBRACE)
+            self.state = 98
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.FOR) | (1 << CorParser.CONTINUE) | (1 << CorParser.BREAKALL) | (1 << CorParser.BREAK) | (1 << CorParser.MNEMONIC) | (1 << CorParser.VARIABLE))) != 0):
+                self.state = 96
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [CorParser.VARIABLE]:
+                    self.state = 92
+                    self.label()
+                    pass
+                elif token in [CorParser.MNEMONIC]:
+                    self.state = 93
+                    self.instruction()
+                    pass
+                elif token in [CorParser.CONTINUE, CorParser.BREAKALL, CorParser.BREAK]:
+                    self.state = 94
+                    self.loop_keyword()
+                    pass
+                elif token in [CorParser.FOR]:
+                    self.state = 95
+                    self.loop()
+                    pass
+                else:
+                    raise NoViableAltException(self)
+
+                self.state = 100
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 101
+            self.match(CorParser.CBRACE)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Loop_keywordContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def CONTINUE(self):
+            return self.getToken(CorParser.CONTINUE, 0)
+
+        def BREAK(self):
+            return self.getToken(CorParser.BREAK, 0)
+
+        def BREAKALL(self):
+            return self.getToken(CorParser.BREAKALL, 0)
+
+        def getRuleIndex(self):
+            return CorParser.RULE_loop_keyword
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterLoop_keyword" ):
+                listener.enterLoop_keyword(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitLoop_keyword" ):
+                listener.exitLoop_keyword(self)
+
+
+
+
+    def loop_keyword(self):
+
+        localctx = CorParser.Loop_keywordContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 14, self.RULE_loop_keyword)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 103
+            _la = self._input.LA(1)
+            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.CONTINUE) | (1 << CorParser.BREAKALL) | (1 << CorParser.BREAK))) != 0)):
+                self._errHandler.recoverInline(self)
+            else:
+                self._errHandler.reportMatch(self)
+                self.consume()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -537,16 +803,16 @@ class CorParser ( Parser ):
     def assignment(self):
 
         localctx = CorParser.AssignmentContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 10, self.RULE_assignment)
+        self.enterRule(localctx, 16, self.RULE_assignment)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 75
+            self.state = 105
             self.match(CorParser.CONST)
-            self.state = 76
+            self.state = 106
             self.match(CorParser.VARIABLE)
-            self.state = 77
+            self.state = 107
             self.match(CorParser.T__0)
-            self.state = 78
+            self.state = 108
             self.expression()
         except RecognitionException as re:
             localctx.exception = re
@@ -587,12 +853,12 @@ class CorParser ( Parser ):
     def assignment_arr(self):
 
         localctx = CorParser.Assignment_arrContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_assignment_arr)
+        self.enterRule(localctx, 18, self.RULE_assignment_arr)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 80
+            self.state = 110
             self.match(CorParser.CONST)
-            self.state = 81
+            self.state = 111
             self.array()
         except RecognitionException as re:
             localctx.exception = re
@@ -639,21 +905,21 @@ class CorParser ( Parser ):
     def declaration(self):
 
         localctx = CorParser.DeclarationContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 14, self.RULE_declaration)
+        self.enterRule(localctx, 20, self.RULE_declaration)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 83
+            self.state = 113
             self.match(CorParser.RAM)
-            self.state = 84
+            self.state = 114
             self.match(CorParser.VARIABLE)
-            self.state = 88
+            self.state = 118
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==CorParser.OBRACKET:
-                self.state = 85
+                self.state = 115
                 self.array_init()
-                self.state = 90
+                self.state = 120
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -701,26 +967,26 @@ class CorParser ( Parser ):
     def expression(self):
 
         localctx = CorParser.ExpressionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 16, self.RULE_expression)
+        self.enterRule(localctx, 22, self.RULE_expression)
         try:
-            self.state = 94
+            self.state = 124
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,7,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 91
+                self.state = 121
                 self.exp_number()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 92
+                self.state = 122
                 self.exp_var()
                 pass
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 93
+                self.state = 123
                 self.math()
                 pass
 
@@ -775,36 +1041,36 @@ class CorParser ( Parser ):
     def math(self):
 
         localctx = CorParser.MathContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_math)
+        self.enterRule(localctx, 24, self.RULE_math)
         self._la = 0 # Token type
         try:
-            self.state = 105
+            self.state = 135
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [CorParser.VARIABLE, CorParser.NUMBER]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 98 
+                self.state = 128 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 96
+                        self.state = 126
                         _la = self._input.LA(1)
                         if not(_la==CorParser.VARIABLE or _la==CorParser.NUMBER):
                             self._errHandler.recoverInline(self)
                         else:
                             self._errHandler.reportMatch(self)
                             self.consume()
-                        self.state = 97
+                        self.state = 127
                         self.match(CorParser.OPERATOR)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 100 
+                    self.state = 130 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
 
-                self.state = 102
+                self.state = 132
                 _la = self._input.LA(1)
                 if not(_la==CorParser.VARIABLE or _la==CorParser.NUMBER):
                     self._errHandler.recoverInline(self)
@@ -814,9 +1080,9 @@ class CorParser ( Parser ):
                 pass
             elif token in [CorParser.OPERATOR]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 103
+                self.state = 133
                 self.match(CorParser.OPERATOR)
-                self.state = 104
+                self.state = 134
                 _la = self._input.LA(1)
                 if not(_la==CorParser.VARIABLE or _la==CorParser.NUMBER):
                     self._errHandler.recoverInline(self)
@@ -862,10 +1128,10 @@ class CorParser ( Parser ):
     def exp_number(self):
 
         localctx = CorParser.Exp_numberContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 20, self.RULE_exp_number)
+        self.enterRule(localctx, 26, self.RULE_exp_number)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 107
+            self.state = 137
             self.match(CorParser.NUMBER)
         except RecognitionException as re:
             localctx.exception = re
@@ -902,10 +1168,10 @@ class CorParser ( Parser ):
     def exp_var(self):
 
         localctx = CorParser.Exp_varContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 22, self.RULE_exp_var)
+        self.enterRule(localctx, 28, self.RULE_exp_var)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 109
+            self.state = 139
             self.match(CorParser.VARIABLE)
         except RecognitionException as re:
             localctx.exception = re
@@ -957,35 +1223,35 @@ class CorParser ( Parser ):
     def array(self):
 
         localctx = CorParser.ArrayContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_array)
+        self.enterRule(localctx, 30, self.RULE_array)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 111
+            self.state = 141
             self.match(CorParser.VARIABLE)
-            self.state = 113 
+            self.state = 143 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 112
+                self.state = 142
                 self.array_init()
-                self.state = 115 
+                self.state = 145 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==CorParser.OBRACKET):
                     break
 
-            self.state = 117
+            self.state = 147
             self.match(CorParser.T__0)
-            self.state = 120
+            self.state = 150
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [CorParser.OBRACE]:
-                self.state = 118
+                self.state = 148
                 self.arr_data()
                 pass
             elif token in [CorParser.STRING]:
-                self.state = 119
+                self.state = 149
                 self.string()
                 pass
             else:
@@ -1026,10 +1292,10 @@ class CorParser ( Parser ):
     def string(self):
 
         localctx = CorParser.StringContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_string)
+        self.enterRule(localctx, 32, self.RULE_string)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 122
+            self.state = 152
             self.match(CorParser.STRING)
         except RecognitionException as re:
             localctx.exception = re
@@ -1073,21 +1339,21 @@ class CorParser ( Parser ):
     def array_init(self):
 
         localctx = CorParser.Array_initContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 28, self.RULE_array_init)
+        self.enterRule(localctx, 34, self.RULE_array_init)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 124
+            self.state = 154
             self.match(CorParser.OBRACKET)
-            self.state = 126
+            self.state = 156
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << CorParser.VARIABLE) | (1 << CorParser.OPERATOR) | (1 << CorParser.NUMBER))) != 0):
-                self.state = 125
+                self.state = 155
                 self.expression()
 
 
-            self.state = 128
+            self.state = 158
             self.match(CorParser.CBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1148,68 +1414,68 @@ class CorParser ( Parser ):
     def arr_data(self):
 
         localctx = CorParser.Arr_dataContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 30, self.RULE_arr_data)
+        self.enterRule(localctx, 36, self.RULE_arr_data)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 130
+            self.state = 160
             self.match(CorParser.OBRACE)
-            self.state = 140
+            self.state = 170
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,14,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 134
+                    self.state = 164
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [CorParser.VARIABLE, CorParser.OPERATOR, CorParser.NUMBER]:
-                        self.state = 131
+                        self.state = 161
                         self.expression()
                         pass
                     elif token in [CorParser.OBRACE]:
-                        self.state = 132
+                        self.state = 162
                         self.arr_data()
                         pass
                     elif token in [CorParser.STRING]:
-                        self.state = 133
+                        self.state = 163
                         self.string()
                         pass
                     else:
                         raise NoViableAltException(self)
 
-                    self.state = 136
+                    self.state = 166
                     self.match(CorParser.T__1) 
-                self.state = 142
+                self.state = 172
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,14,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
 
-            self.state = 146
+            self.state = 176
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [CorParser.VARIABLE, CorParser.OPERATOR, CorParser.NUMBER]:
-                self.state = 143
+                self.state = 173
                 self.expression()
                 pass
             elif token in [CorParser.OBRACE]:
-                self.state = 144
+                self.state = 174
                 self.arr_data()
                 pass
             elif token in [CorParser.STRING]:
-                self.state = 145
+                self.state = 175
                 self.string()
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 149
+            self.state = 179
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==CorParser.T__1:
-                self.state = 148
+                self.state = 178
                 self.match(CorParser.T__1)
 
 
-            self.state = 151
+            self.state = 181
             self.match(CorParser.CBRACE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1253,27 +1519,27 @@ class CorParser ( Parser ):
     def instruction(self):
 
         localctx = CorParser.InstructionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_instruction)
+        self.enterRule(localctx, 38, self.RULE_instruction)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 153
+            self.state = 183
             self.match(CorParser.MNEMONIC)
-            self.state = 162
+            self.state = 192
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,21,self._ctx)
             if la_ == 1:
-                self.state = 154
+                self.state = 184
                 self.argument()
-                self.state = 159
+                self.state = 189
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==CorParser.T__1:
-                    self.state = 155
+                    self.state = 185
                     self.match(CorParser.T__1)
-                    self.state = 156
+                    self.state = 186
                     self.argument()
-                    self.state = 161
+                    self.state = 191
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
@@ -1328,34 +1594,34 @@ class CorParser ( Parser ):
     def argument(self):
 
         localctx = CorParser.ArgumentContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_argument)
+        self.enterRule(localctx, 40, self.RULE_argument)
         try:
-            self.state = 169
+            self.state = 199
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [CorParser.REGISTER]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 164
+                self.state = 194
                 self.register()
                 pass
             elif token in [CorParser.VARIABLE, CorParser.OPERATOR, CorParser.NUMBER]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 165
+                self.state = 195
                 self.expression()
                 pass
             elif token in [CorParser.RAM]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 166
+                self.state = 196
                 self.match(CorParser.RAM)
                 pass
             elif token in [CorParser.CONST]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 167
+                self.state = 197
                 self.match(CorParser.CONST)
                 pass
             elif token in [CorParser.GPU]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 168
+                self.state = 198
                 self.match(CorParser.GPU)
                 pass
             else:
@@ -1396,10 +1662,10 @@ class CorParser ( Parser ):
     def register(self):
 
         localctx = CorParser.RegisterContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_register)
+        self.enterRule(localctx, 42, self.RULE_register)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 171
+            self.state = 201
             self.match(CorParser.REGISTER)
         except RecognitionException as re:
             localctx.exception = re
@@ -1436,12 +1702,12 @@ class CorParser ( Parser ):
     def label(self):
 
         localctx = CorParser.LabelContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_label)
+        self.enterRule(localctx, 44, self.RULE_label)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 173
+            self.state = 203
             self.match(CorParser.VARIABLE)
-            self.state = 174
+            self.state = 204
             self.match(CorParser.T__2)
         except RecognitionException as re:
             localctx.exception = re

@@ -19,7 +19,7 @@ def main(argv):
   # that are not contained in quotes:
   # programs/program file.cor
 
-  print()
+  # print()
 
   infile = ''
   options_args = {'-o': '', '-p': '', '-d': '', '-P': 10, '-D': 10, '--log': ''}

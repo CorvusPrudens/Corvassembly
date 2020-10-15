@@ -47,6 +47,7 @@ def writeBin(code, outfile, promAddBits, dromAddBits, promDataWidth, dromDataWid
   pass
 
 def debug(options_args, options_noargs, instructions, variables, labels):
+  variables = variables.getVariables()
   if options_args['--log'] != '':
     with open(options_args['--log'] + '.txt', 'w') as file:
       if options_noargs['--debug-lines']:
@@ -64,17 +65,17 @@ def debug(options_args, options_noargs, instructions, variables, labels):
 
       if options_noargs['--debug-vars']:
         file.write('\n  Program Variables:\n')
-        for var in variables.getVariables():
-          if var['type'] == 'pre':
-            file.write(f"{var['type']}: {var['name']} = {var['value']}\n")
+        for var in variables:
+          if variables[var]['type'] == 'pre':
+            file.write(f"{variables[var]['type']}: {var} = {variables[var]['value']}\n")
         file.write('\n')
-        for var in variables.getVariables():
-          if var['type'] == 'rom':
-            file.write(f"{var['type']}: {var['name']} (address {var['address']}) = {var['value']}\n")
+        for var in variables:
+          if variables[var]['type'] == 'rom':
+            file.write(f"{variables[var]['type']}: {var} (address {variables[var]['address']}) = {variables[var]['value']}\n")
         file.write('\n')
-        for var in variables.getVariables():
-          if var['type'] == 'ram':
-            file.write(f"{var['type']}: {var['name']} (address {var['address']})\n")
+        for var in variables:
+          if variables[var]['type'] == 'ram':
+            file.write(f"{variables[var]['type']}: {var} (address {variables[var]['address']})\n")
   else:
     if options_noargs['--debug-lines']:
       print('\n  Program Instructions:\n')
@@ -91,23 +92,24 @@ def debug(options_args, options_noargs, instructions, variables, labels):
 
     if options_noargs['--debug-vars']:
       print('\n  Program Variables:\n')
-      for var in variables.getVariables():
-        if var['type'] == 'pre':
-          print(f"{var['type']}: {var['name']} = {var['value']}")
+      for var in variables:
+        if variables[var]['type'] == 'pre':
+          print(f"{variables[var]['type']}: {var} = {variables[var]['value']}")
       print()
-      for var in variables.getVariables():
-        if var['type'] == 'rom':
-          print(f"{var['type']}: {var['name']} (address {var['address']}) = {var['value']}")
+      for var in variables:
+        if variables[var]['type'] == 'rom':
+          print(f"{variables[var]['type']}: {var} (address {variables[var]['address']}) = {variables[var]['value']}")
       print()
-      for var in variables.getVariables():
-        if var['type'] == 'ram':
-          print(f"{var['type']}: {var['name']} (address {var['address']})")
+      for var in variables:
+        if variables[var]['type'] == 'ram':
+          print(f"{variables[var]['type']}: {var} (address {variables[var]['address']})")
 
 errorList = []
 warningList = []
 
 def endExecution():
   if len(errorList) > 0:
+    print()
     warningPrint(warningList)
     errorPrint(errorList)
     warnS = 's' if len(warningList) != 1 else ''
@@ -141,13 +143,14 @@ def errorPrint(entries):
       print(f'-> {entry["message"]}\n')
 
 def warningPrint(entries):
-  with open(entries[0]['path'], 'r') as file:
-    lines = file.readlines()
-    for entry in entries:
-      print(f'({entry["code"]}) Warning for file \"{entry["path"]}\" at line {entry["line"]}:')
-      original = lines[entry['line'] - 1].strip(' \n')
-      print(f'  {original}')
-      print(f'-> {entry["message"]}\n')
+  if len(entries) > 0:
+    with open(entries[0]['path'], 'r') as file:
+      lines = file.readlines()
+      for entry in entries:
+        print(f'({entry["code"]}) Warning for file \"{entry["path"]}\" at line {entry["line"]}:')
+        original = lines[entry['line'] - 1].strip(' \n')
+        print(f'  {original}')
+        print(f'-> {entry["message"]}\n')
 
 ##############################################################
 ### Assembly Data
@@ -202,13 +205,13 @@ sysvarTable = [
   ['pre', 'RX_FULL', '1024'],
 ]
 
-SYSVARS = []
+SYSVARS = {}
 
 for var in sysvarTable:
   if var[0] == 'ram':
-    SYSVARS.append({'type': 'ram', 'name': var[1], 'address': int(var[2]), 'value': 0, 'line': -1, 'path': -1})
+    SYSVARS[var[1]] = {'type': 'ram', 'address': int(var[2]), 'value': 0, 'line': -1, 'path': -1}
   elif var[0] == 'pre':
-    SYSVARS.append({'type': 'pre', 'name': var[1], 'address': 0, 'value': var[2], 'line': -1, 'path': -1})
+    SYSVARS[var[1]] = {'type': 'pre', 'name': var[1], 'address': 0, 'value': var[2], 'line': -1, 'path': -1}
 
 
 MNEM2OP        = {'nop': 0, 'ldr': 1, 'str': 2, 'lpt': 3, 'spt': 4, 'cmp': 5,
@@ -311,21 +314,17 @@ def assembleRegister(word, reg, operand, instruction):
   return word
 
 def assembleArgument2(word, argument, dict, instruction, variables, number):
-  found = False
-  for var in variables:
-    if argument == var['name']:
-      found = True
-      if var['type'] in LOAD_CONST:
-        word = setWord2(word, int(var['value']))
-      else:
-        word = setWord2(word, int(var['address']))
-      word = setOpvar(word, dict[var['type']])
-      if var['type'] == 'rom':
-        warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
-        warning(warnmess, instruction['line'], instruction['path'], 6)
-      break
-  if not found:
-    # could still be a number XD
+  try:
+    var = variables[argument]
+    if var['type'] in LOAD_CONST:
+      word = setWord2(word, int(var['value']))
+    else:
+      word = setWord2(word, int(var['address']))
+    word = setOpvar(word, dict[var['type']])
+    if var['type'] == 'rom':
+      warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
+      warning(warnmess, instruction['line'], instruction['path'], 6)
+  except KeyError:
     numstring = str(argument)
     if re.search(number, numstring) != None:
       word = setWord2(word, eval(numstring))
@@ -337,18 +336,15 @@ def assembleArgument2(word, argument, dict, instruction, variables, number):
 
 def assembleArgument2Store(word, argument, dict, instruction, variables, number):
   validTable = ['ram', 'gpu']
-  found = False
-  for var in variables:
-    if argument == var['name']:
-      found = True
-      if var['type'] not in validTable:
-        errmess = f'\"{argument}\" must be a writable variable'
-        error(errmess, instruction['line'], instruction['path'], 1)
-      word = setWord2(word, int(var['address']))
-      word = setOpvar(word, dict[var['type']])
-      break
-  if not found:
-    # could still be a number XD
+
+  try:
+    var = variables[argument]
+    if var['type'] not in validTable:
+      errmess = f'\"{argument}\" must be a writable variable'
+      error(errmess, instruction['line'], instruction['path'], 1)
+    word = setWord2(word, int(var['address']))
+    word = setOpvar(word, dict[var['type']])
+  except KeyError:
     numstring = str(argument)
     if re.search(number, numstring) != None:
       errmess = f'\"{argument}\" must be a writable variable'
@@ -366,7 +362,7 @@ def assembleLabel(word, arg, labels, instruction):
       word = setWord2(word, label['address'])
       break
   if not found:
-    errmess = f'\"{inst}\" is not defined'
+    errmess = f'\"{arg}\" is not defined'
     error(errmess, instruction['line'], instruction['path'], 4)
   return word
 
@@ -478,12 +474,12 @@ def assembleInstructions(instructions, variables, labels):
 def assembleVariables(variables, ramBitWidth):
   biggestAddress = 0
   for var in variables:
-    if var['type'] == 'rom' and int(var['address']) > biggestAddress:
-      biggestAddress = var['address']
+    if variables[var]['type'] == 'rom' and int(variables[var]['address']) > biggestAddress:
+      biggestAddress = variables[var]['address']
   machine = np.empty(biggestAddress + 1, dtype=f'u{math.ceil(ramBitWidth/8)}')
 
   for var in variables:
-    if var['type'] == 'rom':
-      machine[int(var['address'])] = var['value']
+    if variables[var]['type'] == 'rom':
+      machine[int(variables[var]['address'])] = variables[var]['value']
 
   return machine

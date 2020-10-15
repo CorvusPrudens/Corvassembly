@@ -57,6 +57,36 @@ public interface CorListener extends ParseTreeListener {
 	 */
 	void exitStatement(CorParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CorParser#statement_loop}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatement_loop(CorParser.Statement_loopContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#statement_loop}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatement_loop(CorParser.Statement_loopContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#loop}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoop(CorParser.LoopContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#loop}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoop(CorParser.LoopContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#loop_keyword}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoop_keyword(CorParser.Loop_keywordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#loop_keyword}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoop_keyword(CorParser.Loop_keywordContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CorParser#assignment}.
 	 * @param ctx the parse tree
 	 */

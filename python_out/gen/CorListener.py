@@ -53,6 +53,33 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#statement_loop.
+    def enterStatement_loop(self, ctx:CorParser.Statement_loopContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#statement_loop.
+    def exitStatement_loop(self, ctx:CorParser.Statement_loopContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#loop.
+    def enterLoop(self, ctx:CorParser.LoopContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#loop.
+    def exitLoop(self, ctx:CorParser.LoopContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#loop_keyword.
+    def enterLoop_keyword(self, ctx:CorParser.Loop_keywordContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#loop_keyword.
+    def exitLoop_keyword(self, ctx:CorParser.Loop_keywordContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#assignment.
     def enterAssignment(self, ctx:CorParser.AssignmentContext):
         pass

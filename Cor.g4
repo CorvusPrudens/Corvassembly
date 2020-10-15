@@ -4,13 +4,26 @@ grammar Cor;
 
 parse           : initial block* EOF;
 
-block           : label statement*;
+block           : label (statement | statement_loop)*;
 
 file_import     : IMPORT (VARIABLE | STRING) (AS VARIABLE)?;
 
 initial         : (statement | file_import)*;
 
 statement       : declaration | assignment | assignment_arr | instruction;
+
+statement_loop  : loop;
+
+loop            : FOR instruction SEMI instruction SEMI instruction SEMI OBRACE (label | instruction | loop_keyword | loop)* CBRACE;
+
+loop_keyword    : CONTINUE | BREAK | BREAKALL;
+
+/* loop_init       : REGISTER '=' expression;
+
+loop_cond       : REGISTER OPERATOR expression;
+
+loop_incr       : REGISTER (OP_SHORT | OPERATOR) expression?;
+*/
 
 assignment      : CONST VARIABLE '=' expression;
 
@@ -51,15 +64,6 @@ register        : REGISTER;
 label           : VARIABLE ':';
 
 // lexy stuff
-RAM : 'ram';
-fragment ROM : 'rom';
-fragment PRE : 'pre';
-CONST : ROM | PRE;
-
-GPU                    : 'gpu';
-
-IMPORT                 : 'import';
-AS                     : 'as';
 
 fragment SINGLE_STRING : '\'' (~["\r\n] | '\'\'')* '\'';
 fragment DOUBLE_STRING : '"' (~["\r\n] | '""')* '"';
@@ -70,7 +74,20 @@ COMMENT                : '//' ~[\n\r]* [\n\r] -> skip;
 
 COMMENT_BLOCK                   : '/*' .*? '*/' -> skip;
 
+RAM : 'ram';
+fragment ROM : 'rom';
+fragment PRE : 'pre';
+CONST : ROM | PRE;
 
+GPU                    : 'gpu';
+IMPORT                 : 'import';
+AS                     : 'as';
+FOR                    : 'for';
+CONTINUE               : 'continue';
+BREAKALL               : 'breakall';
+BREAK                  : 'break';
+
+SEMI                   : ';';
 
 OBRACKET               : '[';
 CBRACKET               : ']';
@@ -94,6 +111,8 @@ MNEMONIC               :  'nop'| 'ldr'| 'str'| 'lpt'|
 VARIABLE               : '$'?[A-Za-z_][A-Za-z_0-9.]*;
 
 WHITESPACE             : [ \t\n\r] -> skip;
+
+/* OP_SHORT               : '++' | '--' | [+\-/*<>|&^~][+\-=]; */
 
 OPERATOR               : [+\-=/*()<>|&^~];
 

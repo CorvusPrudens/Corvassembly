@@ -1,6 +1,8 @@
 import libs.freqs
 import libs.tracker
 
+pre DELAY_1 = 10
+pre DELAY_2 = 65535
 
 ldr g, 0 // rom pointer
 ldr f, 0 // rom pointer mem
@@ -22,21 +24,13 @@ incFramePtr:
   rts
 
 delay:
-  ldr a, 0
-  ldr b, 0
+  for ldr a, 0; cmp a, DELAY_1; add a, 1; {
+    for ldr c, 0; cmp c, DELAY_2; add c, 1; {
+  
+    }
+  }
+  rts
 
-  delayLoop1:
-    add a, 1
-    cmp a, 20000
-    joc equal, delayLoop2
-    jmp delayLoop1
-
-  delayLoop2:
-    ldr a, 0
-    add b, 1
-    cmp b, 2
-    rsc equal
-    jmp delayLoop1
 
 readFrame:
   pre FRAME_WIDTH = 4

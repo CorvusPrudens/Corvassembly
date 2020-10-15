@@ -12,13 +12,13 @@ import math
 
 class Variables:
 
-  def __init__(self, sysvars=[], ramStartAddress=41):
+  def __init__(self, sysvars={}, ramStartAddress=41):
     self.vars = sysvars
     self.size = {'ram': ramStartAddress, 'rom': 0, 'pre': 0}
     self.evalDict = {}
     for var in sysvars:
-      if var['type'] == 'rom' or var['type'] == 'pre':
-        self.evalDict[var['name']] = var['value']
+      if sysvars[var]['type'] == 'rom' or sysvars[var]['type'] == 'pre':
+        self.evalDict[sysvars[var]['type']] = sysvars[var]['value']
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.addressRegex = re.compile('\\b\\$[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
@@ -26,7 +26,11 @@ class Variables:
   def add(self, varType, name, value):
     address = self.size[varType]
     self.size[varType] += 1
-    self.vars.append({'type': varType, 'name': name, 'address': address, 'value': value})
+    self.vars[name] = {'type': varType, 'address': address, 'value': value}
+    # TODO - arrays should not be added like other variables -- rather, they
+    # should have one entry in the vars dictionary and contain a list of all
+    # their elements. This would save a lot of memory and probably execution time
+    # this would also make the variables debug output a lot more readable
 
     # for files that are imported, every variable and label is scoped with
     # a prefix, i.e. <imported.element>. These can still be evaluated by
@@ -51,12 +55,11 @@ class Variables:
   def getAddress(self, variable):
     variable = variable[1:]
     found = False
-    for var in self.vars:
-      if var['name'] == variable:
-        return var['address']
-    # TODO -- proper error throwing
-    print(f'\nError: could not find address of undefined variable {variable}!\n')
-    exit(1)
+    try:
+      return self.vars[variable]['address']
+    except KeyError:
+      print(f'\nError: could not find address of undefined variable {variable}!\n')
+      exit(1)
 
   def decrementAddress(self, varType):
     # to overload variable names
@@ -102,17 +105,85 @@ class Instructions:
 
   def __init__(self):
     self.instructions = []
-    self.size = 0
+    self.size = {'instructions': 0, 'loops': 0}
+    self.top_begin = ''
+    self.top_end = ''
 
-  # ['mnemonic', 'address', 'args']
-  def add(self, mnemonic, args, line, path):
-    address = self.size
-    self.size += 1
+  # # ['mnemonic', 'address', 'args']
+  # def add(self, mnemonic, args, line, path):
+  #   address = self.size['instructions']
+  #   self.size['instructions'] += 1
+  #   self.instructions.append({'mnemonic': mnemonic, 'address': address,
+  #                             'arguments': args, 'line': line, 'path': path})
+
+  def add(self, ctx, listener, variables):
+    # print(type(ctx).__name__)
+    mnemonic = ctx.MNEMONIC().getText()
+    tempargs = []
+    for arg in ctx.argument():
+      if arg.expression() != None and arg.expression().math() != None or '$' in arg.getText():
+        tempargs.append(variables.calc(arg.getText(), listener))
+      else:
+        tempargs.append(listener.scope(arg.getText()))
+
+    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+    address = self.size['instructions']
+    self.size['instructions'] += 1
     self.instructions.append({'mnemonic': mnemonic, 'address': address,
-                              'arguments': args, 'line': line, 'path': path})
+                              'arguments': tempargs, 'line': linenum,
+                              'path': listener.fullpath})
+
+  def addManual(self, mnemonic, arguments, linenum, listener):
+    address = self.size['instructions']
+    self.size['instructions'] += 1
+    self.instructions.append({'mnemonic': mnemonic, 'address': address,
+                              'arguments': arguments, 'line': linenum,
+                              'path': listener.fullpath})
+
+  # recursively add loops
+  def addLoop(self, ctx, listener, variables, labels, top=False):
+    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+    loopname = f'__loop{self.size["loops"]}'
+    loopbegin = loopname + '_begin'
+    loopend = loopname + '_end'
+    loopcont = loopname + '_continue'
+    self.size['loops'] += 1
+    if top:
+      self.top_begin = loopbegin
+      self.top_end = loopend
+
+    self.add(ctx.getChild(1), listener, variables)
+    labels.add(loopbegin, self)
+    self.add(ctx.getChild(3), listener, variables)
+    self.addManual('joc', ['equal', loopend], linenum, listener)
+
+    children = ctx.getChildCount()
+    for i in range(8, children - 1):
+      ctxname = type(ctx.getChild(i)).__name__
+      if ctxname == 'InstructionContext':
+        self.add(ctx.getChild(i), listener, variables)
+      elif ctxname == 'Loop_keywordContext':
+        keyword = ctx.getChild(i).getText()
+        target = ''
+        if keyword == 'continue':
+          target = loopcont
+        elif keyword == 'break':
+          target = loopend
+        elif keyword == 'breakall':
+          target = self.top_end
+        self.addManual('jmp', [target], linenum, listener)
+      elif ctxname == 'LabelContext':
+        labels.add(ctx.getChild(i).getText()[:-1], self)
+      elif ctxname == 'LoopContext':
+        self.addLoop(ctx.getChild(i), listener, variables, labels)
+
+    labels.add(loopcont, self)
+    self.add(ctx.getChild(5), listener, variables)
+    self.addManual('jmp', [loopbegin], linenum, listener)
+    labels.add(loopend, self)
 
   def getAddress(self):
-    return self.size
+    return self.size['instructions']
 
   def getInstructions(self):
     return self.instructions
@@ -157,7 +228,8 @@ class VusListener(CorListener) :
       'equal', 'greater', 'less',
       'UART', 'STACK', 'STATUS',
       'GPIO', 'GPIO_DIR', 'TX_EMPTY',
-      'TX_FULL', 'RX_EMPTY', 'RX_FULL'
+      'TX_FULL', 'RX_EMPTY', 'RX_FULL',
+      'continue', 'break'
     ]
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.fullpath = fullpath
@@ -216,20 +288,13 @@ class VusListener(CorListener) :
     for c in string:
       # TODO -- doesn't sanitize escaped characters
       chars.append(ord(c))
-
     chars.append(0) #terminating character
 
     return chars
 
-    # out = '{ '
-    # for i in range(len(chars)):
-    #   out += str(chars[i]) + ', '
-    #
-    # return out
-
 
   # Exit a parse tree produced by CorParser#assignment_arr.
-  def exitAssignment_arr(self, ctx:CorParser.Assignment_arrContext):
+  def assignment_arr(self, ctx):
       varType = ctx.CONST().getText()
       name = self.scope(ctx.array().VARIABLE().getText())
       numDimensions = ctx.array().getChildCount() - 3
@@ -260,7 +325,7 @@ class VusListener(CorListener) :
 
 
   # Exit a parse tree produced by CorParser#declaration.
-  def exitDeclaration(self, ctx:CorParser.DeclarationContext):
+  def declaration(self, ctx):
       if ctx.getChildCount() == 2: # simple declaration
         self.variables.add(self.scope(ctx.RAM().getText()), ctx.VARIABLE().getText(), 0)
       else: # array
@@ -285,7 +350,7 @@ class VusListener(CorListener) :
 
 
   # Exit a parse tree produced by CorParser#assignment.
-  def exitAssignment(self, ctx:CorParser.AssignmentContext):
+  def assignment(self, ctx):
       var = self.scope(ctx.VARIABLE().getText())
 
       self.variables.add(ctx.CONST().getText(),
@@ -294,17 +359,26 @@ class VusListener(CorListener) :
                          )
 
   # Exit a parse tree produced by CorParser#instruction.
-  def exitInstruction(self, ctx:CorParser.InstructionContext):
-      mnem = ctx.MNEMONIC().getText()
-      tempargs = []
-      for arg in ctx.argument():
-        if arg.expression() != None and arg.expression().math() != None or '$' in arg.getText():
-          tempargs.append(self.variables.calc(arg.getText(), self))
-        else:
-          tempargs.append(self.scope(arg.getText()))
+  def instruction(self, ctx):
+      self.instructions.add(ctx, self, self.variables)
 
-      linenum = self.stream.get(ctx.getSourceInterval()[0]).line
-      self.instructions.add(mnem, tempargs, linenum, self.fullpath)
+
+  def exitStatement(self, ctx:CorParser.StatementContext):
+    ctx = ctx.getChild(0)
+    ctxname = type(ctx).__name__
+
+    if ctxname == 'InstructionContext':
+      self.instruction(ctx)
+    elif ctxname == 'AssignmentContext':
+      self.assignment(ctx)
+    elif ctxname == 'Assignment_arrContext':
+      self.assignment_arr(ctx)
+    elif ctxname == 'DeclarationContext':
+      self.declaration(ctx)
+
+  # Exit a parse tree produced by CorParser#statement_loop.
+  def exitStatement_loop(self, ctx:CorParser.Statement_loopContext):
+    self.instructions.addLoop(ctx.loop(), self, self.variables, self.labels, top=True)
 
 
 class ImportListener(CorListener):

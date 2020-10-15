@@ -1,4 +1,3 @@
-// major bug!! somehow only hex values work in large arrays?!?!?!?
 
 rom frames[] = {
 0x0F31, 0x0B2C, 0xFFFF, 0x0F0B, 0x092C, 0x0934, 0xFF0D,
