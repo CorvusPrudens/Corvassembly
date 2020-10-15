@@ -472,7 +472,7 @@ def assembleInstructions(instructions, variables, labels):
   return machine
 
 def assembleVariables(variables, ramBitWidth):
-  biggestAddress = 0
+  biggestAddress = -1
   for var in variables:
     if variables[var]['type'] == 'rom' and int(variables[var]['address']) > biggestAddress:
       biggestAddress = variables[var]['address']
