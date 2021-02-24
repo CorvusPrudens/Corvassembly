@@ -427,7 +427,7 @@ def assembleCondJump(word, arg, instruction):
 
 def assembleInterruptVector(word, arg, instruction):
   try:
-    word |= INTERRUPT_VECTORS[arg];
+    word |= INTERRUPT_VECTORS[arg] << 16
   except KeyError:
     errmess = f'\"{arg}\" is not a valid interrupt vector'
     error(errmess, instruction['line'], instruction['path'], 58008)
