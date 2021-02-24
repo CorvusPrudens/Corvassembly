@@ -88,7 +88,7 @@ def debug(options_args, options_noargs, instructions, variables, labels):
           tempargs += str(line['arguments'][i])
           if i < len(line['arguments']) - 1:
             tempargs += ', '
-        print(f"{line['address']} : {line['mnemonic']} {tempargs} [{line['line']}]")
+        print(f"{hex(line['address'])} : {line['mnemonic']} {tempargs} [{line['line']}]")
 
     if options_noargs['--debug-vars']:
       print('\n  Program Variables:\n')
@@ -157,52 +157,72 @@ def warningPrint(entries):
 ##############################################################
 
 sysvarTable = [
-  ['ram', 'STATUS', '0'],
-  ['ram', 'STACK', '2'],
-  ['ram', 'UART', '3'],
-  ['ram', 'GPIO', '4'],
-  ['ram', 'GPIO_DIR', '5'],
+  ['ram', 'UART', '0'],
+  ['ram', 'UART_STATUS', '1'],
+  ['ram', 'DISPLAY', '36'],
 
-  ['ram', 'R4000', '6'],
-  ['ram', 'R4001', '7'],
-  ['ram', 'R4002', '8'],
-  ['ram', 'R4003', '9'],
-  ['ram', 'R4004', '10'],
-  ['ram', 'R4005', '11'],
-  ['ram', 'R4006', '12'],
-  ['ram', 'R4007', '13'],
-  ['ram', 'R4008', '14'],
-  ['ram', 'R4009', '15'],
-  ['ram', 'R400A', '16'],
-  ['ram', 'R400B', '17'],
-  ['ram', 'R400C', '18'],
-  ['ram', 'R400D', '19'],
-  ['ram', 'R400E', '20'],
-  ['ram', 'R400F', '21'],
-  ['ram', 'R4010', '22'],
-  ['ram', 'R4011', '23'],
-  ['ram', 'R4012', '24'],
-  ['ram', 'R4013', '25'],
-  ['ram', 'R4014', '26'],
-  ['ram', 'R4015', '27'],
-  ['ram', 'R4016', '28'],
-  ['ram', 'R4017', '29'],
+  ['ram', 'R4000', '2'],
+  ['ram', 'R4001', '3'],
+  ['ram', 'R4002', '4'],
+  ['ram', 'R4003', '5'],
+  ['ram', 'R4004', '6'],
+  ['ram', 'R4005', '7'],
+  ['ram', 'R4006', '8'],
+  ['ram', 'R4007', '9'],
+  ['ram', 'R4008', '10'],
+  ['ram', 'R4009', '11'],
+  ['ram', 'R400A', '12'],
+  ['ram', 'R400B', '13'],
+  ['ram', 'R400C', '14'],
+  ['ram', 'R400D', '15'],
+  ['ram', 'R400E', '16'],
+  ['ram', 'R400F', '17'],
+  ['ram', 'R4010', '18'],
+  ['ram', 'R4011', '19'],
+  ['ram', 'R4012', '20'],
+  ['ram', 'R4013', '21'],
+  ['ram', 'R4014', '22'],
+  ['ram', 'R4015', '23'],
+  ['ram', 'R4016', '24'],
+  ['ram', 'R4017', '25'],
 
-  ['ram', 'R9000', '30'],
-  ['ram', 'R9001', '31'],
-  ['ram', 'R9002', '32'],
-  ['ram', 'R9003', '33'],
-  ['ram', 'RA000', '34'],
-  ['ram', 'RA001', '35'],
-  ['ram', 'RA002', '36'],
-  ['ram', 'RB000', '37'],
-  ['ram', 'RB001', '38'],
-  ['ram', 'RB002', '39'],
+  ['ram', 'R9000', '26'],
+  ['ram', 'R9001', '27'],
+  ['ram', 'R9002', '28'],
+  ['ram', 'R9003', '29'],
+  ['ram', 'RA000', '30'],
+  ['ram', 'RA001', '31'],
+  ['ram', 'RA002', '32'],
+  ['ram', 'RB000', '33'],
+  ['ram', 'RB001', '34'],
+  ['ram', 'RB002', '35'],
 
-  ['pre', 'TX_EMPTY', '512'],
-  ['pre', 'TX_FULL', '256'],
-  ['pre', 'RX_EMPTY', '2048'],
-  ['pre', 'RX_FULL', '1024'],
+  ['ram', 'TIMERS', '37'],
+  ['ram', 'TIMER0_COMP', '38'],
+  ['ram', 'TIMER0_PRES', '39'],
+  ['ram', 'TIMER1_COMP', '40'],
+  ['ram', 'TIMER1_PRES', '41'],
+  ['ram', 'SCOPE_RATE', '42'],
+  ['ram', 'SCOPE_ADDR', '43'],
+  ['ram', 'SCOPE_DATA', '43'],
+  ['ram', 'SCOPE_HOLD', '44'],
+
+  ['ram', 'FLASH_WRITE', '45'],
+  ['ram', 'FLASH_READ', '45'],
+  ['ram', 'FLASH_PAGE', '46'],
+  ['ram', 'FLASH_STATUS', '47'],
+
+  ['pre', 'FLASH_WRITE_WORD', '8'],
+  ['pre', 'FLASH_READ_WORD', '4'],
+  ['pre', 'FLASH_ERASE_WORD', '16'],
+
+  ['pre', 'TIMER0_EN', '1'],
+  ['pre', 'TIMER1_EN', '2'],
+
+  ['pre', 'TX_EMPTY', '2'],
+  ['pre', 'TX_FULL', '1'],
+  ['pre', 'RX_EMPTY', '8'],
+  ['pre', 'RX_FULL', '4'],
 ]
 
 SYSVARS = {}
@@ -219,6 +239,14 @@ MNEM2OP        = {'nop': 0, 'ldr': 1, 'str': 2, 'lpt': 3, 'spt': 4, 'cmp': 5,
                   'or': 12, 'xor': 13, 'not': 14, 'lsl': 15, 'lsr': 16, 'psh': 17,
                   'pop': 18, 'pek': 19, 'jmp': 20, 'jsr': 21, 'rts': 22, 'joc': 23,
                   'jsc': 24, 'rsc': 25}
+
+INTERRUPT_VECTORS = {'TIMER0': 1, 'TIMER1': 2}
+
+INIT_INSTRUCTIONS = [
+  {'mnemonic': 'jmp', 'address': 0, 'arguments': ['__pgm_start__'], 'line': -1, 'path': -1},
+  {'mnemonic': 'jmp', 'address': 1, 'arguments': ['__pgm_start__'], 'line': -1, 'path': -1},
+  {'mnemonic': 'jmp', 'address': 2, 'arguments': ['__pgm_start__'], 'line': -1, 'path': -1},
+]
 
 OPVAR_SHIFT    = 0
 OPCODE_SHIFT   = 2
@@ -278,6 +306,22 @@ CONDITIONS = {
 }
 
 
+def setInterrupts(labels, instructions):
+  # preparing interrupt instructions
+  for label in labels:
+    if 'interrupt' in label:
+      try:
+        # by the gods what have I done
+        tempargs = instructions[INTERRUPT_VECTORS[label['interrupt']]]['arguments']
+        if tempargs[0] != '__pgm_start__':
+          # this means the user attempted to link an interrupt to two subroutines
+          errmess = f'\"{label["interrupt"]}\" cannot  be attached to more than one subroutine'
+          error(errmess, label['line'], label['path'], 6)
+        instructions[INTERRUPT_VECTORS[label['interrupt']]]['arguments'] = [label['name']]
+      except KeyError:
+        errmess = f'\"{label["interrupt"]}\" is not a valid interrupt vector'
+        error(errmess, label['line'], label['path'], 6)
+
 def setOperand1(word, register):
   word |= REGISTERS[register] << OPERAND1_SHIFT
   return word
@@ -309,7 +353,7 @@ def assembleRegister(word, reg, operand, instruction):
   try:
     word |= REGISTERS[reg] << opdict[operand]
   except KeyError:
-    errmess = f'\"{args[0]}\" is not a valid register'
+    errmess = f'\"{reg}\" is not a valid register'
     error(errmess, instruction['line'], instruction['path'], 3)
   return word
 
@@ -363,20 +407,21 @@ def assembleLabel(word, arg, labels, instruction):
       break
   if not found:
     errmess = f'\"{arg}\" is not defined'
-    error(errmess, instruction['line'], instruction['path'], 4)
+    # print(errmess)
+    error(errmess, instruction['line'], instruction['path'], 444)
   return word
 
 def checkNumArgs(args, argtarget, name, instruction):
   if len(args) != argtarget:
     errmess = f'\"{name}\" takes exactly two arguments'
-    error(errmess, instruction['line'], instruction['path'], 4)
+    error(errmess, instruction['line'], instruction['path'], 69)
 
 def assembleCondJump(word, arg, instruction):
   try:
     word |= CONDITIONS[arg] << OPERAND1_SHIFT
   except KeyError:
     errmess = f'\"{arg}\" must be a valid condition'
-    error(errmess, instruction['line'], instruction['path'], 4)
+    error(errmess, instruction['line'], instruction['path'], 420)
   return word
 
 ##############################################################
@@ -388,7 +433,7 @@ def assembleInstructions(instructions, variables, labels):
   number = re.compile('\\b(([1-9][0-9_]*)|(0x[0-9A-Fa-f][0-9A-Fa-f_]*)|(0b[10][10_]*)|0)\\b')
 
   mathops = ['cmp', 'add', 'sub', 'mul', 'div', 'mod',
-             'and', 'or',  'xor', 'not', 'lsr', 'lsl']
+             'and', 'or',  'xor', 'lsr', 'lsl']
 
   machine = np.empty(len(instructions), dtype='u4')
 
@@ -401,71 +446,110 @@ def assembleInstructions(instructions, variables, labels):
     if inst in mathops:
       if len(args) < 2 or len(args) > 3:
         errmess = f'\"{inst}\" needs at least two arguments and takes no more than three'
-        error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
-      word = assembleRegister(word, args[0], 'operand1', instructions[i])
-      # since the second argument can be many different things,
-      # it's not immdiately an error if the argument is not a register
+        error(errmess, instructions[i]['line'], instructions[i]['path'], 76)
+
       try:
-        word = setOperand2(word, args[1])
+        word = assembleRegister(word, args[0], 'operand1', instructions[i])
+        # since the second argument can be many different things,
+        # it's not immdiately an error if the argument is not a register
+        try:
+          word = setOperand2(word, args[1])
+          word = setOpvar(word, MATH_DICT['reg'])
+        except KeyError:
+          word = assembleArgument2(word, args[1], MATH_DICT, instructions[i], variables, number)
+        if len(args) == 3:
+          if 'inst' == 'cmp':
+            errmess = f'\"{inst}\" takes exactly two arguments, ignoring \"{args[2]}\"'
+            warning(errmess, instructions[i]['line'], instructions[i]['path'], 119)
+          word = assembleRegister(word, args[2], 'results', instructions[i])
+        else:
+          word = assembleRegister(word, args[0], 'results', instructions[i])
+      except IndexError:
+        pass
+
+    elif inst == 'not': # TODO -- extend to allow const / ram arguments for arg 1!!
+      if len(args) < 1 or len(args) > 2:
+        errmess = f'\"{inst}\" needs at least one argument and takes no more than two'
+        error(errmess, instructions[i]['line'], instructions[i]['path'], 169)
+      try:
+        word = assembleRegister(word, args[0], 'operand2', instructions[i])
         word = setOpvar(word, MATH_DICT['reg'])
-      except KeyError:
-        word = assembleArgument2(word, args[1], MATH_DICT, instructions[i], variables, number)
-      if len(args) == 3:
-        if 'inst' == 'cmp':
-          errmess = f'\"{inst}\" takes exactly two arguments, ignoring \"{args[2]}\"'
-          warning(errmess, instructions[i]['line'], instructions[i]['path'], 4)
-        word = assembleRegister(word, args[2], 'results', instructions[i])
-      else:
-        word = assembleRegister(word, args[0], 'results', instructions[i])
+        if len(args) == 2:
+          word = assembleRegister(word, args[1], 'results', instructions[i])
+        else:
+          word = assembleRegister(word, args[0], 'results', instructions[i])
+      except IndexError:
+        pass
 
     elif inst == 'nop':
       checkNumArgs(args, 0, inst, instructions[i])
 
     elif inst == 'ldr':
       checkNumArgs(args, 2, inst, instructions[i])
-      word = assembleRegister(word, args[0], 'results', instructions[i])
-      # TODO -- this doesn't quite work, since ldr CAN load rom values directly,
-      # but this method throws a warning if you try to load a rom value
-      word = assembleArgument2(word, args[1], LOAD_DICT, instructions[i], variables, number)
+      try:
+        word = assembleRegister(word, args[0], 'results', instructions[i])
+        # TODO -- this doesn't quite work, since ldr CAN load rom values directly,
+        # but this method throws a warning if you try to load a rom value
+        word = assembleArgument2(word, args[1], LOAD_DICT, instructions[i], variables, number)
+      except IndexError:
+        pass
 
     elif inst == 'str':
       checkNumArgs(args, 2, inst, instructions[i])
-      word = assembleRegister(word, args[0], 'operand1', instructions[i])
-      word = assembleArgument2Store(word, args[1], STORE_DICT, instructions[i], variables, number)
+      try:
+        word = assembleRegister(word, args[0], 'operand1', instructions[i])
+        word = assembleArgument2Store(word, args[1], STORE_DICT, instructions[i], variables, number)
+      except IndexError:
+        pass
 
     elif inst == 'lpt':
       checkNumArgs(args, 2, inst, instructions[i])
-      word = assembleRegister(word, args[0], 'results', instructions[i])
       try:
-        word = setOpvar(word, LOAD_PTR_DICT[args[1]])
-      except KeyError:
-        errmess = f'\"{inst}\" must be \"ram,\" \"rom,\" or \"gpu\"'
-        error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
+        word = assembleRegister(word, args[0], 'results', instructions[i])
+        try:
+          word = setOpvar(word, LOAD_PTR_DICT[args[1]])
+        except KeyError:
+          errmess = f'\"{inst}\" must be \"ram,\" \"rom,\" or \"gpu\"'
+          error(errmess, instructions[i]['line'], instructions[i]['path'], -2)
+      except IndexError:
+        pass
 
     elif inst == 'spt':
       checkNumArgs(args, 2, inst, instructions[i])
-      word = assembleRegister(word, args[0], 'operand1', instructions[i])
       try:
-        word = setOpvar(word, STORE_PTR_DICT[args[1]])
-      except KeyError:
-        errmess = f'\"{inst}\" must be \"ram\" or \"gpu\"'
-        error(errmess, instructions[i]['line'], instructions[i]['path'], 4)
+        word = assembleRegister(word, args[0], 'operand1', instructions[i])
+        try:
+          word = setOpvar(word, STORE_PTR_DICT[args[1]])
+        except KeyError:
+          errmess = f'\"{inst}\" must be \"ram\" or \"gpu\"'
+          error(errmess, instructions[i]['line'], instructions[i]['path'], 1000)
+      except IndexError:
+        pass
 
     elif inst == 'jmp' or inst == 'jsr':
       checkNumArgs(args, 1, inst, instructions[i])
-      word = assembleLabel(word, args[0], labels, instructions[i])
+      try:
+        word = assembleLabel(word, args[0], labels, instructions[i])
+      except IndexError:
+        pass
 
     elif inst == 'joc' or inst == 'jsc':
       checkNumArgs(args, 2, inst, instructions[i])
-      word = assembleLabel(word, args[1], labels, instructions[i])
-      word = assembleCondJump(word, args[0], instructions[i])
+      try:
+        word = assembleLabel(word, args[1], labels, instructions[i])
+        word = assembleCondJump(word, args[0], instructions[i])
+      except IndexError:
+        pass
 
     elif inst == 'rts':
       checkNumArgs(args, 0, inst, instructions[i])
 
     elif inst == 'rsc':
       checkNumArgs(args, 1, inst, instructions[i])
-      word = assembleCondJump(word, args[0], instructions[i])
+      try:
+        word = assembleCondJump(word, args[0], instructions[i])
+      except IndexError:
+        pass
 
     machine[i] = word
 

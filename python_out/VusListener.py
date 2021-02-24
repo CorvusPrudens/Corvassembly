@@ -1,5 +1,6 @@
 import sys
 from antlr4 import *
+from assemblyutils import *
 from gen.CorParser import CorParser
 from gen.CorListener import CorListener
 
@@ -22,8 +23,16 @@ class Variables:
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.addressRegex = re.compile('\\b\\$[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
+  # TODO -- all variables should be scoped when added
+
   # ['varType', 'name', 'address', 'value']
   def add(self, varType, name, value):
+
+    # TODO - errors need to be unified
+    if name in self.vars:
+      print(f'\nError: variable {name} already defined!\n')
+      exit(1)
+
     address = self.size[varType]
     self.size[varType] += 1
     self.vars[name] = {'type': varType, 'address': address, 'value': value}
@@ -65,7 +74,7 @@ class Variables:
     # to overload variable names
     self.size[varType] -= 1
 
-  def calc(self, mathString, listener):
+  def calc(self, mathString, listener, linenum=-1, fullpath='err'):
 
     match = self.variableRegex.search(mathString)
     while match != None:
@@ -77,35 +86,56 @@ class Variables:
       mathString = mathString[:match.start()] + str(self.getAddress(match.group(0))) + mathString[match.end():]
       match = self.addressRegex.search(mathString, pos=match.end())
 
+    # print(mathString)
     solution = 0
-    # try:
-    solution = round(eval(mathString, {}, self.evalDict))
-    # except NameError:
-    #   pass
-    #   # errstr = "-> undefined assignment"
-    #   # err(preserved, lines[i][0], errstr, 55)
-    # except SyntaxError:
-    #   pass
-    #   # errstr = "-> invalid syntax"
-    #   # err(preserved, lines[i][0], errstr, 56)
-    # except AttributeError:
-    #   pass
-    #   # errstr = "-> scope does not contain element"
-    #   # err(preserved, lines[i][0], errstr, 57)
-    # except TypeError:
-    #   pass
-    #   # errstr = "-> undefined assignment"
-    #   # err(preserved, lines[i][0], errstr, 58)
+    try:
+      solution = round(eval(mathString, {}, self.evalDict))
+    except NameError as err:
+      wrongtype = False
+      wrongtypename = ''
+      for key in self.vars:
+        tempregstr = '(\\b|^)({})\\b'.format(key)
+        if '.' in tempregstr:
+          tempregstr.replace('.', '\\.')
+        tempreg = re.compile(tempregstr)
+        if tempreg.search(mathString) != None:
+          wrongtype = True
+          wrongtypename = key
+          break
+      if not wrongtype:
+        extracted = err.args[0][6:]
+        extraced = extracted[:extracted.find('\'')]
+        errmess = f'\"{extraced}\" is not defined'
+        error(errmess, linenum, fullpath, 469)
+      else:
+        if (listener.currentName != listener.mainName and '.' in wrongtypename):
+          wrongtypename = wrongtypename[wrongtypename.find('.') + 1:]
+        errmess = f'cannot evaluate \"{wrongtypename}\" at compile time'
+        error(errmess, linenum, fullpath, 469)
+    except SyntaxError:
+      errmess = 'invalid syntax'
+      error(errmess, linenum, fullpath, 470)
+    except AttributeError:
+      errmess = 'undefined attribute'
+      error(errmess, linenum, fullpath, 471)
+    except TypeError:
+      errmess = 'invalid operation'
+      error(errmess, linenum, fullpath, 472)
 
     return solution
+
+  # this may need to be updated later if users want to specify
+  # addresses for data
+  def insert(self, newvars):
+    self.vars.update(newvars)
 
 
 
 class Instructions:
 
-  def __init__(self):
+  def __init__(self, pgmStartAddress=0, numloops=0):
     self.instructions = []
-    self.size = {'instructions': 0, 'loops': 0}
+    self.size = {'instructions': pgmStartAddress, 'loops': numloops}
     self.top_begin = ''
     self.top_end = ''
 
@@ -120,13 +150,14 @@ class Instructions:
     # print(type(ctx).__name__)
     mnemonic = ctx.MNEMONIC().getText()
     tempargs = []
+    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
     for arg in ctx.argument():
       if arg.expression() != None and arg.expression().math() != None or '$' in arg.getText():
-        tempargs.append(variables.calc(arg.getText(), listener))
+        tempargs.append(variables.calc(arg.getText(), listener, linenum, listener.fullpath))
       else:
         tempargs.append(listener.scope(arg.getText()))
 
-    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+
     address = self.size['instructions']
     self.size['instructions'] += 1
     self.instructions.append({'mnemonic': mnemonic, 'address': address,
@@ -153,7 +184,7 @@ class Instructions:
       self.top_end = loopend
 
     self.add(ctx.getChild(1), listener, variables)
-    labels.add(loopbegin, self)
+    labels.add(ctx, loopbegin, self, listener)
     self.add(ctx.getChild(3), listener, variables)
     self.addManual('joc', ['equal', loopend], linenum, listener)
 
@@ -173,14 +204,14 @@ class Instructions:
           target = self.top_end
         self.addManual('jmp', [target], linenum, listener)
       elif ctxname == 'LabelContext':
-        labels.add(ctx.getChild(i).getText()[:-1], self)
+        labels.add(ctx, ctx.getChild(i).getText()[:-1], self, listener)
       elif ctxname == 'LoopContext':
         self.addLoop(ctx.getChild(i), listener, variables, labels)
 
-    labels.add(loopcont, self)
+    labels.add(ctx, loopcont, self, listener)
     self.add(ctx.getChild(5), listener, variables)
     self.addManual('jmp', [loopbegin], linenum, listener)
-    labels.add(loopend, self)
+    labels.add(ctx, loopend, self, listener)
 
   def getAddress(self):
     return self.size['instructions']
@@ -199,10 +230,28 @@ class Labels:
   def __init__(self):
     self.labels = []
 
+  def setInit(self, pgmStartAddress=0):
+    # begins with a default label to skip reserved
+    # interrupt addresses
+    self.labels.insert(0, {'name': '__pgm_start__', 'address': pgmStartAddress})
+
   # ['label', 'address']
-  def add(self, name, instr):
+  def add(self, ctx, name, instr, listener, interrupt=-1):
+    # TODO - errors need to be unified
+    for label in self.labels:
+      if label['name'] == name:
+        print(f'\nError: label {name} already defined!\n')
+        exit(1)
+
     address = instr.getAddress()
-    self.labels.append({'name': name, 'address': address})
+    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+    if (interrupt == -1):
+      self.labels.append({'name': name, 'address': address,
+                          'line': linenum, 'path': listener.fullpath})
+    else:
+      self.labels.append({'name': name, 'address': address,
+                          'interrupt': interrupt, 'line': linenum,
+                          'path': listener.fullpath})
 
   def getLabels(self):
     return self.labels
@@ -215,9 +264,9 @@ class Labels:
 
 class VusListener(CorListener) :
 
-  def __init__(self, mainName, ramStartAddress_init, fullpath, sysvars_init):
+  def __init__(self, mainName, ramStartAddress_init, pgmStartAddress_init, fullpath, sysvars_init):
     self.variables = Variables(ramStartAddress=ramStartAddress_init, sysvars=sysvars_init)
-    self.instructions = Instructions()
+    self.instructions = Instructions(pgmStartAddress=pgmStartAddress_init)
     self.labels = Labels()
     self.mainName = mainName
     self.currentName = ''
@@ -225,11 +274,13 @@ class VusListener(CorListener) :
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
       'pre', 'ram', 'rom', 'gpu',
       'zero', 'carry', 'negative',
-      'equal', 'greater', 'less',
-      'UART', 'STACK', 'STATUS',
-      'GPIO', 'GPIO_DIR', 'TX_EMPTY',
-      'TX_FULL', 'RX_EMPTY', 'RX_FULL',
-      'continue', 'break'
+      'equal', 'greater', 'less', 'SCOPE_RATE',
+      'UART', 'STACK', 'STATUS', 'SCOPE_ADDR',
+      'GPIO', 'GPIO_DIR', 'TX_EMPTY', 'SCOPE_DATA',
+      'TX_FULL', 'RX_EMPTY', 'RX_FULL', 'SCOPE_HOLD',
+      'continue', 'break', 'FLASH_READ', 'FLASH_WRITE',
+      'FLASH_STATUS', 'FLASH_PAGE', 'FLASH_WRITE_WORD',
+      'FLASH_READ_WORD', 'FLASH_ERASE_WORD'
     ]
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.fullpath = fullpath
@@ -244,10 +295,10 @@ class VusListener(CorListener) :
           input = self.currentName + '.' + input
     return input
 
-  def setName(self, name, fullpath, stream):
-    self.currentName = name
-    self.fullpath = fullpath
-    self.stream = stream
+  # def setName(self, name, fullpath, stream):
+  #   self.currentName = name
+  #   self.fullpath = fullpath
+  #   self.stream = stream
 
   def getVariables(self):
     return self.variables
@@ -261,8 +312,16 @@ class VusListener(CorListener) :
   def getLabels(self):
     return self.labels
 
-  def reset(self):
-    self.instructions = Instructions()
+  def reset(self, name, fullpath, stream, startaddr=3):
+    self.currentName = name
+    self.fullpath = fullpath
+    self.stream = stream
+
+    prevloops = self.instructions.size['loops']
+    if self.currentName == self.mainName:
+      self.instructions = Instructions(pgmStartAddress=startaddr, numloops=prevloops)
+    else:
+      self.instructions = Instructions(numloops=prevloops)
     self.labels = Labels()
 
 
@@ -277,8 +336,12 @@ class VusListener(CorListener) :
 
   # Enter a parse tree produced by CorParser#block.
   def enterBlock(self, ctx:CorParser.BlockContext):
-      templabel = self.scope(ctx.label().VARIABLE().getText())
-      self.labels.add(templabel, self.instructions)
+      templabel = self.scope(ctx.label().getChild(0).getText())
+      if ctx.label().getChildCount() == 2:
+        self.labels.add(ctx, templabel, self.instructions, self)
+      else:
+        tempint = self.scope(ctx.label().getChild(2).getText())
+        self.labels.add(ctx, templabel, self.instructions, self, interrupt=tempint)
       pass
 
   def convertString(self, string):
@@ -327,7 +390,7 @@ class VusListener(CorListener) :
   # Exit a parse tree produced by CorParser#declaration.
   def declaration(self, ctx):
       if ctx.getChildCount() == 2: # simple declaration
-        self.variables.add(self.scope(ctx.RAM().getText()), ctx.VARIABLE().getText(), 0)
+        self.variables.add(ctx.RAM().getText(), self.scope(ctx.VARIABLE().getText()), 0)
       else: # array
         # adding sneaky precompiler variable to mimic the behavior of C arrays
         self.variables.add('pre', self.scope(ctx.VARIABLE().getText()), self.variables.size['ram'])

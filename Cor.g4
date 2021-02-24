@@ -97,14 +97,14 @@ CBRACE                 : '}';
 
 REGISTER               : [a-h];
 
-// TODO -- make these case case insensitive
+// TODO -- make these case insensitive
 MNEMONIC               :  'nop'| 'ldr'| 'str'| 'lpt'|
                           'spt'| 'cmp'| 'add'| 'sub'|
                           'mul'| 'div'| 'mod'| 'and'|
-                          'or'|  'xor'| 'not'| 'lsl'|
+                          'or' | 'xor'| 'not'| 'lsl'|
                           'lsr'| 'psh'| 'pop'| 'pek'|
                           'jmp'| 'jsr'| 'rts'| 'joc'|
-                          'jsc'| 'rsc'| 'tfm';
+                          'jsc'| 'rsc'| 'rti'| 'ric';
 
 // we won't be able to detect array names as variable (i.e. arr[0])
 // we'll have to come up with a workaround

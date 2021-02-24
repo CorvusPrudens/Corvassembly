@@ -5,7 +5,8 @@ from gen.CorParser import CorParser
 from VusListener import *
 from assemblyutils import *
 
-RAM_ADDRESS_BEGIN = 41
+RAM_ADDRESS_BEGIN = 48
+PGM_ADDRESS_BEGIN = 3
 PROGRAM_WORD_WIDTH = 32
 DATA_WORD_WIDTH = 16
 
@@ -77,9 +78,13 @@ def main(argv):
   walker.walk(importListener, tree)
 
   # proper parsing
-  listener = VusListener(importListener.getImports()[-1]['name'], RAM_ADDRESS_BEGIN, importListener.imports[-1]['path'], SYSVARS)
+  listener = VusListener(importListener.getImports()[-1]['name'],
+                         RAM_ADDRESS_BEGIN, PGM_ADDRESS_BEGIN,
+                         importListener.imports[-1]['path'], SYSVARS)
+  # NOTE -- main file is the last addition to imports list
   labels = Labels()
   instructions = Instructions()
+  variables = Variables()
 
   for file in importListener.getImports():
     input = FileStream(file['path'])
@@ -91,14 +96,27 @@ def main(argv):
     numInstructions = listener.getNumInstructions()
     labels.insert(listener.getLabels().getLabels(), numInstructions)
     instructions.insert(listener.getInstructions().getInstructions(), numInstructions)
-    listener.reset()
-    listener.setName(file['name'], file['path'], stream)
+    variables.insert(listener.getVariables().getVariables())
+    listener.reset(file['name'], file['path'], stream, startaddr=PGM_ADDRESS_BEGIN)
+    # listener.setName(file['name'], file['path'], stream)
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
   numInstructions = listener.getNumInstructions()
   labels.insert(listener.getLabels().getLabels(), numInstructions)
+  # labels.labels.insert(0, {'name': '__pgm_start__', 'address': 3})
   instructions.insert(listener.getInstructions().getInstructions(), numInstructions)
+
+  listener.getLabels().setInit(pgmStartAddress=PGM_ADDRESS_BEGIN)
+  labels.setInit(pgmStartAddress=PGM_ADDRESS_BEGIN)
+
+
+  for i in range(len(INIT_INSTRUCTIONS) - 1, -1, -1):
+    listener.getInstructions().getInstructions().insert(0, INIT_INSTRUCTIONS[i])
+    instructions.getInstructions().insert(0, INIT_INSTRUCTIONS[i])
+  setInterrupts(listener.getLabels().getLabels(),
+                listener.getInstructions().getInstructions())
+
 
   ##############################################################
   ### OUTPUT
@@ -118,17 +136,16 @@ def main(argv):
   prom = []
   drom = []
 
-  prom = assembleInstructions(listener.getInstructions().getInstructions(),
-                              listener.getVariables().getVariables(),
-                              listener.getLabels().getLabels())
-  drom = assembleVariables(listener.getVariables().getVariables(), DATA_WORD_WIDTH)
-
-  endExecution()
-
   if options_args['-p'] != '':
+    prom = assembleInstructions(instructions.getInstructions(),
+                                listener.getVariables().getVariables(),
+                                labels.getLabels())
     writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']), PROGRAM_WORD_WIDTH)
   if options_args['-d'] != '':
+    drom = assembleVariables(listener.getVariables().getVariables(), DATA_WORD_WIDTH)
     writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']), DATA_WORD_WIDTH)
+
+  endExecution()
 
 
 
