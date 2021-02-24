@@ -33,19 +33,22 @@ declaration     : RAM VARIABLE array_init*;
 
 expression      : exp_number | exp_var | math;
 
-math            : (((NUMBER | VARIABLE) OPERATOR)+ (NUMBER | VARIABLE))
+// this is getting ugly
+math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE)CPAR*) *CPAR (OPERATOR (NUMBER | VARIABLE))*
+                | OPAR* OPERATOR OPAR* (NUMBER | VARIABLE) *CPAR
+                | (((NUMBER | VARIABLE) OPERATOR)+ (NUMBER | VARIABLE))
                 | OPERATOR (NUMBER | VARIABLE)
                 ;
 
 exp_number      : NUMBER;
 
-exp_var         : VARIABLE;
-
 array           : VARIABLE (array_init)+ '=' (arr_data | string);
 
-string          : STRING;
+exp_var         : VARIABLE array_init*;
 
 array_init      : OBRACKET expression? CBRACKET;
+
+string          : STRING;
 
 arr_data        : OBRACE ((expression | arr_data | string) ',')*
                   (expression | arr_data | string) ','? CBRACE;
@@ -61,7 +64,7 @@ argument        : register
 
 register        : REGISTER;
 
-label           : VARIABLE ':';
+label           : (VARIABLE COLON) | (VARIABLE OPAR VARIABLE CPAR COLON);
 
 // lexy stuff
 
@@ -88,6 +91,10 @@ BREAKALL               : 'breakall';
 BREAK                  : 'break';
 
 SEMI                   : ';';
+COLON                  : ':';
+
+OPAR                   : '(';
+CPAR                   : ')';
 
 OBRACKET               : '[';
 CBRACKET               : ']';
@@ -114,7 +121,7 @@ WHITESPACE             : [ \t\n\r] -> skip;
 
 /* OP_SHORT               : '++' | '--' | [+\-/*<>|&^~][+\-=]; */
 
-OPERATOR               : [+\-=/*()<>|&^~];
+OPERATOR               : '<<' | '>>' | [+\-=/*<>|&^~];
 
 fragment DEC           : [1-9][0-9_]* | '0';
 fragment HEX           : '0x'[0-9A-Fa-f][0-9A-Fa-f_]*;

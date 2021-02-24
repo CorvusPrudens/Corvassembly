@@ -3,7 +3,10 @@ pre NUM_LOOPS = 100
 pre LEN_DELAY = 65535
 pre NUM_DELAY = 100
 
+ram array[20]
+
 main:
+  ldr a, array[0]
   jsr writeout
   jsr delay
   jmp main
@@ -22,3 +25,18 @@ writeout:
     str a, UART
   }
   rts
+
+example(TIMER):
+  ram tempa
+
+  str a, tempa
+  ldr a, 20
+  str a, UART
+  ldr a, tempa
+
+  rsc equal
+
+  rti TIMER
+
+example2(FRAME):
+  rti FRAME

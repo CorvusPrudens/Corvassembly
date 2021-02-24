@@ -1,7 +1,7 @@
 
 # NOT PORTABLE!!
 ANTLR_HOME = ~/Applications
-ANTLR_JAR = ${ANTLR_HOME}/antlr-4.8-complete.jar
+ANTLR_JAR = ${ANTLR_HOME}/antlr-4.9.1-complete.jar
 
 ANTLR = java -jar ${ANTLR_JAR}
 GRUN = java org.antlr.v4.gui.TestRig

@@ -234,13 +234,13 @@ for var in sysvarTable:
     SYSVARS[var[1]] = {'type': 'pre', 'name': var[1], 'address': 0, 'value': var[2], 'line': -1, 'path': -1}
 
 
-MNEM2OP        = {'nop': 0, 'ldr': 1, 'str': 2, 'lpt': 3, 'spt': 4, 'cmp': 5,
-                  'add': 6, 'sub': 7, 'mul': 8, 'div': 9, 'mod': 10, 'and': 11,
-                  'or': 12, 'xor': 13, 'not': 14, 'lsl': 15, 'lsr': 16, 'psh': 17,
-                  'pop': 18, 'pek': 19, 'jmp': 20, 'jsr': 21, 'rts': 22, 'joc': 23,
-                  'jsc': 24, 'rsc': 25}
+MNEM2OP = {'nop': 0,  'ldr': 1,  'str': 2,  'lpt': 3,  'spt': 4,  'cmp': 5,
+           'add': 6,  'sub': 7,  'mul': 8,  'div': 9,  'mod': 10, 'and': 11,
+           'or' : 12, 'xor': 13, 'not': 14, 'lsl': 15, 'lsr': 16, 'psh': 17,
+           'pop': 18, 'pek': 19, 'jmp': 20, 'jsr': 21, 'rts': 22, 'joc': 23,
+           'jsc': 24, 'rsc': 25, 'rti': 26, 'ric': 27}
 
-INTERRUPT_VECTORS = {'TIMER0': 1, 'TIMER1': 2}
+INTERRUPT_VECTORS = {'FRAME': 1, 'TIMER': 2}
 
 INIT_INSTRUCTIONS = [
   {'mnemonic': 'jmp', 'address': 0, 'arguments': ['__pgm_start__'], 'line': -1, 'path': -1},
@@ -412,16 +412,25 @@ def assembleLabel(word, arg, labels, instruction):
   return word
 
 def checkNumArgs(args, argtarget, name, instruction):
+  numToWord = ['zero', 'one', 'two', 'three']
   if len(args) != argtarget:
-    errmess = f'\"{name}\" takes exactly two arguments'
+    errmess = f'\"{name}\" takes exactly {numToWord[argtarget]} argument{"s" if argtarget != 1 else ""}'
     error(errmess, instruction['line'], instruction['path'], 69)
 
 def assembleCondJump(word, arg, instruction):
   try:
     word |= CONDITIONS[arg] << OPERAND1_SHIFT
   except KeyError:
-    errmess = f'\"{arg}\" must be a valid condition'
+    errmess = f'\"{arg}\" is not a valid condition'
     error(errmess, instruction['line'], instruction['path'], 420)
+  return word
+
+def assembleInterruptVector(word, arg, instruction):
+  try:
+    word |= INTERRUPT_VECTORS[arg];
+  except KeyError:
+    errmess = f'\"{arg}\" is not a valid interrupt vector'
+    error(errmess, instruction['line'], instruction['path'], 58008)
   return word
 
 ##############################################################
@@ -547,6 +556,21 @@ def assembleInstructions(instructions, variables, labels):
     elif inst == 'rsc':
       checkNumArgs(args, 1, inst, instructions[i])
       try:
+        word = assembleCondJump(word, args[0], instructions[i])
+      except IndexError:
+        pass
+
+    elif inst == 'rti':
+      checkNumArgs(args, 1, inst, instructions[i])
+      try:
+        word = assembleInterruptVector(word, args[0], instructions[i])
+      except IndexError:
+        pass
+
+    elif inst == 'ric':
+      checkNumArgs(args, 2, inst, instructions[i])
+      try:
+        word = assembleInterruptVector(word, args[1], instructions[i])
         word = assembleCondJump(word, args[0], instructions[i])
       except IndexError:
         pass

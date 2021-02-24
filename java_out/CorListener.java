@@ -1,4 +1,4 @@
-// Generated from Cor.g4 by ANTLR 4.8
+// Generated from Cor.g4 by ANTLR 4.9.1
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -147,16 +147,6 @@ public interface CorListener extends ParseTreeListener {
 	 */
 	void exitExp_number(CorParser.Exp_numberContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link CorParser#exp_var}.
-	 * @param ctx the parse tree
-	 */
-	void enterExp_var(CorParser.Exp_varContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link CorParser#exp_var}.
-	 * @param ctx the parse tree
-	 */
-	void exitExp_var(CorParser.Exp_varContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link CorParser#array}.
 	 * @param ctx the parse tree
 	 */
@@ -167,15 +157,15 @@ public interface CorListener extends ParseTreeListener {
 	 */
 	void exitArray(CorParser.ArrayContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link CorParser#string}.
+	 * Enter a parse tree produced by {@link CorParser#exp_var}.
 	 * @param ctx the parse tree
 	 */
-	void enterString(CorParser.StringContext ctx);
+	void enterExp_var(CorParser.Exp_varContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link CorParser#string}.
+	 * Exit a parse tree produced by {@link CorParser#exp_var}.
 	 * @param ctx the parse tree
 	 */
-	void exitString(CorParser.StringContext ctx);
+	void exitExp_var(CorParser.Exp_varContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link CorParser#array_init}.
 	 * @param ctx the parse tree
@@ -186,6 +176,16 @@ public interface CorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArray_init(CorParser.Array_initContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#string}.
+	 * @param ctx the parse tree
+	 */
+	void enterString(CorParser.StringContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#string}.
+	 * @param ctx the parse tree
+	 */
+	void exitString(CorParser.StringContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link CorParser#arr_data}.
 	 * @param ctx the parse tree

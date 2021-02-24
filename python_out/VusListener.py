@@ -273,14 +273,14 @@ class VusListener(CorListener) :
     self.keywords = [
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
       'pre', 'ram', 'rom', 'gpu',
-      'zero', 'carry', 'negative',
+      'zero', 'carry', 'negative', 'as', 'for',
       'equal', 'greater', 'less', 'SCOPE_RATE',
       'UART', 'STACK', 'STATUS', 'SCOPE_ADDR',
       'GPIO', 'GPIO_DIR', 'TX_EMPTY', 'SCOPE_DATA',
       'TX_FULL', 'RX_EMPTY', 'RX_FULL', 'SCOPE_HOLD',
-      'continue', 'break', 'FLASH_READ', 'FLASH_WRITE',
+      'continue', 'break', 'breakall', 'FLASH_READ', 'FLASH_WRITE',
       'FLASH_STATUS', 'FLASH_PAGE', 'FLASH_WRITE_WORD',
-      'FLASH_READ_WORD', 'FLASH_ERASE_WORD'
+      'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER', 'FRAME',
     ]
     self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.fullpath = fullpath

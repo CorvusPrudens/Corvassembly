@@ -1,4 +1,4 @@
-# Generated from Cor.g4 by ANTLR 4.8
+# Generated from Cor.g4 by ANTLR 4.9.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .CorParser import CorParser
@@ -134,15 +134,6 @@ class CorListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CorParser#exp_var.
-    def enterExp_var(self, ctx:CorParser.Exp_varContext):
-        pass
-
-    # Exit a parse tree produced by CorParser#exp_var.
-    def exitExp_var(self, ctx:CorParser.Exp_varContext):
-        pass
-
-
     # Enter a parse tree produced by CorParser#array.
     def enterArray(self, ctx:CorParser.ArrayContext):
         pass
@@ -152,12 +143,12 @@ class CorListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CorParser#string.
-    def enterString(self, ctx:CorParser.StringContext):
+    # Enter a parse tree produced by CorParser#exp_var.
+    def enterExp_var(self, ctx:CorParser.Exp_varContext):
         pass
 
-    # Exit a parse tree produced by CorParser#string.
-    def exitString(self, ctx:CorParser.StringContext):
+    # Exit a parse tree produced by CorParser#exp_var.
+    def exitExp_var(self, ctx:CorParser.Exp_varContext):
         pass
 
 
@@ -167,6 +158,15 @@ class CorListener(ParseTreeListener):
 
     # Exit a parse tree produced by CorParser#array_init.
     def exitArray_init(self, ctx:CorParser.Array_initContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#string.
+    def enterString(self, ctx:CorParser.StringContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#string.
+    def exitString(self, ctx:CorParser.StringContext):
         pass
 
 

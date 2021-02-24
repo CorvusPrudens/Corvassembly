@@ -1,4 +1,4 @@
-// Generated from Cor.g4 by ANTLR 4.8
+// Generated from Cor.g4 by ANTLR 4.9.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -183,18 +183,6 @@ public class CorBaseListener implements CorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExp_var(CorParser.Exp_varContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExp_var(CorParser.Exp_varContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterArray(CorParser.ArrayContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -207,13 +195,13 @@ public class CorBaseListener implements CorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterString(CorParser.StringContext ctx) { }
+	@Override public void enterExp_var(CorParser.Exp_varContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitString(CorParser.StringContext ctx) { }
+	@Override public void exitExp_var(CorParser.Exp_varContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -226,6 +214,18 @@ public class CorBaseListener implements CorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArray_init(CorParser.Array_initContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterString(CorParser.StringContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitString(CorParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
