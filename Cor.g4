@@ -24,7 +24,7 @@ loop_keyword    : CONTINUE | BREAK | BREAKALL;
 
 // comparison      : REGISTER COMPARATOR math;
 
-conditional     : (instruction SEMI)+ CONDITION SEMI;
+conditional     : (instruction SEMI)* instruction IS CONDITION SEMI;
 
 if_stat         : IF conditional cond_block;
 
@@ -113,6 +113,7 @@ BREAK                  : 'break';
 IF                     : 'if';
 ELIF                   : 'elif';
 ELSE                   : 'else';
+IS                     : 'is';
 
 CONDITION              : 'zero'
                        | 'carry'

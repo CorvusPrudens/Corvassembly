@@ -39,19 +39,29 @@ example(TIMER):
   rti TIMER
 
 example2(FRAME):
-  if cmp a, 20; equal; {
+
+  cmp a, 0
+  joc equal, CONT
+  ldr a, 20
+  jmp AFTER
+  CONT:
+    ldr a, 40
+  AFTER:
+
+  cmp a, 1
+  joc equal, TRUE
+  jmp FALSE
+  TRUE:
     ldr a, 20
-  } elif add a, 10; cmp a, 20; equal; {
+    jmp AFTER
+  FALSE:
+    ldr a, 40
+  AFTER:
 
-    if add b, 20; cmp b, 500; greater; {
-
-      for ldr c, 0; cmp c, 500; add c, 1; {
-        spt a, gpu
-        add h, 1
-      }
-
-    }
+  if cmp a, 1 is equal; {
+    ldr a, 20
   } else {
-    ldr a, 2
+    ldr a, 40
   }
+
   rti FRAME
