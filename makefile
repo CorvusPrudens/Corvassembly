@@ -1,6 +1,12 @@
 
-# NOT PORTABLE!!
+UNAME = $(shell uname)
+
+ifeq ($(UNAME), Linux)
 ANTLR_HOME = ~/Applications
+else 
+ANTLR_HOME = /usr/local/lib
+endif
+
 ANTLR_JAR = ${ANTLR_HOME}/antlr-4.9.1-complete.jar
 
 ANTLR = java -jar ${ANTLR_JAR}

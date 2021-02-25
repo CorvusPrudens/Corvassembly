@@ -67,6 +67,26 @@ public interface CorListener extends ParseTreeListener {
 	 */
 	void exitStatement_loop(CorParser.Statement_loopContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CorParser#statement_if}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatement_if(CorParser.Statement_ifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#statement_if}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatement_if(CorParser.Statement_ifContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#cond_block}.
+	 * @param ctx the parse tree
+	 */
+	void enterCond_block(CorParser.Cond_blockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#cond_block}.
+	 * @param ctx the parse tree
+	 */
+	void exitCond_block(CorParser.Cond_blockContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CorParser#loop}.
 	 * @param ctx the parse tree
 	 */
@@ -86,6 +106,56 @@ public interface CorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLoop_keyword(CorParser.Loop_keywordContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#conditional}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditional(CorParser.ConditionalContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#conditional}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditional(CorParser.ConditionalContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#if_stat}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf_stat(CorParser.If_statContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#if_stat}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf_stat(CorParser.If_statContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#elif_stat}.
+	 * @param ctx the parse tree
+	 */
+	void enterElif_stat(CorParser.Elif_statContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#elif_stat}.
+	 * @param ctx the parse tree
+	 */
+	void exitElif_stat(CorParser.Elif_statContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#else_stat}.
+	 * @param ctx the parse tree
+	 */
+	void enterElse_stat(CorParser.Else_statContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#else_stat}.
+	 * @param ctx the parse tree
+	 */
+	void exitElse_stat(CorParser.Else_statContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CorParser#if_chain}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf_chain(CorParser.If_chainContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CorParser#if_chain}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf_chain(CorParser.If_chainContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link CorParser#assignment}.
 	 * @param ctx the parse tree

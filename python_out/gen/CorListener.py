@@ -80,6 +80,60 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#cond_block.
+    def enterCond_block(self, ctx:CorParser.Cond_blockContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#cond_block.
+    def exitCond_block(self, ctx:CorParser.Cond_blockContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#conditional.
+    def enterConditional(self, ctx:CorParser.ConditionalContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#conditional.
+    def exitConditional(self, ctx:CorParser.ConditionalContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#if_stat.
+    def enterIf_stat(self, ctx:CorParser.If_statContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#if_stat.
+    def exitIf_stat(self, ctx:CorParser.If_statContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#elif_stat.
+    def enterElif_stat(self, ctx:CorParser.Elif_statContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#elif_stat.
+    def exitElif_stat(self, ctx:CorParser.Elif_statContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#else_stat.
+    def enterElse_stat(self, ctx:CorParser.Else_statContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#else_stat.
+    def exitElse_stat(self, ctx:CorParser.Else_statContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#if_chain.
+    def enterIf_chain(self, ctx:CorParser.If_chainContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#if_chain.
+    def exitIf_chain(self, ctx:CorParser.If_chainContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#assignment.
     def enterAssignment(self, ctx:CorParser.AssignmentContext):
         pass
@@ -122,6 +176,15 @@ class CorListener(ParseTreeListener):
 
     # Exit a parse tree produced by CorParser#math.
     def exitMath(self, ctx:CorParser.MathContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#comparison.
+    def enterComparison(self, ctx:CorParser.ComparisonContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#comparison.
+    def exitComparison(self, ctx:CorParser.ComparisonContext):
         pass
 
 

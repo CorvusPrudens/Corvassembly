@@ -4,7 +4,7 @@ grammar Cor;
 
 parse           : initial block* EOF;
 
-block           : label (statement | statement_loop)*;
+block           : label (statement | statement_loop | statement_if)*;
 
 file_import     : IMPORT (VARIABLE | STRING) (AS VARIABLE)?;
 
@@ -14,9 +14,28 @@ statement       : declaration | assignment | assignment_arr | instruction;
 
 statement_loop  : loop;
 
-loop            : FOR instruction SEMI instruction SEMI instruction SEMI OBRACE (label | instruction | loop_keyword | loop)* CBRACE;
+statement_if    : if_chain;
+
+cond_block      : OBRACE (label | instruction | loop | if_chain | loop_keyword)* CBRACE;
+
+loop            : FOR instruction SEMI instruction SEMI instruction SEMI cond_block;
 
 loop_keyword    : CONTINUE | BREAK | BREAKALL;
+
+// comparison      : REGISTER COMPARATOR math;
+
+conditional     : (instruction SEMI)+ CONDITION SEMI;
+
+if_stat         : IF conditional cond_block;
+
+elif_stat       : ELIF conditional cond_block;
+
+else_stat       : ELSE cond_block;
+
+if_chain        : if_stat elif_stat+ else_stat*
+                | if_stat else_stat
+                | if_stat
+                ;
 
 /* loop_init       : REGISTER '=' expression;
 
@@ -60,6 +79,7 @@ argument        : register
                 | RAM
                 | CONST
                 | GPU
+                | CONDITION
                 ;
 
 register        : REGISTER;
@@ -89,6 +109,18 @@ FOR                    : 'for';
 CONTINUE               : 'continue';
 BREAKALL               : 'breakall';
 BREAK                  : 'break';
+
+IF                     : 'if';
+ELIF                   : 'elif';
+ELSE                   : 'else';
+
+CONDITION              : 'zero'
+                       | 'carry'
+                       | 'negative'
+                       | 'equal'
+                       | 'greater'
+                       | 'less'
+                       ;
 
 SEMI                   : ';';
 COLON                  : ':';
@@ -121,7 +153,9 @@ WHITESPACE             : [ \t\n\r] -> skip;
 
 /* OP_SHORT               : '++' | '--' | [+\-/*<>|&^~][+\-=]; */
 
-OPERATOR               : '<<' | '>>' | [+\-=/*<>|&^~];
+COMPARATOR             : '==' | '>' | '<' | '>=' | '<=';
+
+OPERATOR               : '<<' | '>>' | [+\-/*|&^~];
 
 fragment DEC           : [1-9][0-9_]* | '0';
 fragment HEX           : '0x'[0-9A-Fa-f][0-9A-Fa-f_]*;
