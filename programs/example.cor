@@ -4,6 +4,7 @@ pre LEN_DELAY = 65535
 pre NUM_DELAY = 100
 
 ram array[20]
+ram hap
 
 main:
   ldr a, array[0]
@@ -13,15 +14,15 @@ main:
 
 
 delay:
-  for ldr a, 0; cmp a, NUM_DELAY; add a, 1; {
-    for ldr b, 0; cmp b, LEN_DELAY; add b, 1; {
+  for (ldr a, 0; cmp a, NUM_DELAY; add a, 1) {
+    for (ldr b, 0; cmp b, LEN_DELAY; add b, 1) {
 
     }
   }
   rts
 
 writeout:
-  for ldr a, 0; cmp a, NUM_LOOPS; add a, 1; {
+  for (ldr a, 0; cmp a, NUM_LOOPS; add a, 1) {
     str a, UART
   }
   rts
@@ -40,7 +41,7 @@ example(TIMER):
 
 example2(FRAME):
 
-  cmp a, 0
+  /* cmp a, 0
   joc equal, CONT
   ldr a, 20
   jmp AFTER
@@ -58,9 +59,29 @@ example2(FRAME):
     ldr a, 40
   AFTER:
 
-  if cmp a, 1 is equal; {
+  // if cmp a, 1 is equal {ldr a, 20}
+  // if an if statement is only one if, we should eliminate the final jump
+  cmp a, 1
+  joc equal, TRUE
+  jmp FALSE
+  TRUE:
+  ldr a, 20
+  jmp AFTER
+  FALSE:
+  AFTER: */
+
+  if (ldr a, hap; cmp a, NUM_DELAY isnt equal) {
     ldr a, 20
+  } elif (cmp a, 2 is equal) {
+    if (cmp b, 1 isnt equal) {
+      add b, 2
+    }
+    ldr a, 21
   } else {
+    for (ldr b, 0; cmp b, 20; add b, 1) {
+      spt a, gpu
+      add h, 1
+    }
     ldr a, 40
   }
 

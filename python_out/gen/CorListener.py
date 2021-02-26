@@ -62,6 +62,24 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#statement_if.
+    def enterStatement_if(self, ctx:CorParser.Statement_ifContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#statement_if.
+    def exitStatement_if(self, ctx:CorParser.Statement_ifContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#cond_block.
+    def enterCond_block(self, ctx:CorParser.Cond_blockContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#cond_block.
+    def exitCond_block(self, ctx:CorParser.Cond_blockContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#loop.
     def enterLoop(self, ctx:CorParser.LoopContext):
         pass
@@ -77,15 +95,6 @@ class CorListener(ParseTreeListener):
 
     # Exit a parse tree produced by CorParser#loop_keyword.
     def exitLoop_keyword(self, ctx:CorParser.Loop_keywordContext):
-        pass
-
-
-    # Enter a parse tree produced by CorParser#cond_block.
-    def enterCond_block(self, ctx:CorParser.Cond_blockContext):
-        pass
-
-    # Exit a parse tree produced by CorParser#cond_block.
-    def exitCond_block(self, ctx:CorParser.Cond_blockContext):
         pass
 
 
@@ -176,15 +185,6 @@ class CorListener(ParseTreeListener):
 
     # Exit a parse tree produced by CorParser#math.
     def exitMath(self, ctx:CorParser.MathContext):
-        pass
-
-
-    # Enter a parse tree produced by CorParser#comparison.
-    def enterComparison(self, ctx:CorParser.ComparisonContext):
-        pass
-
-    # Exit a parse tree produced by CorParser#comparison.
-    def exitComparison(self, ctx:CorParser.ComparisonContext):
         pass
 
 

@@ -18,13 +18,13 @@ statement_if    : if_chain;
 
 cond_block      : OBRACE (label | instruction | loop | if_chain | loop_keyword)* CBRACE;
 
-loop            : FOR instruction SEMI instruction SEMI instruction SEMI cond_block;
+loop            : FOR OPAR instruction SEMI instruction SEMI instruction CPAR cond_block;
 
 loop_keyword    : CONTINUE | BREAK | BREAKALL;
 
 // comparison      : REGISTER COMPARATOR math;
 
-conditional     : (instruction SEMI)* instruction IS CONDITION SEMI;
+conditional     : OPAR (instruction SEMI)* instruction (IS|ISNT) CONDITION CPAR;
 
 if_stat         : IF conditional cond_block;
 
@@ -114,6 +114,7 @@ IF                     : 'if';
 ELIF                   : 'elif';
 ELSE                   : 'else';
 IS                     : 'is';
+ISNT                   : 'isnt';
 
 CONDITION              : 'zero'
                        | 'carry'

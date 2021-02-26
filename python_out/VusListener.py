@@ -133,9 +133,9 @@ class Variables:
 
 class Instructions:
 
-  def __init__(self, pgmStartAddress=0, numloops=0):
+  def __init__(self, pgmStartAddress=0, numloops=0, numifs=0):
     self.instructions = []
-    self.size = {'instructions': pgmStartAddress, 'loops': numloops}
+    self.size = {'instructions': pgmStartAddress, 'loops': numloops, 'ifs': numifs}
     self.top_begin = ''
     self.top_end = ''
 
@@ -183,18 +183,18 @@ class Instructions:
       self.top_begin = loopbegin
       self.top_end = loopend
 
-    self.add(ctx.getChild(1), listener, variables)
+    self.add(ctx.getChild(2), listener, variables)
     labels.add(ctx, loopbegin, self, listener)
-    self.add(ctx.getChild(3), listener, variables)
+    self.add(ctx.getChild(4), listener, variables)
     self.addManual('joc', ['equal', loopend], linenum, listener)
 
-    children = ctx.getChildCount()
-    for i in range(8, children - 1):
-      ctxname = type(ctx.getChild(i)).__name__
+    children = ctx.getChild(8).getChildCount()
+    for i in range(1, children - 1):
+      ctxname = type(ctx.getChild(8).getChild(i)).__name__
       if ctxname == 'InstructionContext':
-        self.add(ctx.getChild(i), listener, variables)
+        self.add(ctx.getChild(8).getChild(i), listener, variables)
       elif ctxname == 'Loop_keywordContext':
-        keyword = ctx.getChild(i).getText()
+        keyword = ctx.getChild(8).getChild(i).getText()
         target = ''
         if keyword == 'continue':
           target = loopcont
@@ -204,14 +204,115 @@ class Instructions:
           target = self.top_end
         self.addManual('jmp', [target], linenum, listener)
       elif ctxname == 'LabelContext':
-        labels.add(ctx, ctx.getChild(i).getText()[:-1], self, listener)
+        labels.add(ctx, ctx.getChild(8).getChild(i).getText()[:-1], self, listener)
       elif ctxname == 'LoopContext':
-        self.addLoop(ctx.getChild(i), listener, variables, labels)
+        self.addLoop(ctx.getChild(8).getChild(i), listener, variables, labels)
+      elif ctxname == 'If_chainContext':
+        self.addIfchain(ctx.getChild(8).getChild(i), listener, variables, labels)
 
     labels.add(ctx, loopcont, self, listener)
-    self.add(ctx.getChild(5), listener, variables)
+    self.add(ctx.getChild(6), listener, variables)
     self.addManual('jmp', [loopbegin], linenum, listener)
     labels.add(ctx, loopend, self, listener)
+
+  # recursively add ifs
+  def addIfchain(self, ctx, listener, variables, labels):
+    linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+    ifname = f'__if{self.size["ifs"]}'
+    # ifbegin = ifname + '_begin'
+    ifend = ifname + '_end'
+    thisIfNum = self.size['ifs']
+    self.size['ifs'] += 1
+
+    numifs = ctx.getChildCount()
+
+    if numifs == 1:
+      ifstat = ctx.getChild(0)
+      currentBranch = f'__if{thisIfNum}_branch0'
+      # adding instructions in conditional and the jump logic
+      numInstructions = math.ceil((ifstat.getChild(1).getChildCount() - 4)/2)
+      condition = ifstat.getChild(1).getChild(ifstat.getChild(1).getChildCount() - 2).getText()
+      conditionCondition = ifstat.getChild(1).getChild(ifstat.getChild(1).getChildCount() - 3).getText()
+      for j in range(numInstructions):
+        tempInstr = ifstat.getChild(1).getChild(1 + j*2)
+        self.add(tempInstr, listener, variables)
+
+      if conditionCondition == 'is':
+        self.addManual('joc', [condition, currentBranch + '_t'], linenum, listener)
+        self.addManual('jmp', [ifend], linenum, listener)
+      else:
+        self.addManual('joc', [condition, ifend], linenum, listener)
+      labels.add(ctx, currentBranch + '_t', self, listener)
+
+      numItems = ifstat.getChild(2).getChildCount() - 2
+
+      for j in range(numItems):
+        ctxname = type(ifstat.getChild(2).getChild(1 + j)).__name__
+        if ctxname == 'InstructionContext':
+          self.add(ifstat.getChild(2).getChild(1 + j), listener, variables)
+        elif ctxname == 'LabelContext':
+          labels.add(ctx, ifstat.getChild(2).getChild(1 + j).getText()[:-1], self, listener)
+        elif ctxname == 'LoopContext':
+          self.addLoop(ifstat.getChild(2).getChild(1 + j), listener, variables, labels, top=True)
+        elif ctxname == 'If_chainContext':
+          self.addIfchain(ifstat.getChild(2).getChild(1 + j), listener, variables, labels)
+
+    else:
+      for i in range(numifs):
+        ifstat = ctx.getChild(i)
+        typeif = type(ifstat).__name__
+        currentBranch = f'__if{thisIfNum}_branch{i}'
+        nextBranch = f'__if{thisIfNum}_branch{i + 1}'
+        if i != 0:
+          labels.add(ctx, currentBranch, self, listener)
+        if typeif in ['If_statContext', 'Elif_statContext']:
+          # adding instructions in conditional and the jump logic
+          numInstructions = math.ceil((ifstat.getChild(1).getChildCount() - 4)/2)
+          condition = ifstat.getChild(1).getChild(ifstat.getChild(1).getChildCount() - 2).getText()
+          conditionCondition = ifstat.getChild(1).getChild(ifstat.getChild(1).getChildCount() - 3).getText()
+          for j in range(numInstructions):
+            tempInstr = ifstat.getChild(1).getChild(1 + j*2)
+            self.add(tempInstr, listener, variables)
+
+          if conditionCondition == 'is':
+            self.addManual('joc', [condition, currentBranch + '_t'], linenum, listener)
+            self.addManual('jmp', [nextBranch], linenum, listener)
+          else:
+            self.addManual('joc', [condition, nextBranch], linenum, listener)
+          labels.add(ctx, currentBranch + '_t', self, listener)
+
+          numItems = ifstat.getChild(2).getChildCount() - 2
+
+          for j in range(numItems):
+            ctxname = type(ifstat.getChild(2).getChild(1 + j)).__name__
+            if ctxname == 'InstructionContext':
+              self.add(ifstat.getChild(2).getChild(1 + j), listener, variables)
+            elif ctxname == 'LabelContext':
+              labels.add(ctx, ifstat.getChild(2).getChild(1 + j).getText()[:-1], self, listener)
+            elif ctxname == 'LoopContext':
+              self.addLoop(ifstat.getChild(2).getChild(1 + j), listener, variables, labels, top=True)
+            elif ctxname == 'If_chainContext':
+              self.addIfchain(ifstat.getChild(2).getChild(1 + j), listener, variables, labels)
+
+          self.addManual('jmp', [ifend], linenum, listener)
+
+        else:
+          # labels.add(ctx, currentBranch, self, listener)
+          numItems = ifstat.getChild(1).getChildCount() - 2
+          for j in range(numItems):
+            ctxname = type(ifstat.getChild(1).getChild(1 + j)).__name__
+            if ctxname == 'InstructionContext':
+              self.add(ifstat.getChild(1).getChild(1 + j), listener, variables)
+            elif ctxname == 'LabelContext':
+              labels.add(ctx, ifstat.getChild(1).getChild(1 + j).getText()[:-1], self, listener)
+            elif ctxname == 'LoopContext':
+              self.addLoop(ifstat.getChild(1).getChild(1 + j), listener, variables, labels, top=True)
+            elif ctxname == 'If_chainContext':
+              self.addIf(ifstat.getChild(1).getChild(1 + j), listener, variables, labels)
+
+      labels.add(ctx, nextBranch, self, listener)
+
+    labels.add(ctx, ifend, self, listener)
 
   def getAddress(self):
     return self.size['instructions']
@@ -318,10 +419,11 @@ class VusListener(CorListener) :
     self.stream = stream
 
     prevloops = self.instructions.size['loops']
+    previfs   = self.instructions.size['ifs']
     if self.currentName == self.mainName:
-      self.instructions = Instructions(pgmStartAddress=startaddr, numloops=prevloops)
+      self.instructions = Instructions(pgmStartAddress=startaddr, numloops=prevloops, numifs=previfs)
     else:
-      self.instructions = Instructions(numloops=prevloops)
+      self.instructions = Instructions(numloops=prevloops, numifs=previfs)
     self.labels = Labels()
 
 
@@ -442,6 +544,9 @@ class VusListener(CorListener) :
   # Exit a parse tree produced by CorParser#statement_loop.
   def exitStatement_loop(self, ctx:CorParser.Statement_loopContext):
     self.instructions.addLoop(ctx.loop(), self, self.variables, self.labels, top=True)
+
+  def exitStatement_if(self, ctx:CorParser.Statement_ifContext):
+    self.instructions.addIfchain(ctx.if_chain(), self, self.variables, self.labels)
 
 
 class ImportListener(CorListener):
