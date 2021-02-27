@@ -114,8 +114,8 @@ def main(argv):
   for i in range(len(INIT_INSTRUCTIONS) - 1, -1, -1):
     listener.getInstructions().getInstructions().insert(0, INIT_INSTRUCTIONS[i])
     instructions.getInstructions().insert(0, INIT_INSTRUCTIONS[i])
-  setInterrupts(listener.getLabels().getLabels(),
-                listener.getInstructions().getInstructions())
+  setInterrupts(labels.getLabels(),
+                instructions.getInstructions())
 
 
   ##############################################################
@@ -136,18 +136,17 @@ def main(argv):
   prom = []
   drom = []
 
-  if options_args['-p'] != '':
-    prom = assembleInstructions(instructions.getInstructions(),
-                                listener.getVariables().getVariables(),
-                                labels.getLabels())
-    writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']), PROGRAM_WORD_WIDTH)
-  if options_args['-d'] != '':
-    drom = assembleVariables(listener.getVariables().getVariables(), DATA_WORD_WIDTH)
-    writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']), DATA_WORD_WIDTH)
-
+  prom = assembleInstructions(instructions.getInstructions(),
+                              listener.getVariables().getVariables(),
+                              labels.getLabels())
+  drom = assembleVariables(listener.getVariables().getVariables(), DATA_WORD_WIDTH)
   endExecution()
 
+  if options_args['-p'] != '':
+    writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']), PROGRAM_WORD_WIDTH)
+  if options_args['-d'] != '':
+    writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']), DATA_WORD_WIDTH)
 
-
+  
 if __name__ == '__main__':
   main(sys.argv)

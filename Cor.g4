@@ -32,10 +32,7 @@ elif_stat       : ELIF conditional cond_block;
 
 else_stat       : ELSE cond_block;
 
-if_chain        : if_stat elif_stat+ else_stat*
-                | if_stat else_stat
-                | if_stat
-                ;
+if_chain        : if_stat elif_stat* else_stat?;
 
 /* loop_init       : REGISTER '=' expression;
 
@@ -149,7 +146,7 @@ MNEMONIC               :  'nop'| 'ldr'| 'str'| 'lpt'|
 
 // we won't be able to detect array names as variable (i.e. arr[0])
 // we'll have to come up with a workaround
-VARIABLE               : '$'?[A-Za-z_][A-Za-z_0-9.]*;
+VARIABLE               : '&'?[A-Za-z_][A-Za-z_0-9.]*;
 
 WHITESPACE             : [ \t\n\r] -> skip;
 

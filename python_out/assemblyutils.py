@@ -134,12 +134,19 @@ def warning(message, lineNumber, filepath, errorcode):
 
 def errorPrint(entries):
   # uh oh, this won't work with multiple files... we'll have to sort and stuff
-  with open(entries[0]['path'], 'r') as file:
-    lines = file.readlines()
+  try:
+    with open(entries[0]['path'], 'r') as file:
+      lines = file.readlines()
+      for entry in entries:
+        print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
+        original = lines[entry['line'] - 1].strip(' \n')
+        print(f'  {original}')
+        print(f'-> {entry["message"]}\n')
+  except FileNotFoundError:
     for entry in entries:
-      print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
-      original = lines[entry['line'] - 1].strip(' \n')
-      print(f'  {original}')
+      # print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
+      # original = lines[entry['line'] - 1].strip(' \n')
+      # print(f'  {original}')
       print(f'-> {entry["message"]}\n')
 
 def warningPrint(entries):

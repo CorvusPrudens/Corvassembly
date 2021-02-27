@@ -20,8 +20,13 @@ class Variables:
     for var in sysvars:
       if sysvars[var]['type'] == 'rom' or sysvars[var]['type'] == 'pre':
         self.evalDict[sysvars[var]['type']] = sysvars[var]['value']
-    self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
-    self.addressRegex = re.compile('\\b\\$[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
+    self.variableRegex = re.compile('(?<!&)(\\b|^)[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
+    # TODO -- This address regex will likely need to be expanded upon, for example if
+    # we want to do math with pointers e.g.
+    # 270 + &var
+    # or even, dare I say,
+    # 270 & (&var)
+    self.addressRegex = re.compile('^&[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
   # TODO -- all variables should be scoped when added
 
@@ -76,13 +81,16 @@ class Variables:
 
   def calc(self, mathString, listener, linenum=-1, fullpath='err'):
 
+    # print(mathString)
     match = self.variableRegex.search(mathString)
     while match != None:
       mathString = mathString[:match.start()] + listener.scope(match.group(0)) + mathString[match.end():]
       match = self.addressRegex.search(mathString, pos=match.end())
 
     match = self.addressRegex.search(mathString)
+    # print(match.group(0) if match != None else '.', mathString)
     while match != None:
+      # print(match.group(0))
       mathString = mathString[:match.start()] + str(self.getAddress(match.group(0))) + mathString[match.end():]
       match = self.addressRegex.search(mathString, pos=match.end())
 
@@ -251,7 +259,7 @@ class Instructions:
         if ctxname == 'InstructionContext':
           self.add(ifstat.getChild(2).getChild(1 + j), listener, variables)
         elif ctxname == 'LabelContext':
-          labels.add(ctx, ifstat.getChild(2).getChild(1 + j).getText()[:-1], self, listener)
+          labels.add(ctx, listeners.scope(ifstat.getChild(2).getChild(1 + j).getText()[:-1]), self, listener)
         elif ctxname == 'LoopContext':
           self.addLoop(ifstat.getChild(2).getChild(1 + j), listener, variables, labels, top=True)
         elif ctxname == 'If_chainContext':
@@ -288,7 +296,7 @@ class Instructions:
             if ctxname == 'InstructionContext':
               self.add(ifstat.getChild(2).getChild(1 + j), listener, variables)
             elif ctxname == 'LabelContext':
-              labels.add(ctx, ifstat.getChild(2).getChild(1 + j).getText()[:-1], self, listener)
+              labels.add(ctx, listener.scope(ifstat.getChild(2).getChild(1 + j).getText()[:-1]), self, listener)
             elif ctxname == 'LoopContext':
               self.addLoop(ifstat.getChild(2).getChild(1 + j), listener, variables, labels, top=True)
             elif ctxname == 'If_chainContext':
@@ -304,7 +312,7 @@ class Instructions:
             if ctxname == 'InstructionContext':
               self.add(ifstat.getChild(1).getChild(1 + j), listener, variables)
             elif ctxname == 'LabelContext':
-              labels.add(ctx, ifstat.getChild(1).getChild(1 + j).getText()[:-1], self, listener)
+              labels.add(ctx, listener.scope(ifstat.getChild(1).getChild(1 + j).getText()[:-1]), self, listener)
             elif ctxname == 'LoopContext':
               self.addLoop(ifstat.getChild(1).getChild(1 + j), listener, variables, labels, top=True)
             elif ctxname == 'If_chainContext':
@@ -383,15 +391,15 @@ class VusListener(CorListener) :
       'FLASH_STATUS', 'FLASH_PAGE', 'FLASH_WRITE_WORD',
       'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER', 'FRAME',
     ]
-    self.variableRegex = re.compile('\\b\\${0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
+    self.variableRegex = re.compile('\\b\\&{0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.fullpath = fullpath
     self.stream = None
 
   def scope(self, input):
     if self.variableRegex.search(input) != None:
       if self.currentName != self.mainName and '.' not in input and input not in self.keywords:
-        if '$' in input:
-          input = '$' + self.currentName + '.' + input[1:]
+        if '&' in input:
+          input = '&' + self.currentName + '.' + input[1:]
         else:
           input = self.currentName + '.' + input
     return input
