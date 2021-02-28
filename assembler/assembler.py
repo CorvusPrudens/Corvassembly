@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 from antlr4 import *
 from gen.CorLexer import CorLexer
@@ -23,13 +25,13 @@ def main(argv):
   # print()
 
   infile = ''
-  options_args = {'-o': '', '-p': '', '-d': '', '-P': 10, '-D': 10, '--log': ''}
+  options_args = {'-p': '', '-d': '', '-P': 10, '-D': 10, '--log': ''}
   options_noargs = {'--debug-vars': False, '--debug-lines': False}
 
   if len(argv) < 2:
     usage()
   for arg in argv:
-    if arg == '-h':
+    if arg == '-h' or arg == '--help':
       usage()
 
   infile = argv[1]
@@ -126,12 +128,12 @@ def main(argv):
 
   code = []
 
-  if options_args['-o'] != '':
-    writeBin(code, options_args['-o'],
-             int(options_args['-P']),
-             int(options_args['-D']),
-             PROGRAM_WORD_WIDTH,
-             DATA_WORD_WIDTH)
+  # if options_args['-o'] != '':
+  #   writeBin(code, options_args['-o'],
+  #            int(options_args['-P']),
+  #            int(options_args['-D']),
+  #            PROGRAM_WORD_WIDTH,
+  #            DATA_WORD_WIDTH)
 
   prom = []
   drom = []
@@ -147,6 +149,6 @@ def main(argv):
   if options_args['-d'] != '':
     writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']), DATA_WORD_WIDTH)
 
-  
+
 if __name__ == '__main__':
   main(sys.argv)

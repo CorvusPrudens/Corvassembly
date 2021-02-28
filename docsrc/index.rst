@@ -33,6 +33,11 @@ written for the CorvusPrudensUnit.
    /advanced/advanced-syntax
    /advanced/memory-mapping
 
+.. toctree::
+   :maxdepth: 2
+   :caption: The Assembler
+
+   /assembler/using-the-assembler
 
 .. Indices and tables
 .. ==================

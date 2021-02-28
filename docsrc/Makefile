@@ -7,15 +7,23 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
+COPYDIR       = ../docs/
+JEKYLL        = $(COPYDIR).nojekyll
+ASS_DEST      = assembler/assembler.zip
+ASS_SRC       = ../assembler
 
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 github:
-	@make html
-	cp -a _build/html/. ../docs
-	touch ../docs/.nojekyll
+	@ if ! [ -f "${JEKYLL}" ]; then touch ${JEKYLL}; fi
+	@ if [ -f "${ASS_DEST}" ]; then rm ${ASS_DEST}; fi
+	@ cd ..; zip -r ./docsrc/${ASS_DEST} assembler;
+	@ make html
+	@ cp -a ${BUILDDIR}/html/. ${COPYDIR}
+
+
 
 .PHONY: help Makefile github
 

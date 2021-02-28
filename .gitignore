@@ -1,4 +1,6 @@
 java_gen/
-python/gen/
-python/__pycache__/
+assembler/__pycache__/
 docsrc/_build/
+docsrc/assembler/assembler.zip
+_build
+__pycache__/

@@ -6,10 +6,10 @@ ANTLR = java -jar ${ANTLR_JAR}
 GRUN = java org.antlr.v4.gui.TestRig
 
 GRAMMAR = Cor.g4
-PYTHON_PATH = ./python/gen
+PYTHON_PATH = ./assembler/gen
 JAVA_PATH = ./java_gen
 
-ASSEMBLER = ./python/assembler.py
+ASSEMBLER = ./assembler/assembler.py
 EXAMPLE  = ./programs/example.cor
 
 

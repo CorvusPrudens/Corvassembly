@@ -10,7 +10,7 @@ def usage():
   print("\nUsage: <infile> [[options] [parameters] ...]")
   print("If no options are given, the program will not generate any output.")
   print("\n\t-h\n\t   print this usage message")
-  print("\n\t-o outfile\n\t   generate output binary with the given name")
+  # print("\n\t-o outfile\n\t   generate output binary with the given name")
   print("\n\t-p romname\n\t   generate program rom verilog hex with the given romname")
   print("\n\t-d romname\n\t   generate data rom verilog hex with the given romname")
   print("\n\t-P bits\n\t   specify the number of bits in the program rom address")
@@ -394,7 +394,7 @@ def assembleArgument2Store(word, argument, dict, instruction, variables, number)
 
   try:
     if argument[0] == '&':
-      errmess = f'cannot store register in literal value \"{argument}\"' 
+      errmess = f'cannot store register in literal value \"{argument}\"'
       error(errmess, instruction['line'], instruction['path'], 1)
     else:
       var = variables[argument]
