@@ -19,7 +19,7 @@ writing to ``ram``:
 .. code-block:: corvassembly
 
   ldr a, UART
-  ldr a, add 32
+  add a, 32
   str a, UART
 
 Each module has built-in variables so the programmer doesn't need to memorize
@@ -95,7 +95,7 @@ at the `NesDev wiki`_.
 
   A timer module that can produce interrupts at a fixed frequency.
 
-  :var TIMER_STATUS: one enables the module, zero disables
+  :var TIMER_STATUS: one enables the module, zero disables it
   :var TIMER_COMP: Timer compare register. When the timer accumulator
     reaches the value in ``TIMER_COMP``, the timer accumulator is reset to
     zero and the ``TIMER`` interrupt is set.
@@ -120,7 +120,7 @@ at the `NesDev wiki`_.
 .. function:: Flash‎
 
   A module that allows easy access and control of typical 8-pin flash memory
-  chips used for FPGA configuring.
+  chips used for FPGA configuration.
 
   :var read FLASH_DATA‎: Read from the FIFO buffer. This should be done after
     a read request is sent and the module is no longer busy.
@@ -128,7 +128,7 @@ at the `NesDev wiki`_.
   :var write FLASH_DATA: Write to the FIFO buffer. This should be done before
     sending a write request.
 
-  :var FLASH_PAGE: Address of the page to be operated on (most significant 16 bits).
+  :var FLASH_PAGE: Address of the page to be operated on (most significant 16 bits of 24).
 
   :var write FLASH_STATUS‎: Status register for the module. Read, write, and erase
     requests are handles through this register.
@@ -142,7 +142,7 @@ at the `NesDev wiki`_.
 |                   |               | | ``(R) Read request, (W) Write request, (e) error bit, (B) Busy bit``|
 +-------------------+---------------+-----------------------------------------------------------------------+
 
-Read requests can be safely made anywhere within the Flash memory address space.
+Read requests are safe anywhere within the Flash memory address space.
 Write and erase requests, however, are not necessarily safe in the areas where
 FPGA configuration and program data are stored. For these addresses, (page
 0x05FF and below) the appropriate security bit must be set before a write

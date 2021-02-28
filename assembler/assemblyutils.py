@@ -366,7 +366,7 @@ def assembleRegister(word, reg, operand, instruction):
 
 def assembleArgument2(word, argument, dict, instruction, variables, number):
   try:
-    if argument[0] == '&':
+    if isinstance(argument, str) and argument[0] == '&':
       var = variables[argument[1:]]
       word = setWord2(word, var['address'])
     else:
@@ -393,7 +393,7 @@ def assembleArgument2Store(word, argument, dict, instruction, variables, number)
   validTable = ['ram', 'gpu']
 
   try:
-    if argument[0] == '&':
+    if isinstance(argument, str) and argument[0] == '&':
       errmess = f'cannot store register in literal value \"{argument}\"'
       error(errmess, instruction['line'], instruction['path'], 1)
     else:
