@@ -204,18 +204,19 @@ sysvarTable = [
   ['ram', 'RB001', '34'],
   ['ram', 'RB002', '35'],
 
-  ['ram', 'TIMERS', '37'],
-  ['ram', 'TIMER0_COMP', '38'],
-  ['ram', 'TIMER0_PRES', '39'],
+  ['ram', 'TIMER_STATUS', '37'],
+  ['ram', 'TIMER_COMP', '38'],
+  ['ram', 'TIMER_PRES', '39'],
+
   ['ram', 'TIMER1_COMP', '40'],
   ['ram', 'TIMER1_PRES', '41'],
+
   ['ram', 'SCOPE_RATE', '42'],
   ['ram', 'SCOPE_ADDR', '43'],
   ['ram', 'SCOPE_DATA', '43'],
   ['ram', 'SCOPE_HOLD', '44'],
 
-  ['ram', 'FLASH_WRITE', '45'],
-  ['ram', 'FLASH_READ', '45'],
+  ['ram', 'FLASH_DATA', '45'],
   ['ram', 'FLASH_PAGE', '46'],
   ['ram', 'FLASH_STATUS', '47'],
 
