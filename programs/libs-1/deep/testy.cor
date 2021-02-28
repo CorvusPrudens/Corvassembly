@@ -1,7 +1,0 @@
-
-
-pre OKAY = 10
-pre BOOYA = 2020 + OKAY*3
-
-stop:
-  jmp stop

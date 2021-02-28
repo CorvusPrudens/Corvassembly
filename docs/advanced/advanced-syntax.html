@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta content="Advanced Corvassembly syntax." name="description" />
+<meta content="Corvassembly, assembly, syntax" name="keywords" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Advanced Syntax &mdash; Corvassembly 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Memory-mapped Modules" href="memory-mapping.html" />
+    <link rel="prev" title="Instructions" href="../intro/instructions.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Corvassembly
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/basic-syntax.html">Basic Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/instructions.html">Instructions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Features:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Syntax</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#file-imports">File imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assemble-time-math">Assemble-time Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arrays">Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variable-addressing">Variable Addressing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pointer-registers">Pointer Registers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-statements">If statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-loops">For loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory-mapping.html">Memory-mapped Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Corvassembly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Advanced Syntax</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/advanced/advanced-syntax.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-syntax">
+<h1>Advanced Syntax<a class="headerlink" href="#advanced-syntax" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="file-imports">
+<h2>File imports<a class="headerlink" href="#file-imports" title="Permalink to this headline">¶</a></h2>
+<p>Files can be imported using a Python-like syntax:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">import</span> <span class="n">libs</span>.<span class="n">graphics</span> <span class="kt">as</span> <span class="n">graphics</span>
+<span class="kt">import</span> <span class="s">&quot;libs/menu.cor&quot;</span> <span class="kt">as</span> <span class="n">menu</span>
+
+<span class="nl">main</span>:
+  <span class="nf">jsr</span> <span class="n">graphics</span>.<span class="n">begin</span>
+  <span class="nf">jsr</span> <span class="n">menu</span>.<span class="n">main</span>
+  <span class="nf">jsr</span> <span class="n">graphics</span>.<span class="n">end</span>
+  <span class="nf">jmp</span> <span class="n">main</span>
+</pre></div>
+</div>
+<p>As in python, imported file labels and variables are not implicit. Unlike Python,
+however, Corvassembly does not support importing everything (i.e. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">graphics</span> <span class="pre">import</span> <span class="pre">*</span></code>).
+<code class="docutils literal notranslate"><span class="pre">ram</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> addresses are statically allocated in the order of importing.
+Import paths are relative to the file doing the importing, not where the
+assembler is executed (as it should be).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Standard modules are not currently implemented, but may be added soon.</p>
+</div>
+</div>
+<div class="section" id="assemble-time-math">
+<h2>Assemble-time Math<a class="headerlink" href="#assemble-time-math" title="Permalink to this headline">¶</a></h2>
+<p>Arbitrary math can be executed with static elements of a program at assemble
+time in any place where static elements are valid. The math is executed
+by Python, so any valid Python statement can be used:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">pre</span> <span class="no">MAX</span> <span class="o">=</span> <span class="m">2</span><span class="o">**</span><span class="m">16</span> <span class="o">-</span> <span class="m">1</span>
+<span class="kt">pre</span> <span class="no">SIZE</span> <span class="o">=</span> <span class="m">128</span><span class="o">*</span><span class="m">64</span>
+<span class="kt">rom</span> <span class="n">sizes</span>[] <span class="o">=</span> {<span class="no">SIZE</span><span class="o">/</span><span class="m">8</span>, <span class="no">SIZE</span><span class="o">/</span><span class="m">16</span>}
+
+<span class="nf">cmp</span> <span class="nb">a</span>, <span class="no">SIZE</span> <span class="o">-</span> <span class="m">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arrays">
+<h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h2>
+<p>Corvassembly permits the declaration of arrays in <code class="docutils literal notranslate"><span class="pre">ram</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code>. <code class="docutils literal notranslate"><span class="pre">ram</span></code>
+arrays cannot be initialized, while <code class="docutils literal notranslate"><span class="pre">rom</span></code> arrays <em>require</em> initialization.
+<code class="docutils literal notranslate"><span class="pre">rom</span></code> arrays should not generally be given a size, as it is automatically
+determined by the contents of the initializer.
+Strings are interpreted as arrays, and are initialized with the same left-side
+syntax. String arrays are converted to their ascii representation and null-
+terminated:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">arr</span>[<span class="m">20</span>]
+<span class="kt">rom</span> <span class="n">arrInit</span>[] <span class="o">=</span> {<span class="m">1</span>, <span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="m">5</span>, <span class="m">8</span>, <span class="m">13</span>}
+<span class="kt">rom</span> <span class="n">string</span>[] <span class="o">=</span> <span class="s">&quot;Hello, world!&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variable-addressing">
+<h2>Variable Addressing<a class="headerlink" href="#variable-addressing" title="Permalink to this headline">¶</a></h2>
+<p>Variable addresses can be accessed with C-like syntax, using <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>. In addition,
+array names are automatically understood as static addresses rather than
+variables, and can also be treated in a C-like manner:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">variable</span>
+<span class="nf">ldr</span> <span class="nb">f</span>, <span class="o">&amp;</span><span class="n">variable</span>
+
+<span class="kt">rom</span> <span class="n">array</span>[] <span class="o">=</span> {<span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="sc">&#39;a&#39;</span>, <span class="sc">&#39;b&#39;</span>, <span class="sc">&#39;c&#39;</span>}
+<span class="nf">ldr</span> <span class="nb">g</span>, <span class="n">array</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pointer-registers">
+<h2>Pointer Registers<a class="headerlink" href="#pointer-registers" title="Permalink to this headline">¶</a></h2>
+<p>In Corvassembly, there are three registers that double as pointers to
+specific types of memory.</p>
+<dl class="simple">
+<dt>f</dt><dd><p>This register can be used to access <code class="docutils literal notranslate"><span class="pre">ram</span></code>.</p>
+</dd>
+<dt>g</dt><dd><p>This register can be used to access <code class="docutils literal notranslate"><span class="pre">rom</span></code>.</p>
+</dd>
+<dt>h</dt><dd><p>This register can be used to access the <code class="docutils literal notranslate"><span class="pre">gpu</span></code>, should it be implemented.</p>
+</dd>
+</dl>
+<p>The address space of any memory does not exceed 16 bits, so
+each pointer can be fully loaded in a single instruction. These pointers
+are invoked with a <code class="docutils literal notranslate"><span class="pre">lpt</span></code> or <code class="docutils literal notranslate"><span class="pre">spt</span></code> instruction and the corresponding
+memory type, e.g.:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">array</span>[<span class="m">20</span>]
+<span class="nf">ldr</span> <span class="nb">f</span>, <span class="n">array</span>
+<span class="nf">lpt</span> <span class="nb">a</span>,<span class="k"> ram</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="if-statements">
+<h2>If statements<a class="headerlink" href="#if-statements" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">elif</span></code>, and <code class="docutils literal notranslate"><span class="pre">else</span></code> statements are fully supported by Corvassembly.
+They are structured as you would expect, where an <code class="docutils literal notranslate"><span class="pre">if</span></code> can stand alone,
+it can be followed by an <code class="docutils literal notranslate"><span class="pre">elif</span></code> or <code class="docutils literal notranslate"><span class="pre">else</span></code>, or any number of <code class="docutils literal notranslate"><span class="pre">elif</span></code>
+statements and a closing <code class="docutils literal notranslate"><span class="pre">else</span></code>. Conditions are indicated with an <code class="docutils literal notranslate"><span class="pre">is</span></code> or
+<code class="docutils literal notranslate"><span class="pre">isnt</span></code> and the desired condition. By the nature of Corvassembly, <code class="docutils literal notranslate"><span class="pre">isnt</span></code>
+statements require one less instruction, but may be more difficult to read:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">wait</span>:
+  <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jmp</span> <span class="n">wait</span>
+  }
+  <span class="nf">rts</span>
+
+<span class="nl">waitShort</span>:
+  <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">0</span> <span class="k">isnt</span> <span class="nd">equal</span>) {
+    <span class="nf">jmp</span> <span class="n">waitShort</span>
+  }
+  <span class="nf">rts</span>
+
+<span class="nl">switch</span>:
+  <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">condition1</span>
+  } <span class="k">elif</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">2</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">condition2</span>
+  } <span class="k">elif</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">3</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">condition3</span>
+  } <span class="k">else</span> {
+    <span class="nf">rts</span>
+  }
+  <span class="nf">rts</span>
+</pre></div>
+</div>
+<p>The first two examples assemble to:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">wait</span>:
+<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span>
+<span class="nf">joc</span> <span class="nd">equal</span>, <span class="n">__if0_branch0_t</span>
+<span class="nf">jmp</span> <span class="n">__if0_end</span>
+<span class="nl">__if0_branch0_t</span>:
+<span class="nf">jmp</span> <span class="n">wait</span>
+<span class="nl">__if0_end</span>:
+<span class="nf">rts</span>
+
+<span class="nl">waitShort</span>:
+<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">0</span>
+<span class="nf">joc</span> <span class="nd">equal</span>, <span class="n">__if1_end</span>
+<span class="nl">__if1_branch0_t</span>:
+<span class="nf">jmp</span> <span class="n">waitShort</span>
+<span class="nl">__if1_end</span>:
+<span class="nf">rts</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">if</span></code> statements can, of course, be nested:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">waitNested</span>:
+<span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+  <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">b</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">somewhereElse</span>
+  }
+  <span class="nf">rts</span>
+}
+<span class="nf">jmp</span> <span class="n">waitNested</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">if</span></code> statements also permit an arbitrary number of instructions to precede
+the actual evaluation, separated by semi-colons. This facilitates more
+complicated behavior within <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">elif</span> <span class="pre">else</span></code> blocks:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">inbetween</span>:
+
+  <span class="kt">ram</span> <span class="n">state1</span>
+  <span class="kt">ram</span> <span class="n">state2</span>
+
+  <span class="nf">ldr</span> <span class="nb">a</span>, <span class="n">state1</span>
+  <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">state1True</span>
+  } <span class="k">elif</span> (<span class="nf">ldr</span> <span class="nb">a</span>, <span class="n">state2</span>; <span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">1</span> <span class="k">is</span> <span class="nd">equal</span>) {
+    <span class="nf">jsr</span> <span class="n">state2True</span>
+  }
+
+  <span class="nf">rts</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="for-loops">
+<h2>For loops<a class="headerlink" href="#for-loops" title="Permalink to this headline">¶</a></h2>
+<p>Corvassembly features a somewhat limited form of the for loop, with syntax
+similar to C’s:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> (<span class="nf">ldr</span> <span class="nb">a</span>, <span class="m">0</span>; <span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">256</span>; <span class="nf">add</span> <span class="nb">a</span>, <span class="m">1</span>) {
+  <span class="nf">str</span> <span class="nb">a</span>, <span class="no">UART</span>
+}
+</pre></div>
+</div>
+<p>This assembles to:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span> <span class="nb">a</span>, <span class="m">0</span>
+<span class="nl">__loop0_begin</span>:
+<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">256</span>
+<span class="nf">joc</span> <span class="nd">equal</span>, <span class="n">__loop0_end</span>
+<span class="nf">str</span> <span class="nb">a</span>, <span class="no">UART</span>
+<span class="nl">__loop0_continue</span>:
+<span class="nf">add</span> <span class="nb">a</span>, <span class="m">1</span>
+<span class="nf">jmp</span> <span class="n">__loop0_begin</span>
+<span class="nl">__loop0_end</span>:
+</pre></div>
+</div>
+<p>The feature is limited because it can only accept register incrementors, meaning
+the chosen register cannot be altered during the loop. It’s often useful to
+jump to subroutines during a loop, so this limitation is somewhat crippling.</p>
+<p>There are a number of keywords available for use inside a loop, including
+<code class="docutils literal notranslate"><span class="pre">continue</span></code>, <code class="docutils literal notranslate"><span class="pre">break</span></code>, and <code class="docutils literal notranslate"><span class="pre">breakall</span></code>. <code class="docutils literal notranslate"><span class="pre">continue</span></code> simply jumps to the
+end of the loop, skipping to the next iteration. <code class="docutils literal notranslate"><span class="pre">break</span></code> will break out of
+the loop, jumping to the end. <code class="docutils literal notranslate"><span class="pre">breakall</span></code> will break out of nested loops (I’m
+not sure why more languages don’t have this feature):</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">interruptBreak</span>
+<span class="kt">ram</span> <span class="n">interruptCont</span>
+
+<span class="k">for</span> (<span class="nf">ldr</span> <span class="nb">a</span>, <span class="m">0</span>; <span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">256</span>; <span class="nf">add</span> <span class="nb">a</span>, <span class="m">1</span>){
+  <span class="k">for</span> (<span class="nf">ldr</span> <span class="nb">b</span>, <span class="m">0</span>; <span class="nf">cmp</span> <span class="nb">b</span>, <span class="m">256</span>; <span class="nf">add</span> <span class="nb">b</span>, <span class="m">1</span>){
+    <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="n">interruptStop</span> <span class="k">is</span> <span class="nd">less</span>) {
+      <span class="k">breakall</span>
+    } <span class="k">else</span> <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">b</span>, <span class="n">interruptCont</span> <span class="k">is</span> <span class="nd">less</span>) {
+      <span class="k">continue</span>
+    }
+    <span class="nf">str</span> <span class="nb">a</span>, <span class="no">UART</span>
+  }
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="memory-mapping.html" class="btn btn-neutral float-right" title="Memory-mapped Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../intro/instructions.html" class="btn btn-neutral float-left" title="Instructions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Corvus Prudens.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+java_gen/
+python/gen/
+python/__pycache__/
+docsrc/_build/

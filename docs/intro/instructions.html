@@ -1,0 +1,617 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta content="Corvassembly instructions reference." name="description" />
+<meta content="Corvassembly, assembly, reference, instructions" name="keywords" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Instructions &mdash; Corvassembly 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Syntax" href="../advanced/advanced-syntax.html" />
+    <link rel="prev" title="Basic Syntax" href="basic-syntax.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Corvassembly
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic-syntax.html">Basic Syntax</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instructions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#memory-instructions">Memory Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arithmetic-instructions">Arithmetic Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logic-instructions">Logic Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jump-instructions">Jump Instructions</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/advanced-syntax.html">Advanced Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/memory-mapping.html">Memory-mapped Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Corvassembly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Instructions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/intro/instructions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="instructions">
+<h1>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">¶</a></h1>
+<p>Corvassembly currently has 25 instructions, with a maximum of 32 possible
+given the structure of the 32-bit instruction word.</p>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">nop‎</span></code></dt>
+<dd><p>No operation. Simply increments the program counter.</p>
+</dd></dl>
+
+<div class="section" id="memory-instructions">
+<h2>Memory Instructions<a class="headerlink" href="#memory-instructions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">ldr</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;</span></code></dt>
+<dd><p>Load register. Loads <code class="docutils literal notranslate"><span class="pre">operand1</span></code> with <code class="docutils literal notranslate"><span class="pre">operand2</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">str</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;</span></code></dt>
+<dd><p>Store register. Stores <code class="docutils literal notranslate"><span class="pre">operand1</span></code> in <code class="docutils literal notranslate"><span class="pre">operand2</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – variable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">lpt</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;source&gt;</span></code></dt>
+<dd><p>Load from pointer. Loads <code class="docutils literal notranslate"><span class="pre">operand1</span></code> from <code class="docutils literal notranslate"><span class="pre">source</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – ram, rom, gpu</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">spt</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;source&gt;</span></code></dt>
+<dd><p>Store to pointer. Stores <code class="docutils literal notranslate"><span class="pre">operand1</span></code> in <code class="docutils literal notranslate"><span class="pre">source</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – ram, gpu</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="arithmetic-instructions">
+<h2>Arithmetic Instructions<a class="headerlink" href="#arithmetic-instructions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">cmp</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;</span></code></dt>
+<dd><p>Compare. Compare <code class="docutils literal notranslate"><span class="pre">operand1</span></code> to <code class="docutils literal notranslate"><span class="pre">operand2</span></code>. This
+instruction updates the equal, greater, and less status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">add</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Add. Adds <code class="docutils literal notranslate"><span class="pre">operand2</span></code> to <code class="docutils literal notranslate"><span class="pre">operand1</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">sub</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Subtract. Subtracts <code class="docutils literal notranslate"><span class="pre">operand2</span></code> from <code class="docutils literal notranslate"><span class="pre">operand1</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">mul</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Multiply. Multiplies <code class="docutils literal notranslate"><span class="pre">operand1</span></code> by <code class="docutils literal notranslate"><span class="pre">operand2</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>div and mod not yet implemented in hardware!</p>
+</div>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">div</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Divide. Divides <code class="docutils literal notranslate"><span class="pre">operand1</span></code> by <code class="docutils literal notranslate"><span class="pre">operand2</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">mod</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Modulus. Takes the remainder of <code class="docutils literal notranslate"><span class="pre">operand1</span></code> divided by <code class="docutils literal notranslate"><span class="pre">operand2</span></code>,
+and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only two arguments are given,
+the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative status flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="logic-instructions">
+<h2>Logic Instructions<a class="headerlink" href="#logic-instructions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">and</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical and. Performs a bitwise and operation between <code class="docutils literal notranslate"><span class="pre">operand2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">operand1</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero and negative status flags, and sets carry to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">or</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical or. Performs a bitwise or operation between <code class="docutils literal notranslate"><span class="pre">operand2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">operand1</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero and negative status flags, and sets carry to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">xor</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical exclusive or. Performs a bitwise xor operation between <code class="docutils literal notranslate"><span class="pre">operand2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">operand1</span></code>, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero and negative status flags, and sets carry to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">not</span> <span class="pre">&lt;operand1&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical not. Performs a bitwise not operation to <code class="docutils literal notranslate"><span class="pre">operand1</span></code> and stores
+in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only one argument is given – assuming that argument is a
+register – the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. If <code class="docutils literal notranslate"><span class="pre">operand1</span></code> is not
+a register and no valid result argument is given, the assembler reports an
+error. This
+instruction updates the zero and negative status flags, and sets carry to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">lsl</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical shift left. Performs a bitshift left operation on <code class="docutils literal notranslate"><span class="pre">operand1</span></code> by
+<code class="docutils literal notranslate"><span class="pre">operand2</span></code> number of bits, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">lsr</span> <span class="pre">&lt;operand1&gt;,</span> <span class="pre">&lt;operand2&gt;[,</span> <span class="pre">&lt;result&gt;]</span></code></dt>
+<dd><p>Logical shift right. Performs a bitshift right operation on <code class="docutils literal notranslate"><span class="pre">operand1</span></code> by
+<code class="docutils literal notranslate"><span class="pre">operand2</span></code> number of bits, and stores in <code class="docutils literal notranslate"><span class="pre">result</span></code>. If only
+two arguments are given, the result is stored back in <code class="docutils literal notranslate"><span class="pre">operand1</span></code>. This
+instruction updates the zero, carry, and negative flags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operand1</strong> – register</p></li>
+<li><p><strong>operand2</strong> – register / immediate / variable</p></li>
+<li><p><strong>result</strong> – register</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="jump-instructions">
+<h2>Jump Instructions<a class="headerlink" href="#jump-instructions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">jmp</span> <span class="pre">&lt;operand1&gt;</span></code></dt>
+<dd><p>Jump. Jumps to the address of label <code class="docutils literal notranslate"><span class="pre">operand1</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>operand1</strong> – label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">jsr</span> <span class="pre">&lt;operand1&gt;</span></code></dt>
+<dd><p>Jump to subroutine. Pushes the current address onto the address stack and
+Jumps to the address of label <code class="docutils literal notranslate"><span class="pre">operand1</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>operand1</strong> – label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">rts‎</span></code></dt>
+<dd><p>Return from subroutine. Pops the last address off the address stack and
+Jumps to that address.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">joc</span> <span class="pre">&lt;condition&gt;,</span> <span class="pre">&lt;operand1&gt;</span></code></dt>
+<dd><p>Jump on condition. Jumps to the address of label <code class="docutils literal notranslate"><span class="pre">operand1</span></code> if <code class="docutils literal notranslate"><span class="pre">condition</span></code>
+evaluates to true.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – zero, carry, negative, equal, greater, less</p></li>
+<li><p><strong>operand1</strong> – label</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">jsc</span> <span class="pre">&lt;condition&gt;,</span> <span class="pre">&lt;operand1&gt;</span></code></dt>
+<dd><p>Jump to subroutine on condition. Pushes the current address onto the address
+stack and jumps to the address of label <code class="docutils literal notranslate"><span class="pre">operand1</span></code> if <code class="docutils literal notranslate"><span class="pre">condition</span></code>
+evaluates to true.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – zero, carry, negative, equal, greater, less</p></li>
+<li><p><strong>operand1</strong> – label</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">rsc</span> <span class="pre">&lt;condition&gt;</span></code></dt>
+<dd><p>Return from subroutine on condition. Pops the last address off the
+address stack and jumps to that address if <code class="docutils literal notranslate"><span class="pre">condition</span></code>
+evaluates to true.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>condition</strong> – zero, carry, negative, equal, greater, less</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">rti</span> <span class="pre">&lt;interrupt&gt;</span></code></dt>
+<dd><p>Return from interrupt. This tells the processor to restore the register states
+saved when <code class="docutils literal notranslate"><span class="pre">interrupt</span></code> was set, pops the last address off the address stack
+and jumps to that address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>interrupt</strong> – interrupt vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">ric</span> <span class="pre">&lt;condition&gt;,</span> <span class="pre">&lt;interrupt&gt;</span></code></dt>
+<dd><p>Return from interrupt on condition. This tells the processor to restore
+the register states saved when <code class="docutils literal notranslate"><span class="pre">interrupt</span></code> was set, pops the last address
+off the address stack and jumps to that address if <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates
+to true.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – zero, carry, negative, equal, greater, less</p></li>
+<li><p><strong>interrupt</strong> – interrupt vector</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../advanced/advanced-syntax.html" class="btn btn-neutral float-right" title="Advanced Syntax" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="basic-syntax.html" class="btn btn-neutral float-left" title="Basic Syntax" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Corvus Prudens.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

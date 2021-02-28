@@ -256,5 +256,3 @@ rom chars[] = {
   // Bitmap 127 (31, 3)
   0x1F, 0x1F, 0x1F,
 }
-
-pre chars = $chars[0]

@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta content="Overview of basic Corvassembly syntax." name="description" />
+<meta content="Corvassembly, assembly, syntax" name="keywords" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Basic Syntax &mdash; Corvassembly 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Instructions" href="instructions.html" />
+    <link rel="prev" title="Welcome to Corvassembly’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Corvassembly
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Syntax</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#registers">Registers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instructions">Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#labels">Labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conditional-instructions">Conditional Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variables">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#comments">Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#putting-it-all-together">Putting it all together</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instructions.html">Instructions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/advanced-syntax.html">Advanced Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/memory-mapping.html">Memory-mapped Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Corvassembly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Basic Syntax</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/intro/basic-syntax.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="basic-syntax">
+<h1>Basic Syntax<a class="headerlink" href="#basic-syntax" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="registers">
+<h2>Registers<a class="headerlink" href="#registers" title="Permalink to this headline">¶</a></h2>
+<p>Most instructions will require you to interact with the processor’s <em>registers</em>.
+The CorvusPrudensUnit features eight 16-bit registers – from a to h.</p>
+</div>
+<div class="section" id="instructions">
+<h2>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">¶</a></h2>
+<p>Corvassembly borrows many syntactical elements from typical assembly
+implementations. Code consists of instructions followed by comma-separated
+arguments:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nf">add</span> <span class="nb">a</span>, <span class="m">42</span>
+</pre></div>
+</div>
+<p>For most arithmetic and memory operations, the first argument indicates
+which CPU register the instruction should operate on. The second argument
+can either be an immediate value, another register, or an address in RAM
+represented by a variable. An optional third argument indicates which
+register to store the result in. By default, the result is stored in the
+register of argument 1.</p>
+</div>
+<div class="section" id="labels">
+<h2>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h2>
+<p>Labels are written as names followd by a colon:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">main</span>:
+  <span class="c">// main code loop</span>
+  <span class="nf">jmp</span> <span class="n">main</span>
+</pre></div>
+</div>
+<p>and can be used as arguments for jump-type instructions. If you’d like to
+attach an interrupt to a label, append the name of the desired interrupt to
+the label in parentheses:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">frameInterrupt</span>(<span class="no">FRAME</span>):
+  <span class="c">// interrupt routine</span>
+  <span class="nf">rti</span> <span class="no">FRAME</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conditional-instructions">
+<h2>Conditional Instructions<a class="headerlink" href="#conditional-instructions" title="Permalink to this headline">¶</a></h2>
+<p>Instructions with conditional execution require conditions as arguments. For
+example, a conditional jump is formatted as:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nf">joc</span> <span class="nd">equal</span>, <span class="n">label</span>
+</pre></div>
+</div>
+<p>The six processor conditions are <code class="docutils literal notranslate"><span class="pre">zero</span></code>, <code class="docutils literal notranslate"><span class="pre">carry</span></code>, <code class="docutils literal notranslate"><span class="pre">negative</span></code>, <code class="docutils literal notranslate"><span class="pre">equal</span></code>,
+<code class="docutils literal notranslate"><span class="pre">greater</span></code>, and <code class="docutils literal notranslate"><span class="pre">less</span></code>. The first three are updated by most arithmetic and
+logic instructions, and the last three are updated by the <code class="docutils literal notranslate"><span class="pre">cmp</span></code> instruction.</p>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>Variables are handled by the assembler with little user intervention.
+Align directives or other similar manual adjustment are not currently supported.
+The two main types of variables are <code class="docutils literal notranslate"><span class="pre">ram</span></code> variables and <code class="docutils literal notranslate"><span class="pre">rom</span></code> variables. <code class="docutils literal notranslate"><span class="pre">ram</span></code>
+variables cannot be given initial assignments, while rom variables <em>must</em> be
+given assignments:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">ramVar</span>
+<span class="kt">rom</span> <span class="n">romVar</span> <span class="o">=</span> <span class="m">42</span>
+</pre></div>
+</div>
+<p>If you want to parameterize your code, you can also use <code class="docutils literal notranslate"><span class="pre">pre</span></code> variables. These
+pre-processor values are not stored in memory once the code is assembled:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">pre</span> <span class="no">INIT</span> <span class="o">=</span> <span class="m">42</span>
+<span class="kt">rom</span> <span class="n">romVar</span> <span class="o">=</span> <span class="no">INIT</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="comments">
+<h2>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h2>
+<p>Single line comments are indicated by two forward-slashes. Block comments
+can be made with /* and */:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="c">// this is an in-line comment!</span>
+
+<span class="c">/*</span>
+<span class="c">  This is a multi-</span>
+<span class="c">  line comment!</span>
+<span class="c">*/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="putting-it-all-together">
+<h2>Putting it all together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
+<p>Using just these basic features, you can of course construct any program
+imaginable (though it may not be very manageable). Here’s an example of
+computing the Fibonacci sequence and sending it to a memory-mapped UART:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="c">// Fibonacci sequence!</span>
+
+<span class="kt">pre</span> <span class="no">LIMIT</span> <span class="o">=</span> <span class="m">255</span>
+
+<span class="nl">reset</span>:
+<span class="nf">ldr</span> <span class="nb">a</span>, <span class="m">1</span>
+<span class="nf">ldr</span> <span class="nb">b</span>, <span class="m">0</span>
+<span class="nf">ldr</span> <span class="nb">c</span>, <span class="m">0</span>
+
+<span class="nl">fibLoop</span>:
+  <span class="nf">str</span> <span class="nb">a</span>, <span class="no">UART</span> <span class="c">// writing to a memory-mapped UART module</span>
+
+  <span class="nf">add</span> <span class="nb">a</span>, <span class="m">0</span>, <span class="nb">c</span> <span class="c">// like a mov a, c instruction</span>
+  <span class="nf">add</span> <span class="nb">a</span>, <span class="nb">b</span>
+  <span class="nf">add</span> <span class="nb">c</span>, <span class="m">0</span>, <span class="nb">b</span>
+
+  <span class="nf">cmp</span> <span class="nb">a</span>, <span class="no">LIMIT</span>
+  <span class="nf">joc</span> <span class="nd">greater</span>, <span class="n">reset</span>
+  <span class="nf">jmp</span> <span class="n">fibLoop</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="instructions.html" class="btn btn-neutral float-right" title="Instructions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Corvassembly’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Corvus Prudens.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

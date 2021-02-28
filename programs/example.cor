@@ -1,10 +1,25 @@
+import libs.ascii as ascii
+
 pre NUM_LOOPS = 100
 
-pre LEN_DELAY = 65535
+pre LEN_DELAY = 2**16 - 1
 pre NUM_DELAY = 100
+
+pre TEST = 0b0101
+pre TEST1 = 0x00AA + TEST
+pre TEST2 = 27 + 3 / 2.6
+
+rom string[] = "Hello, world!"
 
 ram array[20]
 ram hap
+
+ldr f, &hap
+ldr a, 1
+spt a, ram
+
+ldr g, ascii.chars
+lpt a, rom
 
 main:
   ldr a, array[0]
@@ -40,35 +55,6 @@ example(TIMER):
   rti TIMER
 
 example2(FRAME):
-
-  /* cmp a, 0
-  joc equal, CONT
-  ldr a, 20
-  jmp AFTER
-  CONT:
-    ldr a, 40
-  AFTER:
-
-  cmp a, 1
-  joc equal, TRUE
-  jmp FALSE
-  TRUE:
-    ldr a, 20
-    jmp AFTER
-  FALSE:
-    ldr a, 40
-  AFTER:
-
-  // if cmp a, 1 is equal {ldr a, 20}
-  // if an if statement is only one if, we should eliminate the final jump
-  cmp a, 1
-  joc equal, TRUE
-  jmp FALSE
-  TRUE:
-  ldr a, 20
-  jmp AFTER
-  FALSE:
-  AFTER: */
 
   if (ldr a, hap; cmp a, NUM_DELAY isnt equal) {
     ldr a, 20

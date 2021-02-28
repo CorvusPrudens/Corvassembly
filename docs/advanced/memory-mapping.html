@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta content="Corvassembly memory mapping." name="description" />
+<meta content="Corvassembly, assembly, memory, map" name="keywords" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Memory-mapped Modules &mdash; Corvassembly 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Advanced Syntax" href="advanced-syntax.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Corvassembly
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/basic-syntax.html">Basic Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/instructions.html">Instructions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Features:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="advanced-syntax.html">Advanced Syntax</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Memory-mapped Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modules">Modules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Corvassembly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Memory-mapped Modules</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/advanced/memory-mapping.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="memory-mapped-modules">
+<h1>Memory-mapped Modules<a class="headerlink" href="#memory-mapped-modules" title="Permalink to this headline">¶</a></h1>
+<p>Corvassembly allows the programmer to access peripherals
+through memory-mapped interfaces.
+Reading and writing to these modules is done in the same way as reading and
+writing to <code class="docutils literal notranslate"><span class="pre">ram</span></code>:</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span> <span class="nb">a</span>, <span class="no">UART</span>
+<span class="nf">ldr</span> <span class="nb">a</span>, <span class="nf">add</span> <span class="m">32</span>
+<span class="nf">str</span> <span class="nb">a</span>, <span class="no">UART</span>
+</pre></div>
+</div>
+<p>Each module has built-in variables so the programmer doesn’t need to memorize
+addresses.</p>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">UART‎</span></code></dt>
+<dd><p>A UART module with built-in 512 byte RX and TX FIFO buffering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>UART‎</strong> (<em>read</em>) – read the current FIFO value and increment FIFO pointer</p></li>
+<li><p><strong>UART</strong> (<em>write</em>) – write to FIFO; data is sent as soon as the UART is not busy</p></li>
+<li><p><strong>UART_STATUS</strong> (<em>read</em>) – read the UART status</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 16%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">UART_STATUS</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">----</span> <span class="pre">EFGH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(E)</span> <span class="pre">RX</span> <span class="pre">empty,</span> <span class="pre">(F)</span> <span class="pre">RX</span> <span class="pre">full,</span> <span class="pre">(G)</span> <span class="pre">TX</span> <span class="pre">empty,</span> <span class="pre">(H)</span> <span class="pre">TX</span> <span class="pre">full</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">APU‎</span></code></dt>
+<dd><p>Emulation of the 2A03’s audio processing unit. Variable names reflect the
+addresses for the original chip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>R4000</strong> – Pulse 1 duty, control bits, and volume</p></li>
+<li><p><strong>R4001</strong> – Pulse 1 sweep unit</p></li>
+<li><p><strong>R4002</strong> – Pulse 1 timer LSB</p></li>
+<li><p><strong>R4003</strong> – Pulse 1 length counter and timer MSbs</p></li>
+<li><p><strong>R4004</strong> – Pulse 2 duty, control bits, and volume</p></li>
+<li><p><strong>R4005</strong> – Pulse 2 sweep unit</p></li>
+<li><p><strong>R4006</strong> – Pulse 2 timer LSB</p></li>
+<li><p><strong>R4007</strong> – Pulse 2 length counter and timer MSbs</p></li>
+<li><p><strong>R4008</strong> – Triangle control bits and linear counter</p></li>
+<li><p><strong>R400A</strong> – Triangle timer LSB</p></li>
+<li><p><strong>R400B</strong> – Triangle length counter and timer MSbs</p></li>
+<li><p><strong>R400C</strong> – Noise control bits and volume</p></li>
+<li><p><strong>R400E</strong> – Noise loop flag and period</p></li>
+<li><p><strong>R400F</strong> – Noise length counter</p></li>
+<li><p><strong>R4010</strong> – DMC control bits and frequency</p></li>
+<li><p><strong>R4011</strong> – DMC load counter</p></li>
+<li><p><strong>R4012</strong> – DMC sample address</p></li>
+<li><p><strong>R4013</strong> – DMC sample length</p></li>
+<li><p><strong>R4015</strong> – APU status register</p></li>
+<li><p><strong>R9000</strong> – VRC6 Pulse 1 control bit, duty, and volume</p></li>
+<li><p><strong>R9001</strong> – VRC6 Pulse 1 timer LSB</p></li>
+<li><p><strong>R9002</strong> – VRC6 Pulse 1 enable and timer MSbs</p></li>
+<li><p><strong>RA000</strong> – VRC6 Pulse 2 control bit, duty, and volume</p></li>
+<li><p><strong>RA001</strong> – VRC6 Pulse 2 timer LSB</p></li>
+<li><p><strong>RA002</strong> – VRC6 Pulse 2 enable and timer MSbs</p></li>
+<li><p><strong>RB000</strong> – VRC6 Saw accumulator rate</p></li>
+<li><p><strong>RB001</strong> – VRC6 Saw timer LSB</p></li>
+<li><p><strong>RB002</strong> – VRC6 Saw enable and timer MSbs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Detailed information about <a class="reference external" href="https://wiki.nesdev.com/w/index.php/APU">2A03</a> and <a class="reference external" href="https://wiki.nesdev.com/w/index.php/VRC6_audio">VRC6</a> register function can be found
+at the <a class="reference external" href="https://wiki.nesdev.com/w/index.php/Nesdev_Wiki">NesDev wiki</a>.</p>
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">Timer‎</span></code></dt>
+<dd><p>A timer module that can produce interrupts at a fixed frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TIMER_STATUS</strong> – one enables the module, zero disables</p></li>
+<li><p><strong>TIMER_COMP</strong> – Timer compare register. When the timer accumulator
+reaches the value in <code class="docutils literal notranslate"><span class="pre">TIMER_COMP</span></code>, the timer accumulator is reset to
+zero and the <code class="docutils literal notranslate"><span class="pre">TIMER</span></code> interrupt is set.</p></li>
+<li><p><strong>TIMER_PRES</strong> – 8-bit timer prescalar register. Each clock, the prescalar
+register is decremented. When it reaches zero, the timer accumulator is
+incremented and the prescalar register is reset to the value of <code class="docutils literal notranslate"><span class="pre">TIMER_PRES</span></code>.
+A zero in <code class="docutils literal notranslate"><span class="pre">TIMER_PRES</span></code> means the accumulator will increment every clock.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">Scope‎</span></code></dt>
+<dd><p>A module that writes analog values to a 128-byte buffer at a specified frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SCOPE_RATE</strong> – 16-bit register that determines sampling frequency. When the
+sample accumulator is decremented to zero, a new sample is loaded into the
+buffer and the accumulator is reset to the value of <code class="docutils literal notranslate"><span class="pre">SCOPE_RATE</span></code>.</p></li>
+<li><p><strong>SCOPE_DATA</strong> (<em>read</em>) – reads from the sample buffer. When read, the read address
+is incremented by one. When the address reaches the end of the buffer, it
+simply wraps.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-name descname"><span class="pre">Flash‎</span></code></dt>
+<dd><p>A module that allows easy access and control of typical 8-pin flash memory
+chips used for FPGA configuring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FLASH_DATA‎</strong> (<em>read</em>) – Read from the FIFO buffer. This should be done after
+a read request is sent and the module is no longer busy.</p></li>
+<li><p><strong>FLASH_DATA</strong> (<em>write</em>) – Write to the FIFO buffer. This should be done before
+sending a write request.</p></li>
+<li><p><strong>FLASH_PAGE</strong> – Address of the page to be operated on (most significant 16 bits).</p></li>
+<li><p><strong>FLASH_STATUS‎</strong> (<em>write</em>) – Status register for the module. Read, write, and erase
+requests are handles through this register.</p></li>
+<li><p><strong>FLASH_STATUS</strong> (<em>read</em>) – Reading the status register returns only the busy and
+error bits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 14%" />
+<col style="width: 68%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FLASH_STATUS</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SsPE</span> <span class="pre">RWeB</span></code></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">(S)</span> <span class="pre">Program</span> <span class="pre">security</span> <span class="pre">bit,</span> <span class="pre">(s)</span> <span class="pre">Configuration</span> <span class="pre">security</span> <span class="pre">bit,</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">(P)</span> <span class="pre">256</span> <span class="pre">or</span> <span class="pre">512</span> <span class="pre">(packed)</span> <span class="pre">transfer,</span> <span class="pre">(E)</span> <span class="pre">Erase</span> <span class="pre">request,</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">(R)</span> <span class="pre">Read</span> <span class="pre">request,</span> <span class="pre">(W)</span> <span class="pre">Write</span> <span class="pre">request,</span> <span class="pre">(e)</span> <span class="pre">error</span> <span class="pre">bit,</span> <span class="pre">(B)</span> <span class="pre">Busy</span> <span class="pre">bit</span></code></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Read requests can be safely made anywhere within the Flash memory address space.
+Write and erase requests, however, are not necessarily safe in the areas where
+FPGA configuration and program data are stored. For these addresses, (page
+0x05FF and below) the appropriate security bit must be set before a write
+or erase operation will occur. The configuration space ends at address 0x02FF,
+corresponding to the configuration security bit. The program space begins at
+0x0300 and ends at 0x05FF, coresponding to the program security bit.</p>
+<p>If an illegal operation is requested, the module exits the process and sets the
+error bit.</p>
+<p>After any operation, security bits are reset. For every write and read to
+relevant addresses, they must be set before every transfer.</p>
+<p>A read operation will read the entire page at address <code class="docutils literal notranslate"><span class="pre">FLASH_PAGE</span></code>. Therefore,
+it is recommended to read and write in 256-byte chunks.</p>
+<p>The erase operation erases 4096 byte sectors, meaning that an erase only need be
+requested every 16 pages. Erase requests must occur on address multiples of 4096.
+If erase requests are not made on multiples of 4096, the module exits the
+operation and sets the error bit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">page</span></code> register controls the most significant 16 bits of the
+24 bit flash address, meaning that 4096 byte intervals correspond to page
+intervals of 16.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="advanced-syntax.html" class="btn btn-neutral float-left" title="Advanced Syntax" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Corvus Prudens.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

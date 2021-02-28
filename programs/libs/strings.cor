@@ -1,5 +1,0 @@
-rom string0[] = "Lorem ipsum"
-rom string1[] = "dolores"
-
-pre string0 = $string0[0]
-pre string1 = $string1[0]
