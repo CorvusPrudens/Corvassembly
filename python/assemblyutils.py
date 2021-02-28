@@ -366,15 +366,19 @@ def assembleRegister(word, reg, operand, instruction):
 
 def assembleArgument2(word, argument, dict, instruction, variables, number):
   try:
-    var = variables[argument]
-    if var['type'] in LOAD_CONST:
-      word = setWord2(word, int(var['value']))
+    if argument[0] == '&':
+      var = variables[argument[1:]]
+      word = setWord2(word, var['address'])
     else:
-      word = setWord2(word, int(var['address']))
-    word = setOpvar(word, dict[var['type']])
-    if var['type'] == 'rom':
-      warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
-      warning(warnmess, instruction['line'], instruction['path'], 6)
+      var = variables[argument]
+      if var['type'] in LOAD_CONST:
+        word = setWord2(word, int(var['value']))
+      else:
+        word = setWord2(word, int(var['address']))
+      word = setOpvar(word, dict[var['type']])
+      if var['type'] == 'rom':
+        warnmess = 'rom values cannot be directly loaded as operands:\n embedding value in instruction'
+        warning(warnmess, instruction['line'], instruction['path'], 6)
   except KeyError:
     numstring = str(argument)
     if re.search(number, numstring) != None:
@@ -389,12 +393,16 @@ def assembleArgument2Store(word, argument, dict, instruction, variables, number)
   validTable = ['ram', 'gpu']
 
   try:
-    var = variables[argument]
-    if var['type'] not in validTable:
-      errmess = f'\"{argument}\" must be a writable variable'
+    if argument[0] == '&':
+      errmess = f'cannot store register in literal value \"{argument}\"' 
       error(errmess, instruction['line'], instruction['path'], 1)
-    word = setWord2(word, int(var['address']))
-    word = setOpvar(word, dict[var['type']])
+    else:
+      var = variables[argument]
+      if var['type'] not in validTable:
+        errmess = f'\"{argument}\" must be a writable variable'
+        error(errmess, instruction['line'], instruction['path'], 1)
+      word = setWord2(word, int(var['address']))
+      word = setOpvar(word, dict[var['type']])
   except KeyError:
     numstring = str(argument)
     if re.search(number, numstring) != None:

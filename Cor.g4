@@ -154,7 +154,7 @@ WHITESPACE             : [ \t\n\r] -> skip;
 
 COMPARATOR             : '==' | '>' | '<' | '>=' | '<=';
 
-OPERATOR               : '<<' | '>>' | [+\-/*|&^~];
+OPERATOR               : '<<' | '>>' | '**' | [+\-/*|&^~];
 
 fragment DEC           : [1-9][0-9_]* | '0';
 fragment HEX           : '0x'[0-9A-Fa-f][0-9A-Fa-f_]*;
