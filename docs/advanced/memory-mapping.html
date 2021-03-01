@@ -284,12 +284,14 @@ A zero in <code class="docutils literal notranslate"><span class="pre">TIMER_PRE
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>SCOPE_RATE</strong> – 16-bit register that determines sampling frequency. When the
+<li><p><strong>SCOPE_DATA‎</strong> (<em>write</em>) – 16-bit register that determines sampling frequency. When the
 sample accumulator is decremented to zero, a new sample is loaded into the
 buffer and the accumulator is reset to the value of <code class="docutils literal notranslate"><span class="pre">SCOPE_RATE</span></code>.</p></li>
 <li><p><strong>SCOPE_DATA</strong> (<em>read</em>) – reads from the sample buffer. When read, the read address
 is incremented by one. When the address reaches the end of the buffer, it
 simply wraps.</p></li>
+<li><p><strong>SCOPE_TRIGGER</strong> (<em>write</em>) – writing a 1 to this register triggers sample collection.
+When the buffer is filled, sample collection stops. This prevents tearing.</p></li>
 </ul>
 </dd>
 </dl>

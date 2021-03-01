@@ -211,10 +211,10 @@ sysvarTable = [
   ['ram', 'TIMER1_COMP', '40'],
   ['ram', 'TIMER1_PRES', '41'],
 
-  ['ram', 'SCOPE_RATE', '42'],
-  ['ram', 'SCOPE_ADDR', '43'],
-  ['ram', 'SCOPE_DATA', '43'],
-  ['ram', 'SCOPE_HOLD', '44'],
+  # ['ram', 'SCOPE_RATE', '42'],
+  # ['ram', 'SCOPE_ADDR', '43'],
+  ['ram', 'SCOPE_DATA', '42'],
+  ['ram', 'SCOPE_TRIGGER', '44'],
 
   ['ram', 'FLASH_DATA', '45'],
   ['ram', 'FLASH_PAGE', '46'],

@@ -108,13 +108,16 @@ at the `NesDev wiki`_.
 
   A module that writes analog values to a 128-byte buffer at a specified frequency.
 
-  :var SCOPE_RATE: 16-bit register that determines sampling frequency. When the
+  :var write SCOPE_DATA‎: 16-bit register that determines sampling frequency. When the
     sample accumulator is decremented to zero, a new sample is loaded into the
     buffer and the accumulator is reset to the value of ``SCOPE_RATE``.
 
   :var read SCOPE_DATA: reads from the sample buffer. When read, the read address
     is incremented by one. When the address reaches the end of the buffer, it
     simply wraps.
+
+  :var write SCOPE_TRIGGER: writing a 1 to this register triggers sample collection.
+    When the buffer is filled, sample collection stops. This prevents tearing.
 
 .. note -- we're using some invisible character here too
 .. function:: Flash‎
