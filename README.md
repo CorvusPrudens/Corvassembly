@@ -18,7 +18,7 @@ $ pip install numpy
 If you want to modify the assembler itself, it would be helpful to install the latest antlr4 complete jar. The ANTLR site provides [an easy quick-start guide](https://www.antlr.org/) for this process. Note that in order for the configurations to persist beyond the current session, you should paste the export and alias commands into your shell's configuration file.
 
 To test the lexer and parser and produce a graphic syntax tree, simply enter:
-```shell
+```
 $ make test
 ```
 
