@@ -23,9 +23,9 @@ Address space:
 0x0000-0x01FF
 	This range provides direct access to the display
 	buffer. The buffer is organized into
-	4 rows of 128, 16-bit words. Each word 
+	4 rows of 128, 16-bit words. Each word
 	corresponds to 16 vertical pixels, with
-	bit position 0 being the top and bit 
+	bit position 0 being the top and bit
 	position 15 the bottom. Since GPU memory
 	cannot be read, it is recommended to use
 	a frame buffer in ram if you want to
@@ -40,13 +40,19 @@ Address space:
 	16, 16 -- this facilitates easier partial
 	drawing.
 
-.. table of structure here with more in-depth
-.. explanation
-.. NOTE -- double check address ranges
++---------------------+-----------------------+-------------------------------------------------------+
+|                     |                       | | ``(I) Sprite index, (W) sprite width,``             |
+| ``Request byte 1``  | ``IIIIIIII WWWWTVHC`` | | ``(T) text (1) or sprite (0), (V) vertical flip,``  |
+|                     |                       | | ``(H) horizontal flip, (C) black (1) or white (0)`` |
++=====================+=======================+=======================================================+
+|                     |                       | | ``(X) x position``                                  |
+| ``Request byte 2``  | ``YYYYYYYY XXXXXXXX`` | |                                                     |
+|                     |                       | | ``(Y) y position``                                  |
++---------------------+-----------------------+-------------------------------------------------------+
 
 0x0400-0x07FF
 	This range provides access to the sprite
-	buffer. The graphics acceleration 
+	buffer. The graphics acceleration
 	process reads the requests and copies the
 	specified sprites to the screen buffer.
 	Sprites can have an arbitrary width up to
@@ -57,7 +63,7 @@ Address space:
 	This range provides access to the character
 	"ROM". The default font is loaded in during
 	configuration, but can be rewritten if desired.
-	The buffer consists of 1024 8-bit words, 
+	The buffer consists of 1024 8-bit words,
 	corresponding to a maximum text size of 4x8.
 
 0x1000-0x1001

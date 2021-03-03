@@ -94,14 +94,15 @@ class Variables:
       mathString = mathString[:match.start()] + listener.scope(match.group(0)) + mathString[match.end():]
       match = self.addressRegex.search(mathString, pos=match.end())
 
+    # print(mathString)
     match = self.addressRegex.search(mathString)
     # print(match.group(0) if match != None else '.', mathString)
     while match != None:
       # print(match.group(0))
-      mathString = mathString[:match.start()] + str(self.getAddress(match.group(0), linenum=linenum, fullpath=fullpath)) + mathString[match.end():]
+      mathString = mathString[:match.start()] + str(self.getAddress(listener.scope(match.group(0)), linenum=linenum, fullpath=fullpath)) + mathString[match.end():]
       match = self.addressRegex.search(mathString, pos=match.end())
 
-    # print(mathString)
+    # print(mathString + '\n')
     solution = 0
     try:
       solution = round(eval(mathString, {}, self.evalDict))
@@ -330,7 +331,7 @@ class Instructions:
             elif ctxname == 'LoopContext':
               self.addLoop(ifstat.getChild(1).getChild(1 + j), listener, variables, labels, top=True)
             elif ctxname == 'If_chainContext':
-              self.addIf(ifstat.getChild(1).getChild(1 + j), listener, variables, labels)
+              self.addIfchain(ifstat.getChild(1).getChild(1 + j), listener, variables, labels)
 
       labels.add(ctx, nextBranch, self, listener, linenum=linenum)
 
@@ -405,6 +406,41 @@ class VusListener(CorListener) :
       'continue', 'break', 'breakall', 'FLASH_READ', 'FLASH_WRITE',
       'FLASH_STATUS', 'FLASH_PAGE', 'FLASH_WRITE_WORD',
       'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER', 'FRAME',
+
+      'R4000',
+      'R4001',
+      'R4002',
+      'R4003',
+      'R4004',
+      'R4005',
+      'R4006',
+      'R4007',
+      'R4008',
+      'R4009',
+      'R400A',
+      'R400B',
+      'R400C',
+      'R400D',
+      'R400E',
+      'R400F',
+      'R4010',
+      'R4011',
+      'R4012',
+      'R4013',
+      'R4014',
+      'R4015',
+      'R4016',
+      'R4017',
+      'R9000',
+      'R9001',
+      'R9002',
+      'R9003',
+      'RA000',
+      'RA001',
+      'RA002',
+      'RB000',
+      'RB001',
+      'RB002',
     ]
     self.variableRegex = re.compile('\\b\\&{0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
     self.fullpath = fullpath
@@ -414,6 +450,8 @@ class VusListener(CorListener) :
     if self.variableRegex.search(input) != None:
       if self.currentName != self.mainName and '.' not in input and input not in self.keywords:
         if '&' in input:
+          if input[1:] in self.keywords:
+            return input
           input = '&' + self.currentName + '.' + input[1:]
         else:
           input = self.currentName + '.' + input
@@ -509,8 +547,10 @@ class VusListener(CorListener) :
         else:
           width = math.ceil((ctx.array().arr_data().getChildCount() - 2)/2.0)
           for i in range(width):
+
             linenum = self.stream.get(ctx.array().arr_data().getChild(1 + i*2).getSourceInterval()[0]).line
             tempval = self.variables.calc(ctx.array().arr_data().getChild(1 + i*2).getText(), self, fullpath=self.fullpath, linenum=linenum)
+            # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
             self.variables.add(varType, name + f'[{i}]', tempval, self, linenum=linenum)
 
 

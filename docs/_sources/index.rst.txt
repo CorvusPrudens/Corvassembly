@@ -32,6 +32,7 @@ written for the CorvusPrudensUnit.
 
    /advanced/advanced-syntax
    /advanced/memory-mapping
+   /advanced/the-gpu
 
 .. toctree::
    :maxdepth: 2
