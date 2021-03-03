@@ -11,8 +11,8 @@ call it a GPU, but it does allow for much
 faster and more sophisticated monochrome
 drawing.
 
-The GPU is accessed primarily from the ``lpt``
-and ``spt`` instructions, as ``gpu`` is one of
+The GPU is accessed primarily from the
+and ``spt`` instruction, as ``gpu`` is one of
 the three memories that can be accessed by
 indirect addressing. GPU memory cannot be read --
 only written.
