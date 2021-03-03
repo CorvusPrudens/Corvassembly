@@ -62,17 +62,24 @@ def main(argv):
   ### PARSING
   ##############################################################
 
-  # sorting out file imports
-  importListener = ImportListener(infile)
-
   try:
     input = FileStream(infile)
   except FileNotFoundError:
     print(f'Error: cannot find file \"{infile}\"\n')
     exit(1)
   lexer = CorLexer(input)
+  lexer.removeErrorListeners()
+  # custom error listener
+  importError = ImportErrorListener(infile)
+  lexer.addErrorListener(importError)
   stream = CommonTokenStream(lexer)
   parser = CorParser(stream)
+
+  # sorting out file imports
+  importListener = ImportListener(infile, stream)
+
+  parser.removeErrorListeners()
+  parser.addErrorListener(importError)
   tree = parser.initial()
   walker = ParseTreeWalker()
 
@@ -89,10 +96,16 @@ def main(argv):
   variables = Variables()
 
   for file in importListener.getImports():
+    # custom error listener
+    vusError = VusErrorListener(filepath=file['path'])
     input = FileStream(file['path'])
     lexer = CorLexer(input)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(vusError)
     stream = CommonTokenStream(lexer)
     parser = CorParser(stream)
+    parser.removeErrorListeners()
+    parser.addErrorListener(vusError)
     tree = parser.parse()
 
     numInstructions = listener.getNumInstructions()

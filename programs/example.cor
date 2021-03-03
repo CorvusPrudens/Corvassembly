@@ -15,7 +15,8 @@ ram array[20]
 ram hap
 
 ldr f, &hap
-ldr a, 1
+// definitely some issues here to be sorted out
+// ldr a, (1 >= (&hap)) == 0
 spt a, ram
 
 ldr g, ascii.chars
@@ -24,7 +25,8 @@ lpt a, rom
 main:
   ldr a, array[0]
   jsr writeout
-  jsr delay
+  // this needs to be sorted out
+  // jsr delay + 30
   jmp main
 
 

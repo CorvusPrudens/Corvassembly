@@ -6,6 +6,17 @@ import re
 ### I/O
 ##############################################################
 
+class bcolors:
+    head = '\033[95m'
+    blue = '\033[94m'
+    cyan = '\033[96m'
+    green = '\033[92m'
+    yellow = '\033[93m'
+    red   = '\033[91m'
+    stop = '\033[0m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+
 def usage():
   print("\nUsage: <infile> [[options] [parameters] ...]")
   print("If no options are given, the program will not generate any output.")
@@ -122,10 +133,14 @@ def endExecution():
     errS = 's' if len(errorList) != 1 else ''
     print(f'{len(warningList)} warning{warnS}, {len(errorList)} error{errS}')
 
-def error(message, lineNumber, filepath, errorcode):
-  errorList.append({'message': message, 'line': lineNumber,
-                      'path': filepath, 'code': errorcode})
-  if len(errorList) == 5:
+def error(message, lineNumber, filepath, errorcode, syntax=False, col=0, abort=False):
+  errorList.append({'message':  message,  'line': lineNumber,
+                    'path':     filepath, 'code': errorcode,
+                    'syntax':   syntax,   'col':  col})
+  if len(errorList) == 10:
+    endExecution()
+  if abort:
+    print(f"{bcolors.red}Fatal error: assembly stopped.{bcolors.stop}")
     endExecution()
 
 def warning(message, lineNumber, filepath, errorcode):
@@ -134,16 +149,22 @@ def warning(message, lineNumber, filepath, errorcode):
 
 def errorPrint(entries):
   # uh oh, this won't work with multiple files... we'll have to sort and stuff
-  try:
-    with open(entries[0]['path'], 'r') as file:
-      lines = file.readlines()
-      for entry in entries:
-        print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
-        original = lines[entry['line'] - 1].strip(' \n')
-        print(f'  {original}')
-        print(f'-> {entry["message"]}\n')
-  except FileNotFoundError:
-    for entry in entries:
+  for entry in entries:
+    try:
+      with open(entry['path'], 'r') as file:
+        lines = file.readlines()
+        if entry['syntax']:
+            print(f'({entry["code"]}) Error in file {bcolors.green}\"{entry["path"]}\"{bcolors.stop} at line {entry["line"]}:')
+            original = lines[entry['line'] - 1].rstrip(' \n')
+            print(f'  {original}')
+            print(f'  {" "*entry["col"]}{bcolors.red}^{bcolors.stop}')
+            print(f'{bcolors.blue}->{bcolors.stop} {entry["message"]}\n')
+        else:
+          print(f'({entry["code"]}) {bcolors.red}Error{bcolors.stop} in file {bcolors.green}\"{entry["path"]}\"{bcolors.stop} at line {entry["line"]}:')
+          original = lines[entry['line'] - 1].strip(' \n')
+          print(f'  {bcolors.cyan}{original}{bcolors.stop}')
+          print(f'{bcolors.blue}->{bcolors.stop} {entry["message"]}\n')
+    except FileNotFoundError:
       # print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
       # original = lines[entry['line'] - 1].strip(' \n')
       # print(f'  {original}')
@@ -368,8 +389,16 @@ def assembleRegister(word, reg, operand, instruction):
 def assembleArgument2(word, argument, dict, instruction, variables, number):
   try:
     if isinstance(argument, str) and argument[0] == '&':
-      var = variables[argument[1:]]
-      word = setWord2(word, var['address'])
+      try:
+        if variables[argument[1:]]['type'] == 'pre':
+          errmess = f'Pre-processor variable {argument[1:]} does not have an address'
+          error(errmess, instruction['line'], instruction['path'], 1)
+        else:
+          var = variables[argument[1:]]
+          word = setWord2(word, var['address'])
+      except KeyError:
+        errmess = f'\"{argument[1:]}\" is not defined'
+        error(errmess, instruction['line'], instruction['path'], 1)
     else:
       var = variables[argument]
       if var['type'] in LOAD_CONST:
@@ -546,7 +575,7 @@ def assembleInstructions(instructions, variables, labels):
         try:
           word = setOpvar(word, STORE_PTR_DICT[args[1]])
         except KeyError:
-          errmess = f'\"{inst}\" must be \"ram\" or \"gpu\"'
+          errmess = f'\"{args[1]}\" must be \"ram\" or \"gpu\"'
           error(errmess, instructions[i]['line'], instructions[i]['path'], 1000)
       except IndexError:
         pass

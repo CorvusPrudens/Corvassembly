@@ -50,9 +50,9 @@ declaration     : RAM VARIABLE array_init*;
 expression      : exp_number | exp_var | math;
 
 // this is getting ugly
-math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE)CPAR*) *CPAR (OPERATOR (NUMBER | VARIABLE))*
+math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE)CPAR*) *CPAR ((OPERATOR|COMPARATOR) (NUMBER | VARIABLE))*
                 | OPAR* OPERATOR OPAR* (NUMBER | VARIABLE) *CPAR
-                | (((NUMBER | VARIABLE) OPERATOR)+ (NUMBER | VARIABLE))
+                | (((NUMBER | VARIABLE) (OPERATOR|COMPARATOR))+ (NUMBER | VARIABLE))
                 | OPERATOR (NUMBER | VARIABLE)
                 ;
 
@@ -146,7 +146,7 @@ MNEMONIC               :  'nop'| 'ldr'| 'str'| 'lpt'|
 
 // we won't be able to detect array names as variable (i.e. arr[0])
 // we'll have to come up with a workaround
-VARIABLE               : '&'?[A-Za-z_][A-Za-z_0-9.]*;
+VARIABLE               : '&'?[A-Za-z_]([A-Za-z_0-9]*|([A-Za-z_0-9.]*[A-Za-z_0-9]));
 
 WHITESPACE             : [ \t\n\r] -> skip;
 
