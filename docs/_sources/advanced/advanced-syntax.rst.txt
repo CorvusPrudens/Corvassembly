@@ -18,7 +18,7 @@ Files can be imported using a Python-like syntax:
 .. code-block:: corvassembly
 
   import libs.graphics as graphics
-  import "libs/menu.cor" as menu
+  import "libs/menu.cor"
 
   main:
     jsr graphics.begin

@@ -6,7 +6,7 @@ The GPU
 
 The CorvusPrudensUnit features a graphics
 processing unit for offloading drawing
-from the processor. It' a bit of a stretch to
+from the processor. It's a bit of a stretch to
 call it a GPU, but it does allow for much
 faster and more sophisticated monochrome
 drawing.
@@ -17,7 +17,7 @@ the three memories that can be accessed by
 indirect addressing. GPU memory cannot be read --
 only written.
 
-Address space:
+Address space
 --------------
 
 0x0000-0x01FF
@@ -28,8 +28,8 @@ Address space:
 	bit position 0 being the top and bit
 	position 15 the bottom. Since GPU memory
 	cannot be read, it is recommended to use
-	a frame buffer in ram if you want to
-	draw directly to the GPU buffer.
+	a frame buffer in ram and transfer the
+	frame buffer to the display buffer all at once.
 
 0x0200-0x03FF
 	This range provides access to the GPU request
@@ -40,15 +40,15 @@ Address space:
 	16, 16 -- this facilitates easier partial
 	drawing.
 
-+---------------------+-----------------------+-------------------------------------------------------+
-|                     |                       | | ``(I) Sprite index, (W) sprite width,``             |
-| ``Request byte 1``  | ``IIIIIIII WWWWTVHC`` | | ``(T) text (1) or sprite (0), (V) vertical flip,``  |
-|                     |                       | | ``(H) horizontal flip, (C) black (1) or white (0)`` |
-+=====================+=======================+=======================================================+
-|                     |                       | | ``(X) x position``                                  |
-| ``Request byte 2``  | ``YYYYYYYY XXXXXXXX`` | |                                                     |
-|                     |                       | | ``(Y) y position``                                  |
-+---------------------+-----------------------+-------------------------------------------------------+
++---------------------+-------------------------+-------------------------------------------------------+
+|                     | |                       | | ``(I) Sprite index, (W) sprite width,``             |
+| ``Request word 1``  | | ``IIIIIIII WWWWTVHC`` | | ``(T) text (1) or sprite (0), (V) vertical flip,``  |
+|                     | |                       | | ``(H) horizontal flip, (C) black (1) or white (0)`` |
++=====================+=========================+=======================================================+
+|                     | |                       | | ``(X) x position``                                  |
+| ``Request word 2``  | | ``YYYYYYYY XXXXXXXX`` | | `` ``                                               |
+|                     | |                       | | ``(Y) y position``                                  |
++---------------------+-------------------------+-------------------------------------------------------+
 
 0x0400-0x07FF
 	This range provides access to the sprite
