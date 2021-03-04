@@ -1,120 +1,101 @@
 #!/usr/bin/env python
+''' doc '''
 
 import sys
-from antlr4 import *
+
+import antlr4
+import _vus_listener
+import _assembly_utils
+
 from gen.CorLexer import CorLexer
 from gen.CorParser import CorParser
-from VusListener import *
-from assemblyutils import *
-
-RAM_ADDRESS_BEGIN = 48
-PGM_ADDRESS_BEGIN = 3
-PROGRAM_WORD_WIDTH = 32
-DATA_WORD_WIDTH = 16
 
 
 def main(argv):
 
-    infile, options_args, options_noargs = parseInput(argv)
+    infile, options_args, options_noargs = _assembly_utils.parseInput(argv)
 
     ##############################################################
     # PARSING
     ##############################################################
 
     try:
-        input = FileStream(infile)
+        file_stream = antlr4.FileStream(infile)
     except FileNotFoundError:
         print(f'Error: cannot find file \"{infile}\"\n')
         sys.exit(1)
-    lexer = CorLexer(input)
+    lexer = CorLexer(file_stream)
     lexer.removeErrorListeners()
-    # custom error listener
-    importError = ImportErrorListener(infile)
-    lexer.addErrorListener(importError)
-    stream = CommonTokenStream(lexer)
+
+    error_listener = _vus_listener.ImportErrorListener(infile)
+    lexer.addErrorListener(error_listener)
+    stream = antlr4.CommonTokenStream(lexer)
     parser = CorParser(stream)
 
-    # sorting out file imports
-    importListener = ImportListener(infile, stream)
+    import_listener = _vus_listener.ImportListener(infile, stream)
 
     parser.removeErrorListeners()
-    parser.addErrorListener(importError)
+    parser.addErrorListener(error_listener)
     tree = parser.initial()
-    walker = ParseTreeWalker()
+    walker = antlr4.ParseTreeWalker()
 
     # recursively seraches through files until all are added to imports list
-    walker.walk(importListener, tree)
+    walker.walk(import_listener, tree)
 
     # proper parsing
-    listener = VusListener(importListener.getImports()[-1]['name'],
-                           RAM_ADDRESS_BEGIN, PGM_ADDRESS_BEGIN,
-                           importListener.imports[-1]['path'], SYSVARS)
-    # NOTE -- main file is the last addition to imports list
-    labels = Labels()
-    instructions = Instructions()
-    variables = Variables()
+    listener = _vus_listener.VusListener(
+        import_listener.getImports()[-1]['name'],
+        _assembly_utils.Globals.RAM_ADDRESS_BEGIN,
+        _assembly_utils.Globals.PGM_ADDRESS_BEGIN,
+        import_listener.imports[-1]['path'], _assembly_utils.Globals.SYSVARS)
 
-    for file in importListener.getImports():
-        # custom error listener
-        vusError = VusErrorListener(filepath=file['path'])
-        input = FileStream(file['path'])
-        lexer = CorLexer(input)
+    # NOTE -- main file is the last addition to imports list
+    labels = _vus_listener.Labels()
+    instructions = _vus_listener.Instructions()
+
+    for file in import_listener.getImports():
+
+        error_listener = _vus_listener.VusErrorListener(filepath=file['path'])
+        file_stream = antlr4.FileStream(file['path'])
+        lexer = CorLexer(file_stream)
         lexer.removeErrorListeners()
-        lexer.addErrorListener(vusError)
-        stream = CommonTokenStream(lexer)
+        lexer.addErrorListener(error_listener)
+        stream = antlr4.CommonTokenStream(lexer)
+
         parser = CorParser(stream)
         parser.removeErrorListeners()
-        parser.addErrorListener(vusError)
+        parser.addErrorListener(error_listener)
         tree = parser.parse()
 
-        numInstructions = listener.getNumInstructions()
-        labels.insert(listener.getLabels().getLabels(), numInstructions)
+        num_instructions = listener.getNumInstructions()
+        labels.insert(listener.getLabels().getLabels(), num_instructions)
         instructions.insert(listener.getInstructions().getInstructions(),
-                            numInstructions)
-        variables.insert(listener.getVariables().getVariables())
+                            num_instructions)
+
         listener.reset(file['name'],
                        file['path'],
                        stream,
-                       startaddr=PGM_ADDRESS_BEGIN)
-        # listener.setName(file['name'], file['path'], stream)
-        walker = ParseTreeWalker()
+                       start_addr=_assembly_utils.Globals.PGM_ADDRESS_BEGIN)
+
+        walker = antlr4.ParseTreeWalker()
         walker.walk(listener, tree)
 
-    numInstructions = listener.getNumInstructions()
-    labels.insert(listener.getLabels().getLabels(), numInstructions)
-    # labels.labels.insert(0, {'name': '__pgm_start__', 'address': 3})
+    num_instructions = listener.getNumInstructions()
+    labels.insert(listener.getLabels().getLabels(), num_instructions)
     instructions.insert(listener.getInstructions().getInstructions(),
-                        numInstructions)
+                        num_instructions)
 
-    listener.getLabels().setInit(pgmStartAddress=PGM_ADDRESS_BEGIN)
-    labels.setInit(pgmStartAddress=PGM_ADDRESS_BEGIN)
+    labels.setInit(program_start_addr=_assembly_utils.Globals.PGM_ADDRESS_BEGIN)
 
-    for i in range(len(INIT_INSTRUCTIONS) - 1, -1, -1):
-        listener.getInstructions().getInstructions().insert(
-            0, INIT_INSTRUCTIONS[i])
-        instructions.getInstructions().insert(0, INIT_INSTRUCTIONS[i])
-    setInterrupts(labels.getLabels(), instructions.getInstructions())
+    for i in range(len(_assembly_utils.Globals.INIT_INSTRUCTIONS) - 1, -1, -1):
+        instructions.getInstructions().insert(
+            0, _assembly_utils.Globals.INIT_INSTRUCTIONS[i])
+    _assembly_utils.setInterrupts(labels.getLabels(),
+                                  instructions.getInstructions())
 
-    ##############################################################
-    # OUTPUT
-    ##############################################################
-
-    debug(options_args, options_noargs, instructions, listener.getVariables(),
-          labels)
-
-    prom = assembleInstructions(instructions.getInstructions(),
-                                listener.getVariables().getVariables(),
-                                labels.getLabels())
-    drom = assembleVariables(listener.getVariables().getVariables(),
-                             DATA_WORD_WIDTH)
-    endExecution()
-
-    if options_args['-p'] != '':
-        writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']),
-                 PROGRAM_WORD_WIDTH)
-    if options_args['-d'] != '':
-        writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']),
-                 DATA_WORD_WIDTH)
+    # Final stage
+    _assembly_utils.generate_output(options_args, options_noargs, listener,
+                                    labels, instructions)
 
 
 if __name__ == '__main__':

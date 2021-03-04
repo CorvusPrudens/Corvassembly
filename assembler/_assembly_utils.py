@@ -5,9 +5,118 @@ import re
 import numpy as np
 
 
-##############################################################
-# I/O
-##############################################################
+class Globals:
+    RAM_ADDRESS_BEGIN = 48
+    PGM_ADDRESS_BEGIN = 3
+    PROGRAM_WORD_WIDTH = 32
+    DATA_WORD_WIDTH = 16
+
+    INIT_INSTRUCTIONS = [
+        {
+            'mnemonic': 'jmp',
+            'address': 0,
+            'arguments': ['__pgm_start__'],
+            'line': -1,
+            'path': -1
+        },
+        {
+            'mnemonic': 'jmp',
+            'address': 1,
+            'arguments': ['__pgm_start__'],
+            'line': -1,
+            'path': -1
+        },
+        {
+            'mnemonic': 'jmp',
+            'address': 2,
+            'arguments': ['__pgm_start__'],
+            'line': -1,
+            'path': -1
+        },
+    ]
+
+    sysvarTable = [
+        ['ram', 'UART', '0'],
+        ['ram', 'UART_STATUS', '1'],
+        ['ram', 'DISPLAY', '36'],
+        ['ram', 'R4000', '2'],
+        ['ram', 'R4001', '3'],
+        ['ram', 'R4002', '4'],
+        ['ram', 'R4003', '5'],
+        ['ram', 'R4004', '6'],
+        ['ram', 'R4005', '7'],
+        ['ram', 'R4006', '8'],
+        ['ram', 'R4007', '9'],
+        ['ram', 'R4008', '10'],
+        ['ram', 'R4009', '11'],
+        ['ram', 'R400A', '12'],
+        ['ram', 'R400B', '13'],
+        ['ram', 'R400C', '14'],
+        ['ram', 'R400D', '15'],
+        ['ram', 'R400E', '16'],
+        ['ram', 'R400F', '17'],
+        ['ram', 'R4010', '18'],
+        ['ram', 'R4011', '19'],
+        ['ram', 'R4012', '20'],
+        ['ram', 'R4013', '21'],
+        ['ram', 'R4014', '22'],
+        ['ram', 'R4015', '23'],
+        ['ram', 'R4016', '24'],
+        ['ram', 'R4017', '25'],
+        ['ram', 'R9000', '26'],
+        ['ram', 'R9001', '27'],
+        ['ram', 'R9002', '28'],
+        ['ram', 'R9003', '29'],
+        ['ram', 'RA000', '30'],
+        ['ram', 'RA001', '31'],
+        ['ram', 'RA002', '32'],
+        ['ram', 'RB000', '33'],
+        ['ram', 'RB001', '34'],
+        ['ram', 'RB002', '35'],
+        ['ram', 'TIMER_STATUS', '37'],
+        ['ram', 'TIMER_COMP', '38'],
+        ['ram', 'TIMER_PRES', '39'],
+        ['ram', 'TIMER1_COMP', '40'],
+        ['ram', 'TIMER1_PRES', '41'],
+
+        # ['ram', 'SCOPE_RATE', '42'],
+        # ['ram', 'SCOPE_ADDR', '43'],
+        ['ram', 'SCOPE_DATA', '42'],
+        ['ram', 'SCOPE_TRIGGER', '44'],
+        ['ram', 'FLASH_DATA', '45'],
+        ['ram', 'FLASH_PAGE', '46'],
+        ['ram', 'FLASH_STATUS', '47'],
+        ['pre', 'FLASH_WRITE_WORD', '8'],
+        ['pre', 'FLASH_READ_WORD', '4'],
+        ['pre', 'FLASH_ERASE_WORD', '16'],
+        ['pre', 'TIMER0_EN', '1'],
+        ['pre', 'TIMER1_EN', '2'],
+        ['pre', 'TX_EMPTY', '2'],
+        ['pre', 'TX_FULL', '1'],
+        ['pre', 'RX_EMPTY', '8'],
+        ['pre', 'RX_FULL', '4'],
+    ]
+
+    SYSVARS = {}
+
+    for var in sysvarTable:
+        if var[0] == 'ram':
+            SYSVARS[var[1]] = {
+                'type': 'ram',
+                'address': int(var[2]),
+                'value': 0,
+                'line': -1,
+                'path': -1
+            }
+        elif var[0] == 'pre':
+            SYSVARS[var[1]] = {
+                'type': 'pre',
+                'name': var[1],
+                'address': 0,
+                'value': var[2],
+                'line': -1,
+                'path': -1
+            }
 
 
 class bcolors:
@@ -20,6 +129,10 @@ class bcolors:
     stop = '\033[0m'
     bold = '\033[1m'
     underline = '\033[4m'
+
+##############################################################
+# I/O
+##############################################################
 
 
 def usage():
@@ -89,6 +202,25 @@ def parseInput(argv):
 
     return infile, options_args, options_noargs
 
+
+def generate_output(options_args, options_noargs, listener, labels,
+                    instructions):
+    debug(options_args, options_noargs, instructions, listener.getVariables(),
+          labels)
+
+    prom = assembleInstructions(instructions.getInstructions(),
+                                listener.getVariables().getVariables(),
+                                labels.getLabels())
+    drom = assembleVariables(listener.getVariables().getVariables(),
+                             Globals.DATA_WORD_WIDTH)
+    endExecution()
+
+    if options_args['-p'] != '':
+        writeMem(prom, options_args['-p'] + '.hex', int(options_args['-P']),
+                 Globals.PROGRAM_WORD_WIDTH)
+    if options_args['-d'] != '':
+        writeMem(drom, options_args['-d'] + '.hex', int(options_args['-D']),
+                 Globals.DATA_WORD_WIDTH)
 
 def writeMem(code, outfile, memAddBits, memBits):
     memWidth = math.ceil(memBits / 4)
@@ -289,89 +421,6 @@ def warningPrint(entries):
 # Assembly Data
 ##############################################################
 
-sysvarTable = [
-    ['ram', 'UART', '0'],
-    ['ram', 'UART_STATUS', '1'],
-    ['ram', 'DISPLAY', '36'],
-    ['ram', 'R4000', '2'],
-    ['ram', 'R4001', '3'],
-    ['ram', 'R4002', '4'],
-    ['ram', 'R4003', '5'],
-    ['ram', 'R4004', '6'],
-    ['ram', 'R4005', '7'],
-    ['ram', 'R4006', '8'],
-    ['ram', 'R4007', '9'],
-    ['ram', 'R4008', '10'],
-    ['ram', 'R4009', '11'],
-    ['ram', 'R400A', '12'],
-    ['ram', 'R400B', '13'],
-    ['ram', 'R400C', '14'],
-    ['ram', 'R400D', '15'],
-    ['ram', 'R400E', '16'],
-    ['ram', 'R400F', '17'],
-    ['ram', 'R4010', '18'],
-    ['ram', 'R4011', '19'],
-    ['ram', 'R4012', '20'],
-    ['ram', 'R4013', '21'],
-    ['ram', 'R4014', '22'],
-    ['ram', 'R4015', '23'],
-    ['ram', 'R4016', '24'],
-    ['ram', 'R4017', '25'],
-    ['ram', 'R9000', '26'],
-    ['ram', 'R9001', '27'],
-    ['ram', 'R9002', '28'],
-    ['ram', 'R9003', '29'],
-    ['ram', 'RA000', '30'],
-    ['ram', 'RA001', '31'],
-    ['ram', 'RA002', '32'],
-    ['ram', 'RB000', '33'],
-    ['ram', 'RB001', '34'],
-    ['ram', 'RB002', '35'],
-    ['ram', 'TIMER_STATUS', '37'],
-    ['ram', 'TIMER_COMP', '38'],
-    ['ram', 'TIMER_PRES', '39'],
-    ['ram', 'TIMER1_COMP', '40'],
-    ['ram', 'TIMER1_PRES', '41'],
-
-    # ['ram', 'SCOPE_RATE', '42'],
-    # ['ram', 'SCOPE_ADDR', '43'],
-    ['ram', 'SCOPE_DATA', '42'],
-    ['ram', 'SCOPE_TRIGGER', '44'],
-    ['ram', 'FLASH_DATA', '45'],
-    ['ram', 'FLASH_PAGE', '46'],
-    ['ram', 'FLASH_STATUS', '47'],
-    ['pre', 'FLASH_WRITE_WORD', '8'],
-    ['pre', 'FLASH_READ_WORD', '4'],
-    ['pre', 'FLASH_ERASE_WORD', '16'],
-    ['pre', 'TIMER0_EN', '1'],
-    ['pre', 'TIMER1_EN', '2'],
-    ['pre', 'TX_EMPTY', '2'],
-    ['pre', 'TX_FULL', '1'],
-    ['pre', 'RX_EMPTY', '8'],
-    ['pre', 'RX_FULL', '4'],
-]
-
-SYSVARS = {}
-
-for var in sysvarTable:
-    if var[0] == 'ram':
-        SYSVARS[var[1]] = {
-            'type': 'ram',
-            'address': int(var[2]),
-            'value': 0,
-            'line': -1,
-            'path': -1
-        }
-    elif var[0] == 'pre':
-        SYSVARS[var[1]] = {
-            'type': 'pre',
-            'name': var[1],
-            'address': 0,
-            'value': var[2],
-            'line': -1,
-            'path': -1
-        }
-
 MNEM2OP = {
     'nop': 0, 'ldr': 1, 'str': 2, 'lpt': 3,
     'spt': 4, 'cmp': 5, 'add': 6, 'sub': 7,
@@ -383,30 +432,6 @@ MNEM2OP = {
 }
 
 INTERRUPT_VECTORS = {'FRAME': 1, 'TIMER': 2}
-
-INIT_INSTRUCTIONS = [
-    {
-        'mnemonic': 'jmp',
-        'address': 0,
-        'arguments': ['__pgm_start__'],
-        'line': -1,
-        'path': -1
-    },
-    {
-        'mnemonic': 'jmp',
-        'address': 1,
-        'arguments': ['__pgm_start__'],
-        'line': -1,
-        'path': -1
-    },
-    {
-        'mnemonic': 'jmp',
-        'address': 2,
-        'arguments': ['__pgm_start__'],
-        'line': -1,
-        'path': -1
-    },
-]
 
 OPVAR_SHIFT = 0
 OPCODE_SHIFT = 2
@@ -638,7 +663,7 @@ def assembleInterruptVector(word, arg, instruction):
 
 
 ##############################################################
-### Assembly Main Loop
+# Assembly Main Loop
 ##############################################################
 
 

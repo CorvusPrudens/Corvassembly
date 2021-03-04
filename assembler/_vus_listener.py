@@ -1,45 +1,49 @@
 
 import re
-import sys
 import math
+
+import antlr4
 
 from antlr4.error.ErrorListener import ErrorListener
 from gen.CorListener import CorListener
 from gen.CorLexer import CorLexer
 from gen.CorParser import CorParser
 
-from antlr4 import *
-from assemblyutils import *
+import _assembly_utils
 
 
 class Variables:
 
-    def __init__(self, sysvars={}, ramStartAddress=41):
-        self.vars = sysvars
-        self.size = {'ram': ramStartAddress, 'rom': 0, 'pre': 0}
-        self.evalDict = {}
+    def __init__(self, sysvars=None, ram_start_addr=41):
+        if sysvars:
+            self.vars = sysvars
+        else:
+            self.vars = {}
+            sysvars = {}
+        self.size = {'ram': ram_start_addr, 'rom': 0, 'pre': 0}
+        self.eval_dict = {}
         for var in sysvars:
             if sysvars[var]['type'] == 'rom' or sysvars[var]['type'] == 'pre':
-                self.evalDict[sysvars[var]['type']] = sysvars[var]['value']
-        self.variableRegex = re.compile(
+                self.eval_dict[sysvars[var]['type']] = sysvars[var]['value']
+        self.variable_regex = re.compile(
             '(?<!&)(\\b|^)[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
-        self.addressRegex = re.compile(
+        self.address_regex = re.compile(
             '(^|(?<=[+-/*=><\\^|()]))&[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
 
     # TODO -- all variables should be scoped when added
 
-    # ['varType', 'name', 'address', 'value']
-    def add(self, varType, name, value, listener, linenum=-1):
+    # ['var_type', 'name', 'address', 'value']
+    def add(self, var_type, name, value, listener, linenum=-1):
 
         if name in self.vars:
             errmess = f'variable \"{name}\" already defined'
-            error(errmess, linenum, listener.fullpath, 4000)
+            _assembly_utils.error(errmess, linenum, listener.full_path, 4000)
             return
 
-        address = self.size[varType]
-        self.size[varType] += 1
-        self.vars[name] = {'type': varType, 'address': address, 'value': value}
+        address = self.size[var_type]
+        self.size[var_type] += 1
+        self.vars[name] = {'type': var_type, 'address': address, 'value': value}
         # TODO - arrays should not be added like other variables -- rather, they
         # should have one entry in the vars dictionary and contain a list of all
         # their elements. This would save a lot of memory and probably execution time
@@ -50,97 +54,97 @@ class Variables:
         # the python eval method with a workaround -- if <imported> is added to
         # the variable dicionary as a class and <element> is added as an attribute
         # to that object, the evaluation succeeds.
-        if varType != 'ram':
+        if var_type != 'ram':
             if '.' in name:
                 key = name[:name.find('.')]
                 attribute = name[name.find('.') + 1:]
                 try:
-                    setattr(self.evalDict[key], attribute, value)
+                    setattr(self.eval_dict[key], attribute, value)
                 except KeyError:
-                    self.evalDict[key] = type(key, (object,), {})
-                    setattr(self.evalDict[key], attribute, value)
+                    self.eval_dict[key] = type(key, (object,), {})
+                    setattr(self.eval_dict[key], attribute, value)
             else:
-                self.evalDict[name] = value
+                self.eval_dict[name] = value
 
     def getVariables(self):
         return self.vars
 
-    def getAddress(self, variable, linenum=-1, fullpath='err'):
+    def getAddress(self, variable, linenum=-1, full_path='err'):
         variable = variable[1:]
         try:
             if self.vars[variable]['type'] == 'pre':
                 errmess = f'Pre-processor variable {variable} does not have an address'
-                error(errmess, linenum, fullpath, 470)
+                _assembly_utils.error(errmess, linenum, full_path, 470)
                 return -1
             return self.vars[variable]['address']
         except KeyError:
             errmess = f'no address for undefined variable {variable}'
-            error(errmess, linenum, fullpath, 474)
+            _assembly_utils.error(errmess, linenum, full_path, 474)
 
-    def decrementAddress(self, varType):
+    def decrementAddress(self, var_type):
         # to overload variable names
-        self.size[varType] -= 1
+        self.size[var_type] -= 1
 
-    def calc(self, mathString, listener, linenum=-1, fullpath='err'):
+    def calc(self, math_string, listener, linenum=-1, full_path='err'):
 
-        # print(mathString)
-        match = self.variableRegex.search(mathString)
+        # print(math_string)
+        match = self.variable_regex.search(math_string)
         while match is not None:
-            mathString = mathString[:match.start()] + listener.scope(
-                match.group(0)) + mathString[match.end():]
-            match = self.addressRegex.search(mathString, pos=match.end())
+            math_string = math_string[:match.start()] + listener.scope(
+                match.group(0)) + math_string[match.end():]
+            match = self.address_regex.search(math_string, pos=match.end())
 
-        # print(mathString)
-        match = self.addressRegex.search(mathString)
-        # print(match.group(0) if match != None else '.', mathString)
+        # print(math_string)
+        match = self.address_regex.search(math_string)
+        # print(match.group(0) if match != None else '.', math_string)
         while match is not None:
             # print(match.group(0))
-            mathString = mathString[:match.start()] + str(
+            math_string = math_string[:match.start()] + str(
                 self.getAddress(listener.scope(match.group(0)),
                                 linenum=linenum,
-                                fullpath=fullpath)) + mathString[match.end():]
-            match = self.addressRegex.search(mathString, pos=match.end())
+                                full_path=full_path)) + math_string[match.end():]
+            match = self.address_regex.search(math_string, pos=match.end())
 
-        # print(mathString + '\n')
+        # print(math_string + '\n')
         solution = 0
         try:
-            solution = round(eval(mathString, {}, self.evalDict))
+            solution = round(eval(math_string, {}, self.eval_dict))
         except NameError as err:
-            wrongtype = False
-            wrongtypename = ''
+            wrong_type = False
+            wrong_type_name = ''
             for key in self.vars:
                 tempregstr = '(\\b|^)({})\\b'.format(key)
                 if '.' in tempregstr:
                     tempregstr.replace('.', '\\.')
                 tempreg = re.compile(tempregstr)
-                if tempreg.search(mathString) is not None:
-                    wrongtype = True
-                    wrongtypename = key
+                if tempreg.search(math_string) is not None:
+                    wrong_type = True
+                    wrong_type_name = key
                     break
-            if not wrongtype:
+            if not wrong_type:
                 extracted = err.args[0][6:]
                 extraced = extracted[:extracted.find('\'')]
                 errmess = f'\"{extraced}\" is not defined'
-                error(errmess, linenum, fullpath, 469)
+                _assembly_utils.error(errmess, linenum, full_path, 469)
             else:
-                if (listener.currentName != listener.mainName and
-                        '.' in wrongtypename):
-                    wrongtypename = wrongtypename[wrongtypename.find('.') + 1:]
-                errmess = f'cannot evaluate \"{wrongtypename}\" at compile time'
-                error(errmess, linenum, fullpath, 469)
+                if (listener.current_name != listener.main_name and
+                        '.' in wrong_type_name):
+                    wrong_type_name = wrong_type_name[wrong_type_name.find('.') + 1:]
+                errmess = f'cannot evaluate \"{wrong_type_name}\" at compile time'
+                _assembly_utils.error(errmess, linenum, full_path, 469)
         except SyntaxError:
             # print(e.args)
             errmess = 'invalid syntax'
-            error(errmess, linenum, fullpath, 470)
+            _assembly_utils.error(errmess, linenum, full_path, 470)
         except AttributeError as err:
             # prints in the form:
             # type object 'importname' has no attribute 'errorcause'
-            errorBound = err.args[0][:-1].rfind("'")
-            errmess = f'\"{err.args[0][errorBound + 1:-1]}\" is not defined'
-            error(errmess, linenum, fullpath, 471)
+            error_bound = err.args[0][:-1].rfind("'")
+            errmess = f'\"{err.args[0][error_bound + 1:-1]}\" is not defined'
+            _assembly_utils.error(errmess, linenum, full_path, 471)
         except TypeError:
             errmess = 'invalid operation'
-            error(errmess, linenum, fullpath, 472)
+            _assembly_utils.error(errmess, linenum, full_path, 472)
 
         return solution
 
@@ -152,11 +156,11 @@ class Variables:
 
 class Instructions:
 
-    def __init__(self, pgmStartAddress=0, numloops=0, numifs=0):
+    def __init__(self, program_start_addr=0, num_loops=0, numifs=0):
         self.instructions = []
         self.size = {
-            'instructions': pgmStartAddress,
-            'loops': numloops,
+            'instructions': program_start_addr,
+            'loops': num_loops,
             'ifs': numifs
         }
         self.top_begin = ''
@@ -179,7 +183,7 @@ class Instructions:
             ) is not None or '$' in arg.getText():
                 tempargs.append(
                     variables.calc(arg.getText(), listener, linenum,
-                                   listener.fullpath))
+                                   listener.full_path))
             else:
                 tempargs.append(listener.scope(arg.getText()))
 
@@ -190,7 +194,7 @@ class Instructions:
             'address': address,
             'arguments': tempargs,
             'line': linenum,
-            'path': listener.fullpath
+            'path': listener.full_path
         })
 
     def addManual(self, mnemonic, arguments, linenum, listener):
@@ -201,107 +205,107 @@ class Instructions:
             'address': address,
             'arguments': arguments,
             'line': linenum,
-            'path': listener.fullpath
+            'path': listener.full_path
         })
 
     # recursively add loops
     def addLoop(self, ctx, listener, variables, labels, top=False):
         linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
-        loopname = f'__loop{self.size["loops"]}'
-        loopbegin = loopname + '_begin'
-        loopend = loopname + '_end'
-        loopcont = loopname + '_continue'
+        loop_name = f'__loop{self.size["loops"]}'
+        loop_begin = loop_name + '_begin'
+        loop_end = loop_name + '_end'
+        loop_continue = loop_name + '_continue'
         self.size['loops'] += 1
         if top:
-            self.top_begin = loopbegin
-            self.top_end = loopend
+            self.top_begin = loop_begin
+            self.top_end = loop_end
 
         self.add(ctx.getChild(2), listener, variables)
-        labels.add(ctx, loopbegin, self, listener, linenum=linenum)
+        labels.add(ctx, loop_begin, self, listener, linenum=linenum)
         self.add(ctx.getChild(4), listener, variables)
-        self.addManual('joc', ['equal', loopend], linenum, listener)
+        self.addManual('joc', ['equal', loop_end], linenum, listener)
 
         children = ctx.getChild(8).getChildCount()
         for i in range(1, children - 1):
-            ctxname = type(ctx.getChild(8).getChild(i)).__name__
-            if ctxname == 'InstructionContext':
+            ctx_name = type(ctx.getChild(8).getChild(i)).__name__
+            if ctx_name == 'InstructionContext':
                 self.add(ctx.getChild(8).getChild(i), listener, variables)
-            elif ctxname == 'Loop_keywordContext':
+            elif ctx_name == 'Loop_keywordContext':
                 keyword = ctx.getChild(8).getChild(i).getText()
                 target = ''
                 if keyword == 'continue':
-                    target = loopcont
+                    target = loop_continue
                 elif keyword == 'break':
-                    target = loopend
+                    target = loop_end
                 elif keyword == 'breakall':
                     target = self.top_end
                 self.addManual('jmp', [target], linenum, listener)
-            elif ctxname == 'LabelContext':
+            elif ctx_name == 'LabelContext':
                 labels.add(ctx,
                            ctx.getChild(8).getChild(i).getText()[:-1],
                            self,
                            listener,
                            linenum=linenum)
-            elif ctxname == 'LoopContext':
+            elif ctx_name == 'LoopContext':
                 self.addLoop(
                     ctx.getChild(8).getChild(i), listener, variables, labels)
-            elif ctxname == 'If_chainContext':
-                self.addIfchain(
+            elif ctx_name == 'If_chainContext':
+                self.addIfChains(
                     ctx.getChild(8).getChild(i), listener, variables, labels)
 
-        labels.add(ctx, loopcont, self, listener, linenum=linenum)
+        labels.add(ctx, loop_continue, self, listener, linenum=linenum)
         self.add(ctx.getChild(6), listener, variables)
-        self.addManual('jmp', [loopbegin], linenum, listener)
-        labels.add(ctx, loopend, self, listener, linenum=linenum)
+        self.addManual('jmp', [loop_begin], linenum, listener)
+        labels.add(ctx, loop_end, self, listener, linenum=linenum)
 
     # recursively add ifs
-    def addIfchain(self, ctx, listener, variables, labels):
+    def addIfChains(self, ctx, listener, variables, labels):
         linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
-        ifname = f'__if{self.size["ifs"]}'
-        # ifbegin = ifname + '_begin'
-        ifend = ifname + '_end'
-        thisIfNum = self.size['ifs']
+        if_name = f'__if{self.size["ifs"]}'
+        # ifbegin = if_name + '_begin'
+        if_end = if_name + '_end'
+        this_if_num = self.size['ifs']
         self.size['ifs'] += 1
 
         numifs = ctx.getChildCount()
 
         if numifs == 1:
             ifstat = ctx.getChild(0)
-            currentBranch = f'__if{thisIfNum}_branch0'
+            current_branch = f'__if{this_if_num}_branch0'
             # adding instructions in conditional and the jump logic
-            numInstructions = math.ceil(
+            num_instructions = math.ceil(
                 (ifstat.getChild(1).getChildCount() - 4) / 2)
             condition = ifstat.getChild(1).getChild(
                 ifstat.getChild(1).getChildCount() - 2).getText()
-            conditionCondition = ifstat.getChild(1).getChild(
+            condition_condition = ifstat.getChild(1).getChild(
                 ifstat.getChild(1).getChildCount() - 3).getText()
-            for j in range(numInstructions):
-                tempInstr = ifstat.getChild(1).getChild(1 + j * 2)
-                self.add(tempInstr, listener, variables)
+            for j in range(num_instructions):
+                temp_instruction = ifstat.getChild(1).getChild(1 + j * 2)
+                self.add(temp_instruction, listener, variables)
 
-            if conditionCondition == 'is':
-                self.addManual('joc', [condition, currentBranch + '_t'],
+            if condition_condition == 'is':
+                self.addManual('joc', [condition, current_branch + '_t'],
                                linenum, listener)
-                self.addManual('jmp', [ifend], linenum, listener)
+                self.addManual('jmp', [if_end], linenum, listener)
             else:
-                self.addManual('joc', [condition, ifend], linenum, listener)
+                self.addManual('joc', [condition, if_end], linenum, listener)
             labels.add(ctx,
-                       currentBranch + '_t',
+                       current_branch + '_t',
                        self,
                        listener,
                        linenum=linenum)
 
-            numItems = ifstat.getChild(2).getChildCount() - 2
+            num_items = ifstat.getChild(2).getChildCount() - 2
 
-            for j in range(numItems):
-                ctxname = type(ifstat.getChild(2).getChild(1 + j)).__name__
+            for j in range(num_items):
+                ctx_name = type(ifstat.getChild(2).getChild(1 + j)).__name__
                 linenum = listener.stream.get(
                     ifstat.getChild(2).getChild(1 +
                                                 j).getSourceInterval()[0]).line
-                if ctxname == 'InstructionContext':
+                if ctx_name == 'InstructionContext':
                     self.add(
                         ifstat.getChild(2).getChild(1 + j), listener, variables)
-                elif ctxname == 'LabelContext':
+                elif ctx_name == 'LabelContext':
                     labels.add(
                         ctx,
                         listener.scope(
@@ -309,14 +313,14 @@ class Instructions:
                         self,
                         listener,
                         linenum=linenum)
-                elif ctxname == 'LoopContext':
+                elif ctx_name == 'LoopContext':
                     self.addLoop(ifstat.getChild(2).getChild(1 + j),
-                                 listener,
-                                 variables,
-                                 labels,
-                                 top=True)
-                elif ctxname == 'If_chainContext':
-                    self.addIfchain(
+                                  listener,
+                                  variables,
+                                  labels,
+                                  top=True)
+                elif ctx_name == 'If_chainContext':
+                    self.addIfChains(
                         ifstat.getChild(2).getChild(1 + j), listener, variables,
                         labels)
 
@@ -324,52 +328,52 @@ class Instructions:
             for i in range(numifs):
                 ifstat = ctx.getChild(i)
                 typeif = type(ifstat).__name__
-                currentBranch = f'__if{thisIfNum}_branch{i}'
-                nextBranch = f'__if{thisIfNum}_branch{i + 1}'
+                current_branch = f'__if{this_if_num}_branch{i}'
+                next_branch = f'__if{this_if_num}_branch{i + 1}'
                 if i != 0:
                     labels.add(ctx,
-                               currentBranch,
+                               current_branch,
                                self,
                                listener,
                                linenum=linenum)
                 if typeif in ['If_statContext', 'Elif_statContext']:
                     # adding instructions in conditional and the jump logic
-                    numInstructions = math.ceil(
+                    num_instructions = math.ceil(
                         (ifstat.getChild(1).getChildCount() - 4) / 2)
                     condition = ifstat.getChild(1).getChild(
                         ifstat.getChild(1).getChildCount() - 2).getText()
-                    conditionCondition = ifstat.getChild(1).getChild(
+                    condition_condition = ifstat.getChild(1).getChild(
                         ifstat.getChild(1).getChildCount() - 3).getText()
-                    for j in range(numInstructions):
-                        tempInstr = ifstat.getChild(1).getChild(1 + j * 2)
-                        self.add(tempInstr, listener, variables)
+                    for j in range(num_instructions):
+                        temp_instruction = ifstat.getChild(1).getChild(1 + j * 2)
+                        self.add(temp_instruction, listener, variables)
 
-                    if conditionCondition == 'is':
-                        self.addManual('joc', [condition, currentBranch + '_t'],
+                    if condition_condition == 'is':
+                        self.addManual('joc', [condition, current_branch + '_t'],
                                        linenum, listener)
-                        self.addManual('jmp', [nextBranch], linenum, listener)
+                        self.addManual('jmp', [next_branch], linenum, listener)
                     else:
-                        self.addManual('joc', [condition, nextBranch], linenum,
+                        self.addManual('joc', [condition, next_branch], linenum,
                                        listener)
                     labels.add(ctx,
-                               currentBranch + '_t',
+                               current_branch + '_t',
                                self,
                                listener,
                                linenum=linenum)
 
-                    numItems = ifstat.getChild(2).getChildCount() - 2
+                    num_items = ifstat.getChild(2).getChildCount() - 2
 
-                    for j in range(numItems):
-                        ctxname = type(ifstat.getChild(2).getChild(1 +
+                    for j in range(num_items):
+                        ctx_name = type(ifstat.getChild(2).getChild(1 +
                                                                    j)).__name__
                         linenum = listener.stream.get(
                             ifstat.getChild(2).getChild(
                                 1 + j).getSourceInterval()[0]).line
-                        if ctxname == 'InstructionContext':
+                        if ctx_name == 'InstructionContext':
                             self.add(
                                 ifstat.getChild(2).getChild(1 + j), listener,
                                 variables)
-                        elif ctxname == 'LabelContext':
+                        elif ctx_name == 'LabelContext':
                             labels.add(ctx,
                                        listener.scope(
                                            ifstat.getChild(2).getChild(
@@ -377,33 +381,33 @@ class Instructions:
                                        self,
                                        listener,
                                        linenum=linenum)
-                        elif ctxname == 'LoopContext':
+                        elif ctx_name == 'LoopContext':
                             self.addLoop(ifstat.getChild(2).getChild(1 + j),
                                          listener,
                                          variables,
                                          labels,
                                          top=True)
-                        elif ctxname == 'If_chainContext':
-                            self.addIfchain(
+                        elif ctx_name == 'If_chainContext':
+                            self.addIfChains(
                                 ifstat.getChild(2).getChild(1 + j), listener,
                                 variables, labels)
 
-                    self.addManual('jmp', [ifend], linenum, listener)
+                    self.addManual('jmp', [if_end], linenum, listener)
 
                 else:
-                    # labels.add(ctx, currentBranch, self, listener)
-                    numItems = ifstat.getChild(1).getChildCount() - 2
-                    for j in range(numItems):
-                        ctxname = type(ifstat.getChild(1).getChild(1 +
+                    # labels.add(ctx, current_branch, self, listener)
+                    num_items = ifstat.getChild(1).getChildCount() - 2
+                    for j in range(num_items):
+                        ctx_name = type(ifstat.getChild(1).getChild(1 +
                                                                    j)).__name__
                         linenum = listener.stream.get(
                             ifstat.getChild(1).getChild(
                                 1 + j).getSourceInterval()[0]).line
-                        if ctxname == 'InstructionContext':
+                        if ctx_name == 'InstructionContext':
                             self.add(
                                 ifstat.getChild(1).getChild(1 + j), listener,
                                 variables)
-                        elif ctxname == 'LabelContext':
+                        elif ctx_name == 'LabelContext':
                             labels.add(ctx,
                                        listener.scope(
                                            ifstat.getChild(1).getChild(
@@ -411,20 +415,20 @@ class Instructions:
                                        self,
                                        listener,
                                        linenum=linenum)
-                        elif ctxname == 'LoopContext':
+                        elif ctx_name == 'LoopContext':
                             self.addLoop(ifstat.getChild(1).getChild(1 + j),
                                          listener,
                                          variables,
                                          labels,
                                          top=True)
-                        elif ctxname == 'If_chainContext':
-                            self.addIfchain(
+                        elif ctx_name == 'If_chainContext':
+                            self.addIfChains(
                                 ifstat.getChild(1).getChild(1 + j), listener,
                                 variables, labels)
 
-            labels.add(ctx, nextBranch, self, listener, linenum=linenum)
+            labels.add(ctx, next_branch, self, listener, linenum=linenum)
 
-        labels.add(ctx, ifend, self, listener, linenum=linenum)
+        labels.add(ctx, if_end, self, listener, linenum=linenum)
 
     def getAddress(self):
         return self.size['instructions']
@@ -443,12 +447,12 @@ class Labels:
     def __init__(self):
         self.labels = []
 
-    def setInit(self, pgmStartAddress=0):
+    def setInit(self, program_start_addr=0):
         # begins with a default label to skip reserved
         # interrupt addresses
         self.labels.insert(0, {
             'name': '__pgm_start__',
-            'address': pgmStartAddress
+            'address': program_start_addr
         })
 
     # ['label', 'address']
@@ -456,7 +460,7 @@ class Labels:
         for label in self.labels:
             if label['name'] == name:
                 errmess = f'label \"{name}\" already used at line {label["line"]}'
-                error(errmess, linenum, listener.fullpath, 4001)
+                _assembly_utils.error(errmess, linenum, listener.full_path, 4001)
                 return
 
         address = instr.getAddress()
@@ -466,7 +470,7 @@ class Labels:
                 'name': name,
                 'address': address,
                 'line': linenum,
-                'path': listener.fullpath
+                'path': listener.full_path
             })
         else:
             self.labels.append({
@@ -474,7 +478,7 @@ class Labels:
                 'address': address,
                 'interrupt': interrupt,
                 'line': linenum,
-                'path': listener.fullpath
+                'path': listener.full_path
             })
 
     def getLabels(self):
@@ -488,14 +492,14 @@ class Labels:
 
 class VusListener(CorListener):
 
-    def __init__(self, mainName, ramStartAddress_init, pgmStartAddress_init,
-                 fullpath, sysvars_init):
-        self.variables = Variables(ramStartAddress=ramStartAddress_init,
+    def __init__(self, main_name, ram_start_addr_init, program_start_addr_init,
+                 full_path, sysvars_init):
+        self.variables = Variables(ram_start_addr=ram_start_addr_init,
                                    sysvars=sysvars_init)
-        self.instructions = Instructions(pgmStartAddress=pgmStartAddress_init)
+        self.instructions = Instructions(program_start_addr=program_start_addr_init)
         self.labels = Labels()
-        self.mainName = mainName
-        self.currentName = ''
+        self.main_name = main_name
+        self.current_name = ''
         self.keywords = [
             'a', 'b', 'c', 'd',
             'e', 'f', 'g', 'h',
@@ -518,25 +522,25 @@ class VusListener(CorListener):
             'R9003', 'RA000', 'RA001', 'RA002',
             'RB000', 'RB001', 'RB002',
         ]
-        self.variableRegex = re.compile(
+        self.variable_regex = re.compile(
             '\\b\\&{0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b')
-        self.fullpath = fullpath
+        self.full_path = full_path
         self.stream = None
 
     def scope(self, input):
-        if self.variableRegex.search(input) is not None:
-            if self.currentName != self.mainName and '.' not in input and input not in self.keywords:
+        if self.variable_regex.search(input) is not None:
+            if self.current_name != self.main_name and '.' not in input and input not in self.keywords:
                 if '&' in input:
                     if input[1:] in self.keywords:
                         return input
-                    input = '&' + self.currentName + '.' + input[1:]
+                    input = '&' + self.current_name + '.' + input[1:]
                 else:
-                    input = self.currentName + '.' + input
+                    input = self.current_name + '.' + input
         return input
 
-    # def setName(self, name, fullpath, stream):
-    #   self.currentName = name
-    #   self.fullpath = fullpath
+    # def setName(self, name, full_path, stream):
+    #   self.current_name = name
+    #   self.full_path = full_path
     #   self.stream = stream
 
     def getVariables(self):
@@ -551,19 +555,19 @@ class VusListener(CorListener):
     def getLabels(self):
         return self.labels
 
-    def reset(self, name, fullpath, stream, startaddr=3):
-        self.currentName = name
-        self.fullpath = fullpath
+    def reset(self, name, full_path, stream, start_addr=3):
+        self.current_name = name
+        self.full_path = full_path
         self.stream = stream
 
         prevloops = self.instructions.size['loops']
         previfs = self.instructions.size['ifs']
-        if self.currentName == self.mainName:
-            self.instructions = Instructions(pgmStartAddress=startaddr,
-                                             numloops=prevloops,
+        if self.current_name == self.main_name:
+            self.instructions = Instructions(program_start_addr=start_addr,
+                                             num_loops=prevloops,
                                              numifs=previfs)
         else:
-            self.instructions = Instructions(numloops=prevloops, numifs=previfs)
+            self.instructions = Instructions(num_loops=prevloops, numifs=previfs)
         self.labels = Labels()
 
     # Enter a parse tree produced by CorParser#parse.
@@ -608,33 +612,33 @@ class VusListener(CorListener):
     # Exit a parse tree produced by CorParser#assignment_arr.
     def assignment_arr(self, ctx):
         linenum = self.stream.get(ctx.getSourceInterval()[0]).line
-        varType = ctx.CONST().getText()
+        var_type = ctx.CONST().getText()
         name = self.scope(ctx.array().VARIABLE().getText())
-        numDimensions = ctx.array().getChildCount() - 3
+        num_dimensions = ctx.array().getChildCount() - 3
 
-        if numDimensions > 2:
+        if num_dimensions > 2:
             errmess = f'array \"{name}\" cannot be initialized with more than two dimension'
-            error(errmess, linenum, self.fullpath, 4002)
+            _assembly_utils.error(errmess, linenum, self.full_path, 4002)
 
-        if numDimensions == 1 and ctx.array().arr_data() is not None and (
+        if num_dimensions == 1 and ctx.array().arr_data() is not None and (
                 len(ctx.array().arr_data().string()) != 0 or
                 len(ctx.array().arr_data().arr_data()) != 0):
             errmess = f'array \"{name}\" cannot contain subarrays'
-            error(errmess, linenum, self.fullpath, 4002)
+            _assembly_utils.error(errmess, linenum, self.full_path, 4002)
 
         self.variables.add('pre',
                            name,
-                           self.variables.size[varType],
+                           self.variables.size[var_type],
                            self,
                            linenum=linenum)
 
-        if numDimensions == 1:
+        if num_dimensions == 1:
             if ctx.array().string() is not None:
                 linenum = self.stream.get(
                     ctx.array().string().getSourceInterval()[0]).line
                 chars = self.convertString(ctx.array().string().getText())
                 for i in range(len(chars)):
-                    self.variables.add(varType,
+                    self.variables.add(var_type,
                                        name + f'[{i}]',
                                        chars[i],
                                        self,
@@ -649,10 +653,10 @@ class VusListener(CorListener):
                     tempval = self.variables.calc(
                         ctx.array().arr_data().getChild(1 + i * 2).getText(),
                         self,
-                        fullpath=self.fullpath,
+                        full_path=self.full_path,
                         linenum=linenum)
                     # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
-                    self.variables.add(varType,
+                    self.variables.add(var_type,
                                        name + f'[{i}]',
                                        tempval,
                                        self,
@@ -675,21 +679,21 @@ class VusListener(CorListener):
                                self,
                                linenum=linenum)
 
-            varType = ctx.RAM().getText()
+            var_type = ctx.RAM().getText()
             name = self.scope(ctx.VARIABLE().getText())
             dimensions = ctx.getChildCount() - 2
 
             if dimensions > 1:
                 errmess = f'array \"{name}\" can only be initialized with one dimension'
-                error(errmess, linenum, self.fullpath, 4001)
+                _assembly_utils.error(errmess, linenum, self.full_path, 4001)
 
             size = self.variables.calc(ctx.getChild(2).expression().getText(),
                                        self,
-                                       fullpath=self.fullpath,
+                                       full_path=self.full_path,
                                        linenum=linenum)
 
             for i in range(size):
-                self.variables.add(varType,
+                self.variables.add(var_type,
                                    name + f'[{i}]',
                                    0,
                                    self,
@@ -705,7 +709,7 @@ class VusListener(CorListener):
                            self.variables.calc(ctx.expression().getText(),
                                                self,
                                                linenum=linenum,
-                                               fullpath=self.fullpath),
+                                               full_path=self.full_path),
                            self,
                            linenum=linenum)
 
@@ -715,15 +719,15 @@ class VusListener(CorListener):
 
     def exitStatement(self, ctx: CorParser.StatementContext):
         ctx = ctx.getChild(0)
-        ctxname = type(ctx).__name__
+        ctx_name = type(ctx).__name__
 
-        if ctxname == 'InstructionContext':
+        if ctx_name == 'InstructionContext':
             self.instruction(ctx)
-        elif ctxname == 'AssignmentContext':
+        elif ctx_name == 'AssignmentContext':
             self.assignment(ctx)
-        elif ctxname == 'Assignment_arrContext':
+        elif ctx_name == 'Assignment_arrContext':
             self.assignment_arr(ctx)
-        elif ctxname == 'DeclarationContext':
+        elif ctx_name == 'DeclarationContext':
             self.declaration(ctx)
 
     # Exit a parse tree produced by CorParser#statement_loop.
@@ -735,7 +739,7 @@ class VusListener(CorListener):
                                   top=True)
 
     def exitStatement_if(self, ctx: CorParser.Statement_ifContext):
-        self.instructions.addIfchain(ctx.if_chain(), self, self.variables,
+        self.instructions.addIfChains(ctx.if_chain(), self, self.variables,
                                      self.labels)
 
 
@@ -743,16 +747,16 @@ class ImportListener(CorListener):
 
     def __init__(self, infile, stream):
         tempfile = infile[:infile.rfind('.')]
-        nameIndex = tempfile.rfind('/')
-        nameIndex = nameIndex + 1 if nameIndex >= 0 else 0
+        name_index = tempfile.rfind('/')
+        name_index = name_index + 1 if name_index >= 0 else 0
         # We're extracting the path to the file from where the assembler
         # was invoked so that any files imported are searched for correctly
         # from any arbitrary calling path
         self.infile = infile
-        self.workingDirectory = infile[:nameIndex] if nameIndex > 0 else './'
-        self.currentPrefix = ''
+        self.working_dir = infile[:name_index] if name_index > 0 else './'
+        self.current_prefix = ''
         # print(infile)
-        name = infile[nameIndex:].replace('.cor', '')
+        name = infile[name_index:].replace('.cor', '')
 
         self.imports = [{'name': name, 'path': infile}]
         self.stream = stream
@@ -766,46 +770,45 @@ class ImportListener(CorListener):
             for file in ctx.file_import():
                 # it's a bit messy to use positional searches, but idk how
                 # to do it better
-                # oldPrefix = self.currentPrefix
+                # oldPrefix = self.current_prefix
                 token = file.getChild(1).getText().strip("\'\"")
                 token = token[2:] if token[:2] == './' else token
 
                 name = ''
-                newPrefix = ''
+                new_prefix = ''
                 path = ''
                 # of the form: import "libs/lib.cor"
                 if file.STRING() is not None:
-                    newPrefixIndex = token.rfind('/')
-                    newPrefix = token[:newPrefixIndex +
-                                      1] if newPrefixIndex >= 0 else ''
-                    name = token[newPrefixIndex + 1:].replace('.cor', '')
-                    path = self.currentPrefix + token
+                    new_prefix_index = token.rfind('/')
+                    new_prefix = token[:new_prefix_index +
+                                      1] if new_prefix_index >= 0 else ''
+                    name = token[new_prefix_index + 1:].replace('.cor', '')
+                    path = self.current_prefix + token
                 # of the form: import libs.lib
                 else:
                     token = token.replace('.', '/')
-                    newPrefixIndex = token.rfind('/')
-                    newPrefix = token[:newPrefixIndex +
-                                      1] if newPrefixIndex >= 0 else ''
-                    name = token[newPrefixIndex + 1:]
-                    path = self.currentPrefix + token + '.cor'
+                    new_prefix_index = token.rfind('/')
+                    new_prefix = token[:new_prefix_index +
+                                      1] if new_prefix_index >= 0 else ''
+                    name = token[new_prefix_index + 1:]
+                    path = self.current_prefix + token + '.cor'
 
                 if file.AS() is not None:
                     name = file.getChild(3).getText()
 
-                self.currentPrefix += newPrefix
+                self.current_prefix += new_prefix
 
-                tempdict = {'name': name, 'path': self.workingDirectory + path}
+                tempdict = {'name': name, 'path': self.working_dir + path}
 
                 new = True
                 for link in self.imports:
                     if tempdict['path'] == link['path']:
                         new = False
                         if tempdict['name'] != link['name']:
-                            # TODO -- throw proper error
-                            print(
-                                f'\nError: file \"{link["path"]}\" imported more than once with conflicting names!\n'
-                            )
-                            exit(1)
+                            linenum = self.stream.get(
+                                file.getChild(3).getSourceInterval()[0]).line
+                            errmess = f'file \"{tempdict["path"]}\" imported more than once with conflicting names!\n'
+                            _assembly_utils.error(errmess, linenum, self.infile, 4756, abort=True)
                         break
 
                 if new:
@@ -819,31 +822,30 @@ class ImportListener(CorListener):
                     # TODO -- this needs to be expanded so that it is clear where
                     # the file is imported!
                     try:
-                        input = FileStream(tempdict['path'])
+                        input = antlr4.FileStream(tempdict['path'])
                     except FileNotFoundError:
                         linenum = self.stream.get(
                             file.getChild(3).getSourceInterval()[0]).line
                         errmess = f'cannot find file \"{tempdict["path"]}\"'
-                        error(errmess, linenum, self.infile, 4755, abort=True)
+                        _assembly_utils.error(errmess, linenum, self.infile, 4755, abort=True)
                     lexer = CorLexer(input)
                     # custom error listener
-                    importError = ImportErrorListener(filepath=tempdict['path'])
+                    import_error = ImportErrorListener(filepath=tempdict['path'])
                     lexer.removeErrorListeners()
-                    lexer.addErrorListener(importError)
-                    stream = CommonTokenStream(lexer)
+                    lexer.addErrorListener(import_error)
+                    stream = antlr4.CommonTokenStream(lexer)
                     parser = CorParser(stream)
                     parser.removeErrorListeners()
-                    parser.addErrorListener(importError)
+                    parser.addErrorListener(import_error)
                     tree = parser.initial()
-                    walker = ParseTreeWalker()
+                    walker = antlr4.ParseTreeWalker()
                     prevstream = self.stream
                     self.stream = stream
                     walker.walk(self, tree)
                     self.stream = prevstream
 
-                if len(newPrefix) > 0:
-                    self.currentPrefix = self.currentPrefix[:-len(newPrefix)]
-        pass
+                if len(new_prefix) > 0:
+                    self.current_prefix = self.current_prefix[:-len(new_prefix)]
 
     # Exit a parse tree produced by CorParser#initial.
     def exitInitial(self, ctx: CorParser.InitialContext):
@@ -853,38 +855,37 @@ class ImportListener(CorListener):
 class CorSyntaxError(Exception):
 
     def __init__(self, message='Catch me daddy'):
-        super(CorSyntaxError, self).__init__(message)
+        super().__init__(message)
 
 
 class ImportErrorListener(ErrorListener):
 
     def __init__(self, filepath='err'):
 
-        super(ErrorListener, self).__init__()
+        super().__init__()
         self.filepath = filepath
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        errmess = f'syntax error'
-        error(errmess,
+        errmess = 'syntax error'
+        _assembly_utils.error(errmess,
               line,
               self.filepath,
               4000,
               syntax=True,
               col=column,
               abort=True)
-        # raise CorSyntaxError
 
 
 class VusErrorListener(ErrorListener):
 
     def __init__(self, filepath='err'):
 
-        super(ErrorListener, self).__init__()
+        super().__init__()
         self.filepath = filepath
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        errmess = f'syntax error'
-        error(errmess,
+        errmess = 'syntax error'
+        _assembly_utils.error(errmess,
               line,
               self.filepath,
               4000,
