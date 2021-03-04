@@ -25,9 +25,8 @@ writing to ``ram``:
 Each module has built-in variables so the programmer doesn't need to memorize
 addresses.
 
-Modules
-=========
-
+UART
+----
 .. note -- invisible characters used in UART name and var!
 .. function:: UART‎
 
@@ -41,7 +40,8 @@ Modules
 | ``UART_STATUS``  | ``---- EFGH`` | ``(E) RX empty, (F) RX full, (G) TX empty, (H) TX full`` |
 +------------------+---------------+----------------------------------------------------------+
 
-
+APU
+---
 .. function:: APU‎
 
   Emulation of the 2A03's audio processing unit. Variable names reflect the
@@ -91,6 +91,8 @@ at the `NesDev wiki`_.
 .. _VRC6: https://wiki.nesdev.com/w/index.php/VRC6_audio
 .. _NesDev wiki: https://wiki.nesdev.com/w/index.php/Nesdev_Wiki
 
+Timer
+-----
 .. function:: Timer‎
 
   A timer module that can produce interrupts at a fixed frequency.
@@ -119,6 +121,8 @@ at the `NesDev wiki`_.
   :var write SCOPE_TRIGGER: writing a 1 to this register triggers sample collection.
     When the buffer is filled, sample collection stops. This prevents tearing.
 
+Flash
+-----
 .. note -- we're using some invisible character here too
 .. function:: Flash‎
 

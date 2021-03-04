@@ -97,7 +97,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="advanced-syntax.html">Advanced Syntax</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Memory-mapped Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uart">UART</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apu">APU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timer">Timer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flash">Flash</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="the-gpu.html">The GPU</a></li>
@@ -185,8 +188,8 @@ writing to <code class="docutils literal notranslate"><span class="pre">ram</spa
 </div>
 <p>Each module has built-in variables so the programmer doesn’t need to memorize
 addresses.</p>
-<div class="section" id="modules">
-<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="uart">
+<h2>UART<a class="headerlink" href="#uart" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt>
 <code class="sig-name descname"><span class="pre">UART‎</span></code></dt>
@@ -215,6 +218,9 @@ addresses.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="apu">
+<h2>APU<a class="headerlink" href="#apu" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt>
 <code class="sig-name descname"><span class="pre">APU‎</span></code></dt>
@@ -258,6 +264,9 @@ addresses for the original chip.</p>
 
 <p>Detailed information about <a class="reference external" href="https://wiki.nesdev.com/w/index.php/APU">2A03</a> and <a class="reference external" href="https://wiki.nesdev.com/w/index.php/VRC6_audio">VRC6</a> register function can be found
 at the <a class="reference external" href="https://wiki.nesdev.com/w/index.php/Nesdev_Wiki">NesDev wiki</a>.</p>
+</div>
+<div class="section" id="timer">
+<h2>Timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt>
 <code class="sig-name descname"><span class="pre">Timer‎</span></code></dt>
@@ -298,6 +307,9 @@ When the buffer is filled, sample collection stops. This prevents tearing.</p></
 </dl>
 </dd></dl>
 
+</div>
+<div class="section" id="flash">
+<h2>Flash<a class="headerlink" href="#flash" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt>
 <code class="sig-name descname"><span class="pre">Flash‎</span></code></dt>
