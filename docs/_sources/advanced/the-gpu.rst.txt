@@ -17,9 +17,8 @@ the three memories that can be accessed by
 indirect addressing. GPU memory cannot be read --
 only written.
 
-Address space
+Frame buffer
 --------------
-
 0x0000-0x01FF
 	This range provides direct access to the display
 	buffer. The buffer is organized into
@@ -28,9 +27,11 @@ Address space
 	bit position 0 being the top and bit
 	position 15 the bottom. Since GPU memory
 	cannot be read, it is recommended to use
-	a frame buffer in ram and transfer the
-	frame buffer to the display buffer all at once.
+	a frame buffer in ram and transfer it to
+	the gpu frame buffer all at once.
 
+Request buffer
+--------------
 0x0200-0x03FF
 	This range provides access to the GPU request
 	buffer. Each request is two words long, with
@@ -50,6 +51,8 @@ Address space
 | |                     | |                       | | ``(Y) y position``                                  |
 +-----------------------+-------------------------+-------------------------------------------------------+
 
+Sprite buffer
+--------------
 0x0400-0x07FF
 	This range provides access to the sprite
 	buffer. The graphics acceleration
@@ -59,6 +62,8 @@ Address space
 	the buffer size of 256 words, but can only
 	be a maximum height of 16 pixels.
 
+Character buffer
+----------------
 0x0800-0x0FFF
 	This range provides access to the character
 	"ROM". The default font is loaded in during
@@ -66,6 +71,8 @@ Address space
 	The buffer consists of 1024 8-bit words,
 	corresponding to a maximum text size of 4x8.
 
+Clear address
+-------------
 0x1000-0x1001
 	Address 0x1000 determines whether the display
 	buffer is cleared before every draw, and

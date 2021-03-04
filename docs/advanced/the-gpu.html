@@ -96,7 +96,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced-syntax.html">Advanced Syntax</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memory-mapping.html">Memory-mapped Modules</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The GPU</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#address-space">Address space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frame-buffer">Frame buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-buffer">Request buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sprite-buffer">Sprite buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#character-buffer">Character buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clear-address">Clear address</a></li>
 </ul>
 </li>
 </ul>
@@ -183,8 +187,8 @@ and <code class="docutils literal notranslate"><span class="pre">spt</span></cod
 the three memories that can be accessed by
 indirect addressing. GPU memory cannot be read –
 only written.</p>
-<div class="section" id="address-space">
-<h2>Address space<a class="headerlink" href="#address-space" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="frame-buffer">
+<h2>Frame buffer<a class="headerlink" href="#frame-buffer" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt>0x0000-0x01FF</dt><dd><p>This range provides direct access to the display
 buffer. The buffer is organized into
@@ -193,9 +197,14 @@ corresponds to 16 vertical pixels, with
 bit position 0 being the top and bit
 position 15 the bottom. Since GPU memory
 cannot be read, it is recommended to use
-a frame buffer in ram and transfer the
-frame buffer to the display buffer all at once.</p>
+a frame buffer in ram and transfer it to
+the gpu frame buffer all at once.</p>
 </dd>
+</dl>
+</div>
+<div class="section" id="request-buffer">
+<h2>Request buffer<a class="headerlink" href="#request-buffer" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
 <dt>0x0200-0x03FF</dt><dd><p>This range provides access to the GPU request
 buffer. Each request is two words long, with
 the first word specifying the parameters and
@@ -254,6 +263,9 @@ drawing.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="sprite-buffer">
+<h2>Sprite buffer<a class="headerlink" href="#sprite-buffer" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt>0x0400-0x07FF</dt><dd><p>This range provides access to the sprite
 buffer. The graphics acceleration
@@ -263,12 +275,22 @@ Sprites can have an arbitrary width up to
 the buffer size of 256 words, but can only
 be a maximum height of 16 pixels.</p>
 </dd>
+</dl>
+</div>
+<div class="section" id="character-buffer">
+<h2>Character buffer<a class="headerlink" href="#character-buffer" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
 <dt>0x0800-0x0FFF</dt><dd><p>This range provides access to the character
 “ROM”. The default font is loaded in during
 configuration, but can be rewritten if desired.
 The buffer consists of 1024 8-bit words,
 corresponding to a maximum text size of 4x8.</p>
 </dd>
+</dl>
+</div>
+<div class="section" id="clear-address">
+<h2>Clear address<a class="headerlink" href="#clear-address" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
 <dt>0x1000-0x1001</dt><dd><p>Address 0x1000 determines whether the display
 buffer is cleared before every draw, and
 address 0x1001 is the word written for
