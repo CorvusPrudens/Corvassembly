@@ -47,13 +47,13 @@ assignment_arr  : CONST array;
 
 declaration     : RAM VARIABLE array_init*;
 
-expression      : exp_number | exp_var | math;
+expression      : exp_number | exp_var | math | exp_char;
 
 // this is getting ugly
-math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE)CPAR*) *CPAR ((OPERATOR|COMPARATOR) (NUMBER | VARIABLE))*
-                | OPAR* OPERATOR OPAR* (NUMBER | VARIABLE) *CPAR
-                | (((NUMBER | VARIABLE) (OPERATOR|COMPARATOR))+ (NUMBER | VARIABLE))
-                | OPERATOR (NUMBER | VARIABLE)
+math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE | CHAR) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE | CHAR)CPAR*) *CPAR ((OPERATOR|COMPARATOR) (NUMBER | VARIABLE | CHAR))*
+                | OPAR* OPERATOR OPAR* (NUMBER | VARIABLE | CHAR) *CPAR
+                | (((NUMBER | VARIABLE | CHAR) (OPERATOR|COMPARATOR))+ (NUMBER | VARIABLE | CHAR))
+                | OPERATOR (NUMBER | VARIABLE | CHAR)
                 ;
 
 exp_number      : NUMBER;
@@ -61,6 +61,8 @@ exp_number      : NUMBER;
 array           : VARIABLE (array_init)+ '=' (arr_data | string);
 
 exp_var         : VARIABLE array_init*;
+
+exp_char        : CHAR;
 
 array_init      : OBRACKET expression? CBRACKET;
 
@@ -85,10 +87,9 @@ label           : (VARIABLE COLON) | (VARIABLE OPAR VARIABLE CPAR COLON);
 
 // lexy stuff
 
-fragment SINGLE_STRING : '\'' (~["\r\n] | '\'\'')* '\'';
-fragment DOUBLE_STRING : '"' (~["\r\n] | '""' | '\\"')* '"';
+STRING                 : '"' (~["\r\n] | '""' | '\\"')* '"';
 
-STRING                 : SINGLE_STRING | DOUBLE_STRING;
+CHAR                   : '\'' (('\\'.)|~[\\]) '\'';
 
 COMMENT                : '//' ~[\n\r]* [\n\r] -> skip;
 

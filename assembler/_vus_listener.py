@@ -10,6 +10,19 @@ from gen.CorParser import CorParser
 
 import _assembly_utils
 
+def extract_escapes(string, listener, linenum):
+    escape_regex = re.compile(r'\\.')
+    match = escape_regex.search(string)
+    while match is not None:
+        sequence = match.group(0)
+        if sequence not in (r'\\', r"\'", r'\"'):
+            warnmess = f'invalid escape sequence \"{sequence}\"'
+            _assembly_utils.warning(warnmess, linenum, listener.full_path, 999)
+            string = string[:match.start()] + match.group(0)[-1] + string[match.end() + 1:]
+        else:
+            string = string[:match.start()] + match.group(0)[-1] + string[match.end() + 1:]
+        match = escape_regex.search(string, pos=match.end())
+    return string
 
 class Variables:
     def __init__(self, sysvars=None, ram_start_addr=41):
@@ -29,6 +42,10 @@ class Variables:
 
         self.address_regex = re.compile(
             "(^|(?<=[+-/*=><\\^|()]))&[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b"
+        )
+
+        self.char_regex = re.compile(
+            r"'((\\.)|[^\\])'"
         )
 
     # TODO -- all variables should be scoped when added
@@ -88,15 +105,28 @@ class Variables:
 
     def calc(self, math_string, listener, linenum=-1, full_path="err"):
 
+        match = self.char_regex.search(math_string)
+        while match is not None:
+            # print(math_string[match.end():])
+            math_string = (
+                math_string[: match.start()]
+                + str(ord(extract_escapes(match.group(0)[1:-1], listener, linenum)))
+                + math_string[match.end() :]
+            )
+
+            match = self.char_regex.search(math_string, pos=match.end())
+
         # print(math_string)
         match = self.variable_regex.search(math_string)
         while match is not None:
+            # print(math_string[match.end():])
             math_string = (
                 math_string[: match.start()]
                 + listener.scope(match.group(0))
                 + math_string[match.end() :]
             )
-            match = self.address_regex.search(math_string, pos=match.end())
+
+            match = self.variable_regex.search(math_string, pos=match.end())
 
         # print(math_string)
         match = self.address_regex.search(math_string)
@@ -121,6 +151,7 @@ class Variables:
         try:
             solution = round(eval(math_string, {}, self.eval_dict))
         except NameError as err:
+            print(err)
             wrong_type = False
             wrong_type_name = ""
             for key in self.vars:
@@ -138,6 +169,7 @@ class Variables:
                 errmess = f'"{extraced}" is not defined'
                 _assembly_utils.error(errmess, linenum, full_path, 469)
             else:
+                print(wrong_type_name, dir(self.eval_dict['menu']))
                 if (
                     listener.current_name != listener.main_name
                     and "." in wrong_type_name
@@ -194,7 +226,8 @@ class Instructions:
             if (
                 arg.expression() is not None
                 and arg.expression().math() is not None
-                or "$" in arg.getText()
+                or "&" in arg.getText()
+                or "'" in arg.getText()
             ):
                 tempargs.append(
                     variables.calc(arg.getText(), listener, linenum, listener.full_path)
@@ -624,16 +657,7 @@ class VusListener(CorListener):
 
     def convertString(self, string, linenum):
         string = string.strip('"').replace('\\"', '"')
-        escape_regex = re.compile(r'\\.')
-        match = escape_regex.search(string)
-        while match is not None:
-            sequence = match.group(0)
-            if sequence != '\\\\':
-                warnmess = f'invalid escape sequence \"{sequence}\"'
-                _assembly_utils.warning(warnmess, linenum, self.full_path, 999)
-            else:
-                string = string[:match.start()] + match.group(0)[-1] + string[match.end() + 1:]
-            match = escape_regex.search(string, pos=match.end())
+        string = extract_escapes(string, self, linenum)
         chars = []
         for char in string:
             chars.append(ord(char))

@@ -215,6 +215,15 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#exp_char.
+    def enterExp_char(self, ctx:CorParser.Exp_charContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#exp_char.
+    def exitExp_char(self, ctx:CorParser.Exp_charContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#array_init.
     def enterArray_init(self, ctx:CorParser.Array_initContext):
         pass

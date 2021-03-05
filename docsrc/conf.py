@@ -81,7 +81,7 @@ class BCLLexer(RegexLexer):
             (r'[=+\-/\*<>\&\|\^~]', token.Operator),
             (r'\s|[\[\]{}:();,.]', token.Text),
             ('"', token.String, 'string'),
-            ('\'\\\\?[A-z]\'', token.String.Char),
+            (r"'((\\.)|[^\\])'", token.String.Char),
             (r'\b((0x)|(0b))?([1-9][0-9]*|0)(?!\w+)', token.Number),
             # (r'\s', token.Text)
         ],

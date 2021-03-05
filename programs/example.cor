@@ -11,6 +11,10 @@ pre TEST2 = 27 + 3 / 2.6
 
 rom string[] = "Hello, world!"
 
+rom sad[] = {'s', 'a', '\\'}
+
+ldr a, 'A'
+
 ram array[20]
 ram hap
 

@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#file-imports">File imports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#assemble-time-math">Assemble-time Math</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#arrays">Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#character-constants">Character Constants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#variable-addressing">Variable Addressing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pointer-registers">Pointer Registers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#if-statements">If statements</a></li>
@@ -225,9 +226,23 @@ determined by the contents of the initializer.
 Strings are interpreted as arrays, and are initialized with the same left-side
 syntax. String arrays are converted to their ascii representation and null-
 terminated:</p>
-<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">arr</span>[<span class="m">20</span>]
-<span class="kt">rom</span> <span class="n">arrInit</span>[] <span class="o">=</span> {<span class="m">1</span>, <span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="m">5</span>, <span class="m">8</span>, <span class="m">13</span>}
-<span class="kt">rom</span> <span class="n">string</span>[] <span class="o">=</span> <span class="s">&quot;Hello, world!&quot;</span>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>ram arr[20]
+rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
+rom string[] = “Hello, world!”</p>
+</div>
+<div class="section" id="character-constants">
+<h2>Character Constants<a class="headerlink" href="#character-constants" title="Permalink to this headline">¶</a></h2>
+<p>Character constants, much like in other languages, are surrounded by single ticks
+and are converted to their <a class="reference external" href="https://en.wikipedia.org/wiki/ASCII">ASCII</a> representation. You can operate on them
+like any other number, and even manually declare your own strings (if you like pain):</p>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">rom</span> <span class="n">char</span> <span class="o">=</span> <span class="sc">&#39;a&#39;</span>
+<span class="kt">rom</span> <span class="n">escaped</span> <span class="o">=</span> <span class="sc">&#39;\&#39;&#39;</span>
+<span class="kt">rom</span> <span class="n">string</span>[] <span class="o">=</span> {<span class="sc">&#39;H&#39;</span>, <span class="sc">&#39;e&#39;</span>, <span class="sc">&#39;l&#39;</span>, <span class="sc">&#39;l&#39;</span>, <span class="sc">&#39;o&#39;</span>, <span class="sc">&#39;\0&#39;</span>}
+
+<span class="nf">cmp</span> <span class="nb">a</span>, <span class="sc">&#39;A&#39;</span> <span class="o">+</span> <span class="m">24</span>
 </pre></div>
 </div>
 </div>

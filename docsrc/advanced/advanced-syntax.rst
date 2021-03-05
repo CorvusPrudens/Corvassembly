@@ -62,9 +62,26 @@ terminated:
 
 .. code-block:: corvassembly
 
-  ram arr[20]
-  rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
-  rom string[] = "Hello, world!"
+ram arr[20]
+rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
+rom string[] = "Hello, world!"
+
+Character Constants
+========================================
+
+Character constants, much like in other languages, are surrounded by single ticks
+and are converted to their `ASCII`_ representation. You can operate on them
+like any other number, and even manually declare your own strings (if you like pain):
+
+.. _ASCII: https://en.wikipedia.org/wiki/ASCII
+
+.. code-block:: corvassembly
+
+  rom char = 'a'
+  rom escaped = '\''
+  rom string[] = {'H', 'e', 'l', 'l', 'o', '\0'}
+
+  cmp a, 'A' + 24
 
 Variable Addressing
 =====================
