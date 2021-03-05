@@ -15,7 +15,9 @@ def extract_escapes(string, listener, linenum):
     match = escape_regex.search(string)
     while match is not None:
         sequence = match.group(0)
-        if sequence not in (r'\\', r"\'", r'\"'):
+        if sequence == '\\0':
+            string = string[:match.start()] + '\x00' + string[match.end() + 1:]
+        elif sequence not in (r'\\', r"\'", r'\"'):
             warnmess = f'invalid escape sequence \"{sequence}\"'
             _assembly_utils.warning(warnmess, linenum, listener.full_path, 999)
             string = string[:match.start()] + match.group(0)[-1] + string[match.end() + 1:]
