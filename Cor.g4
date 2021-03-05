@@ -86,7 +86,7 @@ label           : (VARIABLE COLON) | (VARIABLE OPAR VARIABLE CPAR COLON);
 // lexy stuff
 
 fragment SINGLE_STRING : '\'' (~["\r\n] | '\'\'')* '\'';
-fragment DOUBLE_STRING : '"' (~["\r\n] | '""')* '"';
+fragment DOUBLE_STRING : '"' (~["\r\n] | '""' | '\\"')* '"';
 
 STRING                 : SINGLE_STRING | DOUBLE_STRING;
 
