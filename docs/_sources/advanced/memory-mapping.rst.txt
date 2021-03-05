@@ -106,6 +106,8 @@ Timer
     incremented and the prescalar register is reset to the value of ``TIMER_PRES``.
     A zero in ``TIMER_PRES`` means the accumulator will increment every clock.
 
+Scope
+-----
 .. function:: Scope‎
 
   A module that writes analog values to a 128-byte buffer at a specified frequency.
