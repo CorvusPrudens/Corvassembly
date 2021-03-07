@@ -509,7 +509,7 @@ LOAD_PTR_DICT = {"ram": LOAD_PTR_RAM, "rom": LOAD_PTR_ROM, "gpu": LOAD_PTR_GPU}
 STORE_PTR_DICT = {"ram": STORE_PTR_RAM, "gpu": STORE_PTR_GPU}
 
 CONDITIONS = {
-    "zero": 0b000000,
+    "zero": 0b000001,
     "carry": 0b000010,
     "negative": 0b000100,
     "equal": 0b001000,

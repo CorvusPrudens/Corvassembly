@@ -3,6 +3,8 @@ import math
 
 import antlr4
 
+from collections import namedtuple
+
 from antlr4.error.ErrorListener import ErrorListener
 from gen.CorListener import CorListener
 from gen.CorLexer import CorLexer
@@ -265,19 +267,24 @@ class Instructions:
     # recursively add loops
     def addLoop(self, ctx, listener, variables, labels, top=False):
         linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
+        LoopLabels = namedtuple('LoopLabels', ['name', 'begin', 'end', 'cont'])
+
         loop_name = f'__loop{self.size["loops"]}'
-        loop_begin = loop_name + "_begin"
-        loop_end = loop_name + "_end"
-        loop_continue = loop_name + "_continue"
+
+        l_labels = LoopLabels(loop_name,
+                              loop_name + "_begin",
+                              loop_name + "_end",
+                              loop_name + "_continue")
+
         self.size["loops"] += 1
         if top:
-            self.top_begin = loop_begin
-            self.top_end = loop_end
+            self.top_begin = l_labels.begin
+            self.top_end = l_labels.end
 
         self.add(ctx.getChild(2), listener, variables)
-        labels.add(ctx, loop_begin, self, listener, linenum=linenum)
+        labels.add(ctx, l_labels.begin, self, listener, linenum=linenum)
         self.add(ctx.getChild(4), listener, variables)
-        self.addManual("joc", ["equal", loop_end], linenum, listener)
+        self.addManual("joc", ["equal", l_labels.end], linenum, listener)
 
         children = ctx.getChild(8).getChildCount()
         for i in range(1, children - 1):
@@ -288,9 +295,9 @@ class Instructions:
                 keyword = ctx.getChild(8).getChild(i).getText()
                 target = ""
                 if keyword == "continue":
-                    target = loop_continue
+                    target = l_labels.cont
                 elif keyword == "break":
-                    target = loop_end
+                    target = l_labels.end
                 elif keyword == "breakall":
                     target = self.top_end
                 self.addManual("jmp", [target], linenum, listener)
@@ -306,16 +313,16 @@ class Instructions:
                 self.addLoop(ctx.getChild(8).getChild(i), listener, variables, labels)
             elif ctx_name == "If_chainContext":
                 self.addIfChains(
-                    ctx.getChild(8).getChild(i), listener, variables, labels
+                    ctx.getChild(8).getChild(i), listener, variables, labels, l_labels=l_labels
                 )
 
-        labels.add(ctx, loop_continue, self, listener, linenum=linenum)
+        labels.add(ctx, l_labels.cont, self, listener, linenum=linenum)
         self.add(ctx.getChild(6), listener, variables)
-        self.addManual("jmp", [loop_begin], linenum, listener)
-        labels.add(ctx, loop_end, self, listener, linenum=linenum)
+        self.addManual("jmp", [l_labels.begin], linenum, listener)
+        labels.add(ctx, l_labels.end, self, listener, linenum=linenum)
 
     # recursively add ifs
-    def addIfChains(self, ctx, listener, variables, labels):
+    def addIfChains(self, ctx, listener, variables, labels, l_labels=None):
         linenum = listener.stream.get(ctx.getSourceInterval()[0]).line
         if_name = f'__if{self.size["ifs"]}'
         # ifbegin = if_name + '_begin'
@@ -384,6 +391,20 @@ class Instructions:
                     self.addIfChains(
                         ifstat.getChild(2).getChild(1 + j), listener, variables, labels
                     )
+                elif ctx_name == "Loop_keywordContext":
+                    keyword = ifstat.getChild(2).getChild(1 + j).getText()
+                    if l_labels is not None:
+                        target = ""
+                        if keyword == "continue":
+                            target = l_labels.cont
+                        elif keyword == "break":
+                            target = l_labels.end
+                        elif keyword == "breakall":
+                            target = self.top_end
+                        self.addManual("jmp", [target], linenum, listener)
+                    else:
+                        errmess = f'"{keyword}" must occur inside a for loop'
+                        _assembly_utils.error(errmess, linenum, listener.full_path, 4002)
 
         else:
             for i in range(numifs):
@@ -461,6 +482,20 @@ class Instructions:
                                 variables,
                                 labels,
                             )
+                        elif ctx_name == "Loop_keywordContext":
+                            keyword = ifstat.getChild(2).getChild(1 + j).getText()
+                            if l_labels is not None:
+                                target = ""
+                                if keyword == "continue":
+                                    target = l_labels.cont
+                                elif keyword == "break":
+                                    target = l_labels.end
+                                elif keyword == "breakall":
+                                    target = self.top_end
+                                self.addManual("jmp", [target], linenum, listener)
+                            else:
+                                errmess = f'"{keyword}" must occur inside a for loop'
+                                _assembly_utils.error(errmess, linenum, listener.full_path, 4002)
 
                     self.addManual("jmp", [if_end], linenum, listener)
 
@@ -501,6 +536,20 @@ class Instructions:
                                 variables,
                                 labels,
                             )
+                        elif ctx_name == "Loop_keywordContext":
+                            keyword = ifstat.getChild(2).getChild(1 + j).getText()
+                            if l_labels is not None:
+                                target = ""
+                                if keyword == "continue":
+                                    target = l_labels.cont
+                                elif keyword == "break":
+                                    target = l_labels.end
+                                elif keyword == "breakall":
+                                    target = self.top_end
+                                self.addManual("jmp", [target], linenum, listener)
+                            else:
+                                errmess = f'"{keyword}" must occur inside a for loop'
+                                _assembly_utils.error(errmess, linenum, listener.full_path, 4002)
 
             labels.add(ctx, next_branch, self, listener, linenum=linenum)
 
@@ -589,7 +638,7 @@ class VusListener(CorListener):
             'pre', 'ram', 'rom', 'gpu',
             'zero', 'carry', 'negative', 'as',
             'for', 'equal', 'greater', 'less',
-            'SCOPE_RATE', 'UART', 'STACK', 'STATUS',
+            'SCOPE_RATE', 'UART', 'UART_STATUS', 'STACK', 'STATUS',
             'SCOPE_ADDR', 'GPIO', 'GPIO_DIR', 'TX_EMPTY',
             'SCOPE_DATA', 'TX_FULL', 'RX_EMPTY', 'RX_FULL',
             'SCOPE_TRIGGER', 'continue', 'break', 'breakall',

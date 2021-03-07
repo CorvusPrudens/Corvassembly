@@ -8,7 +8,7 @@ block           : label (statement | statement_loop | statement_if)*;
 
 file_import     : IMPORT (VARIABLE | STRING) (AS VARIABLE)?;
 
-initial         : (statement | file_import)*;
+initial         : (statement | statement_loop | statement_if | file_import)*;
 
 statement       : declaration | assignment | assignment_arr | instruction;
 
