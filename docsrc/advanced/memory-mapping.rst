@@ -123,6 +123,8 @@ Scope
   :var write SCOPE_TRIGGER: writing a 1 to this register triggers sample collection.
     When the buffer is filled, sample collection stops. This prevents tearing.
 
+.. _Flash:
+
 Flash
 -----
 .. note -- we're using some invisible character here too

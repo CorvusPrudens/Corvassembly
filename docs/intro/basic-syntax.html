@@ -106,6 +106,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/advanced-syntax.html">Advanced Syntax</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced/memory-mapping.html">Memory-mapped Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/the-gpu.html">The GPU</a></li>
 </ul>
 <p class="caption"><span class="caption-text">The Assembler</span></p>
 <ul>
@@ -200,7 +201,7 @@ register to store the result in. By default, the result is stored in the
 register of argument 1.</p>
 </div>
 <div class="section" id="labels">
-<h2>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h2>
 <p>Labels are written as names followd by a colon:</p>
 <div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="nl">main</span>:
   <span class="c">// main code loop</span>
@@ -215,6 +216,9 @@ the label in parentheses:</p>
   <span class="nf">rti</span> <span class="no">FRAME</span>
 </pre></div>
 </div>
+<p>If you wish to preserve the state of the registers (which you almost
+always will), you must end the interrupt subroutine with an <code class="docutils literal notranslate"><span class="pre">rti</span></code>
+instruction followed by the name of the interrupt.</p>
 </div>
 <div class="section" id="conditional-instructions">
 <h2>Conditional Instructions<a class="headerlink" href="#conditional-instructions" title="Permalink to this headline">¶</a></h2>

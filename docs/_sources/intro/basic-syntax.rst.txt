@@ -34,6 +34,8 @@ represented by a variable. An optional third argument indicates which
 register to store the result in. By default, the result is stored in the
 register of argument 1.
 
+.. _Labels:
+
 Labels
 ========================================
 
@@ -54,6 +56,10 @@ the label in parentheses:
   frameInterrupt(FRAME):
     // interrupt routine
     rti FRAME
+
+If you wish to preserve the state of the registers (which you almost
+always will), you must end the interrupt subroutine with an ``rti``
+instruction followed by the name of the interrupt.
 
 Conditional Instructions
 ========================================

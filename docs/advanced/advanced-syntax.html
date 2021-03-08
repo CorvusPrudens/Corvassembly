@@ -102,6 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#character-constants">Character Constants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#variable-addressing">Variable Addressing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pointer-registers">Pointer Registers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interrupts">Interrupts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#if-statements">If statements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#for-loops">For loops</a></li>
 </ul>
@@ -195,14 +196,10 @@
 </pre></div>
 </div>
 <p>As in python, imported file labels and variables are not implicit. Unlike Python,
-however, Corvassembly does not support importing everything (i.e. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">graphics</span> <span class="pre">import</span> <span class="pre">*</span></code>).
+however, Corvassembly does not support star imports (i.e. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">graphics</span> <span class="pre">import</span> <span class="pre">*</span></code>).
 <code class="docutils literal notranslate"><span class="pre">ram</span></code> and <code class="docutils literal notranslate"><span class="pre">rom</span></code> addresses are statically allocated in the order of importing.
-Import paths are relative to the file doing the importing, not where the
+Import paths are relative to the file doing the importing, <em>not</em> where the
 assembler is executed (as it should be).</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Standard modules are not currently implemented, but may be added soon.</p>
-</div>
 </div>
 <div class="section" id="assemble-time-math">
 <h2>Assemble-time Math<a class="headerlink" href="#assemble-time-math" title="Permalink to this headline">¶</a></h2>
@@ -226,12 +223,11 @@ determined by the contents of the initializer.
 Strings are interpreted as arrays, and are initialized with the same left-side
 syntax. String arrays are converted to their ascii representation and null-
 terminated:</p>
-<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-corvassembly notranslate"><div class="highlight"><pre><span></span><span class="kt">ram</span> <span class="n">arr</span>[<span class="m">20</span>]
+<span class="kt">rom</span> <span class="n">arrInit</span>[] <span class="o">=</span> {<span class="m">1</span>, <span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="m">5</span>, <span class="m">8</span>, <span class="m">13</span>}
+<span class="kt">rom</span> <span class="n">string</span>[] <span class="o">=</span> <span class="s">&quot;Hello, world!&quot;</span>
 </pre></div>
 </div>
-<p>ram arr[20]
-rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
-rom string[] = “Hello, world!”</p>
 </div>
 <div class="section" id="character-constants">
 <h2>Character Constants<a class="headerlink" href="#character-constants" title="Permalink to this headline">¶</a></h2>
@@ -255,14 +251,14 @@ variables, and can also be treated in a C-like manner:</p>
 <span class="nf">ldr</span> <span class="nb">f</span>, <span class="o">&amp;</span><span class="n">variable</span>
 
 <span class="kt">rom</span> <span class="n">array</span>[] <span class="o">=</span> {<span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="sc">&#39;a&#39;</span>, <span class="sc">&#39;b&#39;</span>, <span class="sc">&#39;c&#39;</span>}
-<span class="nf">ldr</span> <span class="nb">g</span>, <span class="n">array</span>
+<span class="nf">ldr</span> <span class="nb">g</span>, <span class="n">array</span> <span class="o">+</span> <span class="m">3</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="pointer-registers">
 <h2>Pointer Registers<a class="headerlink" href="#pointer-registers" title="Permalink to this headline">¶</a></h2>
 <p>In Corvassembly, there are three registers that double as pointers to
-specific types of memory.</p>
+specific types of memory for indirect addressing.</p>
 <dl class="simple">
 <dt>f</dt><dd><p>This register can be used to access <code class="docutils literal notranslate"><span class="pre">ram</span></code>.</p>
 </dd>
@@ -281,6 +277,18 @@ memory type, e.g.:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="interrupts">
+<h2>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h2>
+<p>The CorvusPrudensUnit provides two interrupt sources: <code class="docutils literal notranslate"><span class="pre">FRAME</span></code> and
+<code class="docutils literal notranslate"><span class="pre">TIMER</span></code>.</p>
+<p>The frame interrupt fires after the <code class="docutils literal notranslate"><span class="pre">gpu</span></code> finishes
+sending out the current frame. If you have written instructions to the
+<code class="docutils literal notranslate"><span class="pre">gpu</span></code>, these will be executed just before the interrupt. See <a class="reference internal" href="the-gpu.html#the-gpu"><span class="std std-ref">The GPU</span></a> for
+details.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">TIMER</span></code> interrupt fires when the memory-mapped timer module
+reaches the given compare value. See <a class="reference internal" href="memory-mapping.html#flash"><span class="std std-ref">Flash</span></a> for details.</p>
+<p>The syntax for attaching interrupts is covered <a class="reference internal" href="../intro/basic-syntax.html#labels"><span class="std std-ref">here</span></a>.</p>
+</div>
 <div class="section" id="if-statements">
 <h2>If statements<a class="headerlink" href="#if-statements" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">elif</span></code>, and <code class="docutils literal notranslate"><span class="pre">else</span></code> statements are fully supported by Corvassembly.
@@ -296,6 +304,8 @@ statements require one less instruction, but may be more difficult to read:</p>
   <span class="nf">rts</span>
 
 <span class="nl">waitShort</span>:
+  <span class="c">// assuming a will only be 1 or 0, this is</span>
+  <span class="c">// equivalent to the above routine</span>
   <span class="k">if</span> (<span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">0</span> <span class="k">isnt</span> <span class="nd">equal</span>) {
     <span class="nf">jmp</span> <span class="n">waitShort</span>
   }
@@ -327,7 +337,6 @@ statements require one less instruction, but may be more difficult to read:</p>
 <span class="nl">waitShort</span>:
 <span class="nf">cmp</span> <span class="nb">a</span>, <span class="m">0</span>
 <span class="nf">joc</span> <span class="nd">equal</span>, <span class="n">__if1_end</span>
-<span class="nl">__if1_branch0_t</span>:
 <span class="nf">jmp</span> <span class="n">waitShort</span>
 <span class="nl">__if1_end</span>:
 <span class="nf">rts</span>
@@ -361,6 +370,12 @@ complicated behavior within <code class="docutils literal notranslate"><span cla
 
   <span class="nf">rts</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Logical <code class="docutils literal notranslate"><span class="pre">and</span> <span class="pre">(&amp;&amp;)</span></code> and <code class="docutils literal notranslate"><span class="pre">or</span> <span class="pre">(||)</span></code> operations within an if statement,
+e.g. <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">(cmp</span> <span class="pre">a,</span> <span class="pre">1</span> <span class="pre">is</span> <span class="pre">equal</span> <span class="pre">&amp;&amp;</span> <span class="pre">cmp</span> <span class="pre">b,</span> <span class="pre">1</span> <span class="pre">is</span> <span class="pre">equal)</span></code> is not currently
+supported, but is slated for inclusion.</p>
 </div>
 </div>
 <div class="section" id="for-loops">

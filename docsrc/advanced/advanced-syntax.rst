@@ -27,12 +27,10 @@ Files can be imported using a Python-like syntax:
     jmp main
 
 As in python, imported file labels and variables are not implicit. Unlike Python,
-however, Corvassembly does not support importing everything (i.e. ``from graphics import *``).
+however, Corvassembly does not support star imports (i.e. ``from graphics import *``).
 ``ram`` and ``rom`` addresses are statically allocated in the order of importing.
-Import paths are relative to the file doing the importing, not where the
+Import paths are relative to the file doing the importing, *not* where the
 assembler is executed (as it should be).
-
-.. note:: Standard modules are not currently implemented, but may be added soon.
 
 Assemble-time Math
 ========================================
@@ -62,9 +60,9 @@ terminated:
 
 .. code-block:: corvassembly
 
-ram arr[20]
-rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
-rom string[] = "Hello, world!"
+  ram arr[20]
+  rom arrInit[] = {1, 1, 2, 3, 5, 8, 13}
+  rom string[] = "Hello, world!"
 
 Character Constants
 ========================================
@@ -96,13 +94,13 @@ variables, and can also be treated in a C-like manner:
   ldr f, &variable
 
   rom array[] = {1, 2, 3, 'a', 'b', 'c'}
-  ldr g, array
+  ldr g, array + 3
 
 Pointer Registers
 ========================================
 
 In Corvassembly, there are three registers that double as pointers to
-specific types of memory.
+specific types of memory for indirect addressing.
 
 f
   This register can be used to access ``ram``.
@@ -121,6 +119,23 @@ memory type, e.g.:
   ram array[20]
   ldr f, array
   lpt a, ram
+
+Interrupts
+===========
+
+The CorvusPrudensUnit provides two interrupt sources: ``FRAME`` and
+``TIMER``.
+
+The frame interrupt fires after the ``gpu`` finishes
+sending out the current frame. If you have written instructions to the
+``gpu``, these will be executed just before the interrupt. See :ref:`The GPU` for
+details.
+
+The ``TIMER`` interrupt fires when the memory-mapped timer module
+reaches the given compare value. See :ref:`Flash` for details.
+
+The syntax for attaching interrupts is covered :ref:`here <Labels>`.
+
 
 If statements
 ========================================
@@ -141,6 +156,8 @@ statements require one less instruction, but may be more difficult to read:
     rts
 
   waitShort:
+    // assuming a will only be 1 or 0, this is
+    // equivalent to the above routine
     if (cmp a, 0 isnt equal) {
       jmp waitShort
     }
@@ -174,7 +191,6 @@ The first two examples assemble to:
   waitShort:
   cmp a, 0
   joc equal, __if1_end
-  __if1_branch0_t:
   jmp waitShort
   __if1_end:
   rts
@@ -211,6 +227,10 @@ complicated behavior within ``if elif else`` blocks:
     }
 
     rts
+
+.. note:: Logical ``and (&&)`` and ``or (||)`` operations within an if statement,
+  e.g. ``if (cmp a, 1 is equal && cmp b, 1 is equal)`` is not currently
+  supported, but is slated for inclusion.
 
 For loops
 ========================================
