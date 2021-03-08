@@ -385,11 +385,11 @@ class Instructions:
                         listener,
                         variables,
                         labels,
-                        top=True,
+                        top=True if l_labels is None else False,
                     )
                 elif ctx_name == "If_chainContext":
                     self.addIfChains(
-                        ifstat.getChild(2).getChild(1 + j), listener, variables, labels
+                        ifstat.getChild(2).getChild(1 + j), listener, variables, labels, l_labels=l_labels
                     )
                 elif ctx_name == "Loop_keywordContext":
                     keyword = ifstat.getChild(2).getChild(1 + j).getText()
@@ -473,14 +473,11 @@ class Instructions:
                                 listener,
                                 variables,
                                 labels,
-                                top=True,
+                                top=True if l_labels is None else False,
                             )
                         elif ctx_name == "If_chainContext":
                             self.addIfChains(
-                                ifstat.getChild(2).getChild(1 + j),
-                                listener,
-                                variables,
-                                labels,
+                                ifstat.getChild(2).getChild(1 + j), listener, variables, labels, l_labels=l_labels
                             )
                         elif ctx_name == "Loop_keywordContext":
                             keyword = ifstat.getChild(2).getChild(1 + j).getText()
@@ -527,14 +524,11 @@ class Instructions:
                                 listener,
                                 variables,
                                 labels,
-                                top=True,
+                                top=True if l_labels is None else False,
                             )
                         elif ctx_name == "If_chainContext":
                             self.addIfChains(
-                                ifstat.getChild(1).getChild(1 + j),
-                                listener,
-                                variables,
-                                labels,
+                                ifstat.getChild(1).getChild(1 + j), listener, variables, labels, l_labels=l_labels
                             )
                         elif ctx_name == "Loop_keywordContext":
                             keyword = ifstat.getChild(2).getChild(1 + j).getText()
