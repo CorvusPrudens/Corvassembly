@@ -123,32 +123,34 @@ class Variables:
         # print(math_string)
         match = self.variable_regex.search(math_string)
         while match is not None:
-            # print(math_string[match.end():])
+            # print(math_string[match.end():], match.group(0), match.end())
             math_string = (
                 math_string[: match.start()]
                 + listener.scope(match.group(0))
                 + math_string[match.end() :]
             )
-
-            match = self.variable_regex.search(math_string, pos=match.end())
+            newPos = match.start() + len(listener.scope(match.group(0)))
+            match = self.variable_regex.search(math_string, pos=newPos)
 
         # print(math_string)
         match = self.address_regex.search(math_string)
         # print(match.group(0) if match != None else '.', math_string)
         while match is not None:
             # print(match.group(0))
+            insertion = str(
+                self.getAddress(
+                    listener.scope(match.group(0)),
+                    linenum=linenum,
+                    full_path=full_path,
+                )
+            )
             math_string = (
                 math_string[: match.start()]
-                + str(
-                    self.getAddress(
-                        listener.scope(match.group(0)),
-                        linenum=linenum,
-                        full_path=full_path,
-                    )
-                )
+                + insertion
                 + math_string[match.end() :]
             )
-            match = self.address_regex.search(math_string, pos=match.end())
+            newpos = match.start() + len(insertion)
+            match = self.address_regex.search(math_string, pos=newpos)
 
         # print(math_string + '\n')
         solution = 0
