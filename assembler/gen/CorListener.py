@@ -179,6 +179,15 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#math_obj.
+    def enterMath_obj(self, ctx:CorParser.Math_objContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#math_obj.
+    def exitMath_obj(self, ctx:CorParser.Math_objContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#math.
     def enterMath(self, ctx:CorParser.MathContext):
         pass
@@ -221,6 +230,15 @@ class CorListener(ParseTreeListener):
 
     # Exit a parse tree produced by CorParser#exp_char.
     def exitExp_char(self, ctx:CorParser.Exp_charContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#exp_attr.
+    def enterExp_attr(self, ctx:CorParser.Exp_attrContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#exp_attr.
+    def exitExp_attr(self, ctx:CorParser.Exp_attrContext):
         pass
 
 

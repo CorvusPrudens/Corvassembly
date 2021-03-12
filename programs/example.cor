@@ -18,6 +18,9 @@ ldr a, 'A'
 ram array[20]
 ram hap
 
+ldr a, array->end
+
+
 ldr f, &hap
 // definitely some issues here to be sorted out
 // ldr a, (1 >= (&hap)) == 0

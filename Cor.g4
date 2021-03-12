@@ -47,13 +47,15 @@ assignment_arr  : CONST array;
 
 declaration     : RAM VARIABLE array_init*;
 
-expression      : exp_number | exp_var | math | exp_char;
+expression      : exp_number | exp_var | math | exp_char | exp_attr;
+
+math_obj        : NUMBER | VARIABLE | CHAR | exp_attr;
 
 // this is getting ugly
-math            : OPERATOR* OPAR* ((OPAR* (NUMBER | VARIABLE | CHAR) CPAR* OPERATOR)+ OPAR*(NUMBER | VARIABLE | CHAR)CPAR*) *CPAR ((OPERATOR|COMPARATOR) (NUMBER | VARIABLE | CHAR))*
-                | OPAR* OPERATOR OPAR* (NUMBER | VARIABLE | CHAR) *CPAR
-                | (((NUMBER | VARIABLE | CHAR) (OPERATOR|COMPARATOR))+ (NUMBER | VARIABLE | CHAR))
-                | OPERATOR (NUMBER | VARIABLE | CHAR)
+math            : OPERATOR* OPAR* ((OPAR* (math_obj) CPAR* OPERATOR)+ OPAR*(math_obj)CPAR*) *CPAR ((OPERATOR|COMPARATOR) (math_obj))*
+                | OPAR* OPERATOR OPAR* (math_obj) *CPAR
+                | (((math_obj) (OPERATOR|COMPARATOR))+ (math_obj))
+                | OPERATOR (math_obj)
                 ;
 
 exp_number      : NUMBER;
@@ -63,6 +65,8 @@ array           : VARIABLE (array_init)+ '=' (arr_data | string);
 exp_var         : VARIABLE array_init*;
 
 exp_char        : CHAR;
+
+exp_attr        : VARIABLE ATTRIBUTE;
 
 array_init      : OBRACKET expression? CBRACKET;
 
@@ -121,6 +125,8 @@ CONDITION              : 'zero'
                        | 'greater'
                        | 'less'
                        ;
+
+ATTRIBUTE              : '->' ('end' | 'length');
 
 SEMI                   : ';';
 COLON                  : ':';

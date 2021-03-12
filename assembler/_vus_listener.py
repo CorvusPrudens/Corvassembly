@@ -52,10 +52,14 @@ class Variables:
             r"'((\\.)|[^\\])'"
         )
 
+        self.attr_regex = re.compile(
+            r"(?<!&)(\b|^)[A-Za-z_][A-Za-z_0-9.]*->[A-Za-z_][A-Za-z_0-9.]*\b"
+        )
+
     # TODO -- all variables should be scoped when added
 
     # ['var_type', 'name', 'address', 'value']
-    def add(self, var_type, name, value, listener, linenum=-1):
+    def add(self, var_type, name, value, listener, size=1, linenum=-1, arr=False):
 
         if name in self.vars:
             errmess = f'variable "{name}" already defined'
@@ -64,7 +68,7 @@ class Variables:
 
         address = self.size[var_type]
         self.size[var_type] += 1
-        self.vars[name] = {"type": var_type, "address": address, "value": value}
+        self.vars[name] = {"type": var_type, "address": address, "value": value, "size": size, "arr": arr}
         # TODO - arrays should not be added like other variables -- rather, they
         # should have one entry in the vars dictionary and contain a list of all
         # their elements. This would save a lot of memory and probably execution time
@@ -109,16 +113,46 @@ class Variables:
 
     def calc(self, math_string, listener, linenum=-1, full_path="err"):
 
+        match = self.attr_regex.search(math_string)
+        while match is not None:
+            # print(math_string[match.end():])
+            name = listener.scope(match.group(0)[:match.group(0).find('->')])
+            attr_type = match.group(0)[match.group(0).find('->') + 2:]
+            insertion = '0'
+            try:
+                if not self.vars[name]["arr"]:
+                    errmess = f'variable "{name}" is not an array'
+                    _assembly_utils.error(errmess, linenum, full_path, 466)
+                if attr_type not in ('end', 'length'):
+                    errmess = f'unknown attribute "{attr_type}"'
+                    _assembly_utils.error(errmess, linenum, full_path, 467)
+                if attr_type == 'end':
+                    insertion = str(self.vars[name]["value"] + self.vars[name]["size"])
+                elif attr_type == 'length':
+                    insertion = str(self.vars[name]["size"])
+            except KeyError:
+                errmess = f'"{name}" is not defined'
+                _assembly_utils.error(errmess, linenum, full_path, 468)
+
+            math_string = (
+                math_string[: match.start()]
+                + insertion
+                + math_string[match.end() :]
+            )
+            newpos = match.start() + len(insertion)
+            match = self.attr_regex.search(math_string, pos=newpos)
+
         match = self.char_regex.search(math_string)
         while match is not None:
             # print(math_string[match.end():])
+            insertion = str(ord(extract_escapes(match.group(0)[1:-1], listener, linenum)))
             math_string = (
                 math_string[: match.start()]
-                + str(ord(extract_escapes(match.group(0)[1:-1], listener, linenum)))
+                + insertion
                 + math_string[match.end() :]
             )
-
-            match = self.char_regex.search(math_string, pos=match.end())
+            newpos = match.start() + len(insertion)
+            match = self.char_regex.search(math_string, pos=newpos)
 
         # print(math_string)
         match = self.variable_regex.search(math_string)
@@ -231,9 +265,13 @@ class Instructions:
         for arg in ctx.argument():
             if (
                 arg.expression() is not None
-                and arg.expression().math() is not None
-                or "&" in arg.getText()
-                or "'" in arg.getText()
+                and
+                (
+                    arg.expression().math() is not None
+                    or "&" in arg.getText()
+                    or "'" in arg.getText()
+                    or arg.expression().exp_attr() is not None
+                )
             ):
                 tempargs.append(
                     variables.calc(arg.getText(), listener, linenum, listener.full_path)
@@ -640,6 +678,7 @@ class VusListener(CorListener):
             'SCOPE_TRIGGER', 'continue', 'break', 'breakall',
             'FLASH_READ', 'FLASH_WRITE', 'FLASH_STATUS', 'FLASH_PAGE',
             'FLASH_WRITE_WORD', 'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER',
+            'TIMER_COMP', 'TIMER_PRES', 'TIMER_STATUS',
             'FRAME', 'R4000', 'R4001', 'R4002',
             'R4003', 'R4004', 'R4005', 'R4006',
             'R4007', 'R4008', 'R4009', 'R400A',
@@ -761,9 +800,7 @@ class VusListener(CorListener):
             errmess = f'array "{name}" cannot contain subarrays'
             _assembly_utils.error(errmess, linenum, self.full_path, 4002)
 
-        self.variables.add(
-            "pre", name, self.variables.size[var_type], self, linenum=linenum
-        )
+
 
         if num_dimensions == 1:
             if ctx.array().string() is not None:
@@ -771,12 +808,20 @@ class VusListener(CorListener):
                     ctx.array().string().getSourceInterval()[0]
                 ).line
                 chars = self.convertString(ctx.array().string().getText(), linenum)
+
+                self.variables.add(
+                    "pre", name, self.variables.size[var_type], self, size=len(chars) - 1, linenum=linenum, arr=True
+                )
+
                 for i in range(len(chars)):
                     self.variables.add(
                         var_type, name + f"[{i}]", chars[i], self, linenum=linenum
                     )
             else:
                 width = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
+                self.variables.add(
+                    "pre", name, self.variables.size[var_type], self, size=width, linenum=linenum, arr=True
+                )
                 for i in range(width):
 
                     linenum = self.stream.get(
@@ -809,13 +854,6 @@ class VusListener(CorListener):
             )
         else:  # array
             # adding sneaky precompiler variable to mimic the behavior of C arrays
-            self.variables.add(
-                "pre",
-                self.scope(ctx.VARIABLE().getText()),
-                self.variables.size["ram"],
-                self,
-                linenum=linenum,
-            )
 
             var_type = ctx.RAM().getText()
             name = self.scope(ctx.VARIABLE().getText())
@@ -830,6 +868,16 @@ class VusListener(CorListener):
                 self,
                 full_path=self.full_path,
                 linenum=linenum,
+            )
+
+            self.variables.add(
+                "pre",
+                self.scope(ctx.VARIABLE().getText()),
+                self.variables.size["ram"],
+                self,
+                size=size,
+                linenum=linenum,
+                arr=True
             )
 
             for i in range(size):
@@ -878,6 +926,13 @@ class VusListener(CorListener):
 
     def exitStatement_if(self, ctx: CorParser.Statement_ifContext):
         self.instructions.addIfChains(ctx.if_chain(), self, self.variables, self.labels)
+
+    def exitExp_attr(self, ctx:CorParser.Exp_attrContext):
+        linenum = self.stream.get(ctx.getSourceInterval()[0]).line
+        name = ctx.VARIABLE().getText()
+        if name[0] == '&':
+            errmess = f'cannot extract attribute from address of \"{name[1:]}\"'
+            _assembly_utils.error(errmess, linenum, self.full_path, 998)
 
 
 class ImportListener(CorListener):
