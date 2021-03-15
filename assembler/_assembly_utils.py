@@ -674,7 +674,7 @@ def assemble_cond_jump(word, arg, instruction):
 
 def assemble_interrupt_vector(word, arg, instruction):
     try:
-        word |= INTERRUPT_VECTORS[arg] << 16
+        word |= (~INTERRUPT_VECTORS[arg] & 0b11) << 16
     except KeyError:
         errmess = f'"{arg}" is not a valid interrupt vector'
         error(errmess, instruction["line"], instruction["path"], 58008)
