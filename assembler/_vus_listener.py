@@ -191,7 +191,7 @@ class Variables:
         try:
             solution = round(eval(math_string, {}, self.eval_dict))
         except NameError as err:
-            print(err)
+            # print(err)
             wrong_type = False
             wrong_type_name = ""
             for key in self.vars:
@@ -209,7 +209,8 @@ class Variables:
                 errmess = f'"{extraced}" is not defined'
                 _assembly_utils.error(errmess, linenum, full_path, 469)
             else:
-                print(wrong_type_name, dir(self.eval_dict['menu']))
+                # print(wrong_type_name, dir(self.eval_dict['apu']))
+                # print(listener.variables.vars)
                 if (
                     listener.current_name != listener.main_name
                     and "." in wrong_type_name
@@ -571,7 +572,7 @@ class Instructions:
                                 ifstat.getChild(1).getChild(1 + j), listener, variables, labels, l_labels=l_labels
                             )
                         elif ctx_name == "Loop_keywordContext":
-                            keyword = ifstat.getChild(2).getChild(1 + j).getText()
+                            keyword = ifstat.getChild(1).getChild(1 + j).getText()
                             if l_labels is not None:
                                 target = ""
                                 if keyword == "continue":

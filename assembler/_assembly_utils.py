@@ -160,7 +160,7 @@ def usage():
 
 def parse_input(argv):
     infile = ""
-    options_args = {"-p": "", "-d": "", "-P": 10, "-D": 10, "--log": ""}
+    options_args = {"-p": "", "-d": "", "-P": 10, "-D": 10, "--pexp": None, "--dexp": None, "--log": ""}
     options_noargs = {"--debug-vars": False, "--debug-lines": False}
 
     if len(argv) < 2:
@@ -220,6 +220,7 @@ def generate_output(options_args, options_noargs, listener, labels, instructions
             options_args["-p"] + ".hex",
             int(options_args["-P"]),
             Globals.PROGRAM_WORD_WIDTH,
+            explicit=options_args['--pexp']
         )
     if options_args["-d"] != "":
         write_memory(
@@ -227,16 +228,19 @@ def generate_output(options_args, options_noargs, listener, labels, instructions
             options_args["-d"] + ".hex",
             int(options_args["-D"]),
             Globals.DATA_WORD_WIDTH,
+            explicit=options_args['--dexp']
         )
 
 
-def write_memory(code, outfile, memory_addr_bits, memory_bits):
+def write_memory(code, outfile, memory_addr_bits, memory_bits, explicit=None):
+    max_words = 2 ** memory_addr_bits if explicit is None else int(explicit)
     memory_width = math.ceil(memory_bits / 4)
     words_per_line = math.floor((8 / memory_width) * 8)
     if words_per_line < 1:
         words_per_line = 1
     memory_addr_width = math.ceil(memory_addr_bits / 4)
-    num_lines = math.ceil((2 ** memory_addr_bits) / words_per_line)
+    num_lines = math.ceil(max_words / words_per_line)
+
     with open(outfile, "w") as file:
         for i in range(num_lines):
             file.write("@{:0>{w}X} ".format(i * words_per_line, w=memory_addr_width))
@@ -248,14 +252,14 @@ def write_memory(code, outfile, memory_addr_bits, memory_bits):
                         )
                     )
                 else:
-                    if j + i * words_per_line >= 2 ** memory_addr_bits:
+                    if j + i * words_per_line >= max_words:
                         break
                     file.write("{:0>{w}X} ".format(0, w=memory_width))
             file.write("\n")
-    if len(code) > 2 ** memory_addr_bits:
+    if len(code) > max_words:
         print(
             "Error: program size too big ({} words) for memory ({} words)".format(
-                len(code), 2 ** memory_addr_bits
+                len(code), max_words
             )
         )
         sys.exit(1)

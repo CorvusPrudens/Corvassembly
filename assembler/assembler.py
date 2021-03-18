@@ -54,8 +54,11 @@ def main(argv):
     labels = _vus_listener.Labels()
     instructions = _vus_listener.Instructions()
 
-    for file in import_listener.getImports():
-
+    import_shuffle = import_listener.getImports()
+    if len(import_shuffle) > 2:
+        import_shuffle = import_shuffle[len(import_shuffle)-2::-1] + import_shuffle[-1:]
+    for file in import_shuffle:
+        # print(file)
         error_listener = _vus_listener.VusErrorListener(filepath=file["path"])
         file_stream = antlr4.FileStream(file["path"])
         lexer = CorLexer(file_stream)
