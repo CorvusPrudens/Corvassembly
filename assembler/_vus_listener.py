@@ -11,6 +11,7 @@ from gen.CorLexer import CorLexer
 from gen.CorParser import CorParser
 
 import _assembly_utils
+import _keyword_data
 
 def extract_escapes(string, listener, linenum):
     escape_regex = re.compile(r'\\.')
@@ -345,7 +346,7 @@ class Instructions:
             elif ctx_name == "LabelContext":
                 labels.add(
                     ctx,
-                    ctx.getChild(8).getChild(i).getText()[:-1],
+                    listener.scope(ctx.getChild(8).getChild(i).getText()[:-1]),
                     self,
                     listener,
                     linenum=linenum,
@@ -667,29 +668,7 @@ class VusListener(CorListener):
         self.main_name = main_name
         self.current_name = ""
         # fmt: off
-        self.keywords = [
-            'a', 'b', 'c', 'd',
-            'e', 'f', 'g', 'h',
-            'pre', 'ram', 'rom', 'gpu',
-            'zero', 'carry', 'negative', 'as',
-            'for', 'equal', 'greater', 'less',
-            'SCOPE_RATE', 'UART', 'UART_STATUS', 'STACK', 'STATUS',
-            'SCOPE_ADDR', 'GPIO', 'GPIO_DIR', 'TX_EMPTY',
-            'SCOPE_DATA', 'TX_FULL', 'RX_EMPTY', 'RX_FULL',
-            'SCOPE_TRIGGER', 'continue', 'break', 'breakall',
-            'FLASH_READ', 'FLASH_WRITE', 'FLASH_STATUS', 'FLASH_PAGE',
-            'FLASH_WRITE_WORD', 'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER',
-            'TIMER_COMP', 'TIMER_PRES', 'TIMER_STATUS',
-            'FRAME', 'R4000', 'R4001', 'R4002',
-            'R4003', 'R4004', 'R4005', 'R4006',
-            'R4007', 'R4008', 'R4009', 'R400A',
-            'R400B', 'R400C', 'R400D', 'R400E',
-            'R400F', 'R4010', 'R4011', 'R4012',
-            'R4013', 'R4014', 'R4015', 'R4016',
-            'R4017', 'R9000', 'R9001', 'R9002',
-            'R9003', 'RA000', 'RA001', 'RA002',
-            'RB000', 'RB001', 'RB002',
-        ]
+        self.keywords = _keyword_data.keywords
         # fmt: on
         self.variable_regex = re.compile("\\b\\&{0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b")
         self.full_path = full_path

@@ -1,6 +1,5 @@
 java_gen/
-assembler/__pycache__/
-docsrc/_build/
 docsrc/assembler/assembler.zip
-_build
+_build/
 __pycache__/
+.antlr/

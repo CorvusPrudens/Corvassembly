@@ -3,9 +3,11 @@ import sys
 import re
 import numpy as np
 
+import _keyword_data
+
 
 class Globals:
-    RAM_ADDRESS_BEGIN = 48
+    RAM_ADDRESS_BEGIN = 64
     PGM_ADDRESS_BEGIN = 3
     PROGRAM_WORD_WIDTH = 32
     DATA_WORD_WIDTH = 16
@@ -34,66 +36,7 @@ class Globals:
         },
     ]
 
-    sysvarTable = [
-        ["ram", "UART", "0"],
-        ["ram", "UART_STATUS", "1"],
-        ["ram", "DISPLAY", "36"],
-        ["ram", "R4000", "2"],
-        ["ram", "R4001", "3"],
-        ["ram", "R4002", "4"],
-        ["ram", "R4003", "5"],
-        ["ram", "R4004", "6"],
-        ["ram", "R4005", "7"],
-        ["ram", "R4006", "8"],
-        ["ram", "R4007", "9"],
-        ["ram", "R4008", "10"],
-        ["ram", "R4009", "11"],
-        ["ram", "R400A", "12"],
-        ["ram", "R400B", "13"],
-        ["ram", "R400C", "14"],
-        ["ram", "R400D", "15"],
-        ["ram", "R400E", "16"],
-        ["ram", "R400F", "17"],
-        ["ram", "R4010", "18"],
-        ["ram", "R4011", "19"],
-        ["ram", "R4012", "20"],
-        ["ram", "R4013", "21"],
-        ["ram", "R4014", "22"],
-        ["ram", "R4015", "23"],
-        ["ram", "R4016", "24"],
-        ["ram", "R4017", "25"],
-        ["ram", "R9000", "26"],
-        ["ram", "R9001", "27"],
-        ["ram", "R9002", "28"],
-        ["ram", "R9003", "29"],
-        ["ram", "RA000", "30"],
-        ["ram", "RA001", "31"],
-        ["ram", "RA002", "32"],
-        ["ram", "RB000", "33"],
-        ["ram", "RB001", "34"],
-        ["ram", "RB002", "35"],
-        ["ram", "TIMER_STATUS", "37"],
-        ["ram", "TIMER_COMP", "38"],
-        ["ram", "TIMER_PRES", "39"],
-        ["ram", "TIMER1_COMP", "40"],
-        ["ram", "TIMER1_PRES", "41"],
-        # ['ram', 'SCOPE_RATE', '42'],
-        # ['ram', 'SCOPE_ADDR', '43'],
-        ["ram", "SCOPE_DATA", "42"],
-        ["ram", "SCOPE_TRIGGER", "44"],
-        ["ram", "FLASH_DATA", "45"],
-        ["ram", "FLASH_PAGE", "46"],
-        ["ram", "FLASH_STATUS", "47"],
-        ["pre", "FLASH_WRITE_WORD", "8"],
-        ["pre", "FLASH_READ_WORD", "4"],
-        ["pre", "FLASH_ERASE_WORD", "16"],
-        ["pre", "TIMER0_EN", "1"],
-        ["pre", "TIMER1_EN", "2"],
-        ["pre", "TX_EMPTY", "2"],
-        ["pre", "TX_FULL", "1"],
-        ["pre", "RX_EMPTY", "8"],
-        ["pre", "RX_FULL", "4"],
-    ]
+    sysvarTable = _keyword_data.sysvars
 
     SYSVARS = {}
 
