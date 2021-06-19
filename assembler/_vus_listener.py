@@ -6,12 +6,12 @@ import antlr4
 from collections import namedtuple
 
 from antlr4.error.ErrorListener import ErrorListener
-from gen.CorListener import CorListener
-from gen.CorLexer import CorLexer
-from gen.CorParser import CorParser
+from .gen.CorListener import CorListener
+from .gen.CorLexer import CorLexer
+from .gen.CorParser import CorParser
 
-import _assembly_utils
-import _keyword_data
+from . import _assembly_utils
+from . import _keyword_data
 
 def extract_escapes(string, listener, linenum):
     escape_regex = re.compile(r'\\.')

@@ -3,7 +3,7 @@ import sys
 import re
 import numpy as np
 
-import _keyword_data
+from . import _keyword_data
 
 
 class Globals:

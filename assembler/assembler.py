@@ -3,11 +3,11 @@
 import sys
 
 import antlr4
-import _assembly_utils
-import _vus_listener
+from . import _assembly_utils
+from . import _vus_listener
 
-from gen.CorLexer import CorLexer
-from gen.CorParser import CorParser
+from .gen.CorLexer import CorLexer
+from .gen.CorParser import CorParser
 
 
 def main(argv):
