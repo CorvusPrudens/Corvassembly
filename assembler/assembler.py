@@ -10,7 +10,13 @@ from .gen.CorLexer import CorLexer
 from .gen.CorParser import CorParser
 
 
-def main(argv):
+def main(argv) -> dict:
+
+    """
+    Run the assembler with the given arguments, and
+    return any directives found in the program.
+    
+    """
 
     infile, options_args, options_noargs = _assembly_utils.parse_input(argv)
 
@@ -103,6 +109,8 @@ def main(argv):
     _assembly_utils.generate_output(
         options_args, options_noargs, listener, labels, instructions
     )
+
+    return listener.directives
 
 
 if __name__ == "__main__":

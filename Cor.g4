@@ -4,11 +4,13 @@ grammar Cor;
 
 parse           : initial block* EOF;
 
-block           : label (statement | statement_loop | statement_if)*;
+block           : label (statement | statement_loop | statement_if | directive)*;
 
 file_import     : IMPORT (VARIABLE | STRING) (AS VARIABLE)?;
 
-initial         : (statement | statement_loop | statement_if | file_import)*;
+initial         : (statement | statement_loop | statement_if | file_import | directive)*;
+
+directive       : PRAGMA (VARIABLE (NUMBER | VARIABLE | string)?)+;
 
 statement       : declaration | assignment | assignment_arr | instruction;
 
@@ -97,7 +99,9 @@ CHAR                   : '\'' (('\\'.)|~[\\]) '\'';
 
 COMMENT                : '//' ~[\n\r]* [\n\r] -> skip;
 
-COMMENT_BLOCK                   : '/*' .*? '*/' -> skip;
+COMMENT_BLOCK          : '/*' .*? '*/' -> skip;
+
+PRAGMA                 : '#pragma';
 
 RAM : 'ram';
 fragment ROM : 'rom';

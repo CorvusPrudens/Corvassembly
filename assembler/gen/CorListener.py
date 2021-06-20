@@ -44,6 +44,15 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#directive.
+    def enterDirective(self, ctx:CorParser.DirectiveContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#directive.
+    def exitDirective(self, ctx:CorParser.DirectiveContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#statement.
     def enterStatement(self, ctx:CorParser.StatementContext):
         pass

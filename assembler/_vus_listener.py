@@ -673,6 +673,11 @@ class VusListener(CorListener):
         self.variable_regex = re.compile("\\b\\&{0,1}[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b")
         self.full_path = full_path
         self.stream = None
+        self.directives = {
+            'prom': -1,
+            'drom': -1,
+            'name': -1,
+        }
 
     def scope(self, name):
         if self.variable_regex.search(name) is not None:
@@ -913,6 +918,25 @@ class VusListener(CorListener):
         if name[0] == '&':
             errmess = f'cannot extract attribute from address of \"{name[1:]}\"'
             _assembly_utils.error(errmess, linenum, self.full_path, 998)
+
+    def exitDirective(self, ctx:CorParser.DirectiveContext):
+        linenum = self.stream.get(ctx.getSourceInterval()[0]).line
+        dirs = [c.getText() for c in ctx.getChildren()]
+        dirs = dirs[1:]
+        # not very pythonic, I know
+        i = 0
+        while (i < len(dirs)):
+            if dirs[i] in self.directives:
+                if self.directives[dirs[i]] == -1:
+                    self.directives[dirs[i]] = dirs[i + 1]
+                else:
+                    warnmess = f'multiple directives for "{dirs[i]}"'
+                    _assembly_utils.warning(warnmess, linenum, self.full_path, 4002)
+                i += 2
+            else:
+                warnmess = f'unexpected directive "{dirs[i]}"'
+                _assembly_utils.warning(warnmess, linenum, self.full_path, 4001)
+                i += 1
 
 
 class ImportListener(CorListener):

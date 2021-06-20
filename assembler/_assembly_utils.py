@@ -157,25 +157,30 @@ def generate_output(options_args, options_noargs, listener, labels, instructions
     )
     end_execution()
 
+    prombits = options_args["-P"] if listener.directives['prom'] == -1 else listener.directives['prom']
+    drombits = options_args["-D"] if listener.directives['drom'] == -1 else listener.directives['drom']
+
     if options_args["-p"] != "":
         write_memory(
             prom,
             options_args["-p"] + ".hex",
-            int(options_args["-P"]),
+            int(prombits),
             Globals.PROGRAM_WORD_WIDTH,
-            explicit=options_args['--pexp']
+            explicit=options_args['--pexp'],
+            mem_name="Program ROM"
         )
     if options_args["-d"] != "":
         write_memory(
             drom,
             options_args["-d"] + ".hex",
-            int(options_args["-D"]),
+            int(drombits),
             Globals.DATA_WORD_WIDTH,
-            explicit=options_args['--dexp']
+            explicit=options_args['--dexp'],
+            mem_name="Data ROM"
         )
 
 
-def write_memory(code, outfile, memory_addr_bits, memory_bits, explicit=None):
+def write_memory(code, outfile, memory_addr_bits, memory_bits, explicit=None, mem_name = 'Program ROM'):
     max_words = 2 ** memory_addr_bits if explicit is None else int(explicit)
     memory_width = math.ceil(memory_bits / 4)
     words_per_line = math.floor((8 / memory_width) * 8)
@@ -201,8 +206,8 @@ def write_memory(code, outfile, memory_addr_bits, memory_bits, explicit=None):
             file.write("\n")
     if len(code) > max_words:
         print(
-            "Error: program size too big ({} words) for memory ({} words)".format(
-                len(code), max_words
+            "Error: {} size too big ({} words) for available memory ({} words)".format(
+                mem_name, len(code), max_words
             )
         )
         sys.exit(1)
@@ -319,6 +324,7 @@ def end_execution():
 
 
 def error(message, line_num, filepath, errorcode, syntax=False, col=0, abort=False):
+    global errorList
     errorList.append(
         {
             "message": message,
@@ -337,6 +343,7 @@ def error(message, line_num, filepath, errorcode, syntax=False, col=0, abort=Fal
 
 
 def warning(message, line_num, filepath, errorcode):
+    global warningList
     warningList.append(
         {"message": message, "line": line_num, "path": filepath, "code": errorcode}
     )

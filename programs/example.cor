@@ -1,5 +1,9 @@
 import libs.ascii as ascii
 
+#pragma prom 10
+#pragma drom 10
+#pragma name "PromInBram"
+
 pre NUM_LOOPS = 100
 
 pre LEN_DELAY = 2**16 - 1
@@ -8,6 +12,8 @@ pre NUM_DELAY = 100
 pre TEST = 0b0101
 pre TEST1 = 0x00AA + TEST
 pre TEST2 = 27 + 3 / 2.6
+
+pre EXAMPLE = TIMER0
 
 rom string[] = "Hello, world!"
 
@@ -70,12 +76,14 @@ example2(FRAME):
   } elif (cmp a, 2 is equal) {
     if (cmp b, 1 isnt equal) {
       add b, 2
+      break
     }
     ldr a, 21
   } else {
     for (ldr b, 0; cmp b, 20; add b, 1) {
       spt a, gpu
       add h, 1
+      breakall
     }
     ldr a, 40
   }
