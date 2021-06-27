@@ -1,0 +1,12 @@
+
+if (cmp a, 20 isnt equal) {
+    ldr a, 1
+}
+
+$expected
+cmp a, 20
+joc equal, __if0_end
+__if0_branch0_t:
+ldr a, 1
+__if0_end:
+$end

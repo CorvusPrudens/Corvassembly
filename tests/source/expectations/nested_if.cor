@@ -1,0 +1,22 @@
+
+if (cmp a, 20 is equal) {
+    if (cmp b, 20 is equal) {
+        ldr a, 1
+    }
+    ldr b, 20
+}
+
+$expected
+cmp a, 20
+joc equal, __if0_branch0_t
+jmp __if0_end
+__if0_branch0_t:
+cmp b, 20
+joc equal, __if1_branch0_t
+jmp __if1_end
+__if1_branch0_t:
+ldr a, 1
+__if1_end:
+ldr b, 20
+__if0_end:
+$end

@@ -12,7 +12,7 @@ initial         : (statement | statement_loop | statement_if | file_import | dir
 
 directive       : PRAGMA (VARIABLE (NUMBER | VARIABLE | string)?)+;
 
-statement       : declaration | assignment | assignment_arr | instruction;
+statement       : declaration | assignment | assignment_ram | assignment_arr | assignment_arr_ram | instruction;
 
 statement_loop  : loop;
 
@@ -48,6 +48,10 @@ assignment      : CONST VARIABLE '=' expression;
 assignment_arr  : CONST array;
 
 declaration     : RAM VARIABLE array_init*;
+
+assignment_ram  : RAM VARIABLE '=' expression;
+
+assignment_arr_ram : RAM array;
 
 expression      : exp_number | exp_var | math | exp_char | exp_attr;
 
@@ -100,6 +104,8 @@ CHAR                   : '\'' (('\\'.)|~[\\]) '\'';
 COMMENT                : '//' ~[\n\r]* [\n\r] -> skip;
 
 COMMENT_BLOCK          : '/*' .*? '*/' -> skip;
+
+TEST_BLOCK             : '$' .*? '$end' -> skip;
 
 PRAGMA                 : '#pragma';
 

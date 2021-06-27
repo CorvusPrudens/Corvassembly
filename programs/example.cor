@@ -13,7 +13,7 @@ pre TEST = 0b0101
 pre TEST1 = 0x00AA + TEST
 pre TEST2 = 27 + 3 / 2.6
 
-pre EXAMPLE = TIMER0
+// pre EXAMPLE = TIMER0
 
 rom string[] = "Hello, world!"
 
@@ -23,6 +23,21 @@ ldr a, 'A'
 
 ram array[20]
 ram hap
+
+pre INIT = 1
+
+ram assignment = 1
+ram ass_2 = INIT
+ram array_ass[] = {1, 2, 3}
+ram array_short[] = {
+  0, 0, 0, 0
+}
+ram array_patt[20] = {1, 2, 6}
+
+// test block
+$expect
+ldr a, 100
+$end
 
 ldr a, array->end
 
@@ -76,7 +91,6 @@ example2(FRAME):
   } elif (cmp a, 2 is equal) {
     if (cmp b, 1 isnt equal) {
       add b, 2
-      break
     }
     ldr a, 21
   } else {

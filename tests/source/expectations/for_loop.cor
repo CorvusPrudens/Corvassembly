@@ -1,0 +1,15 @@
+for (ldr a, 0; cmp a, 256; add a, 1) {
+    str a, UART
+}
+
+$expected
+ldr a, 0
+__loop0_begin:
+cmp a, 256
+joc equal, __loop0_end
+str a, UART
+__loop0_continue:
+add a, 1
+jmp __loop0_begin
+__loop0_end:
+$end

@@ -2,6 +2,7 @@ import math
 import sys
 import re
 import numpy as np
+import copy
 
 from . import _keyword_data
 
@@ -45,7 +46,7 @@ class Globals:
             SYSVARS[var[1]] = {
                 "type": "ram",
                 "address": int(var[2]),
-                "value": 0,
+                "value": None,
                 "line": -1,
                 "path": -1,
             }
@@ -298,6 +299,58 @@ def debug(options_args, options_noargs, instructions, variables, labels):
                     print(
                         f"{variables[var]['type']}: {var} (address {variables[var]['address']})"
                     )
+
+
+def test_output(instructions, variables, labels):
+    variables = variables.getVariables()
+    lines = []
+
+    for line in instructions.getInstructions():
+        for label in labels.getLabels():
+            if label["address"] == line["address"]:
+                lines.append(f"{label['name']}:\n")
+        tempargs = ""
+        for i in range(len(line["arguments"])):
+            tempargs += str(line["arguments"][i])
+            if i < len(line["arguments"]) - 1:
+                tempargs += ", "
+        lines.append(f"{line['mnemonic']} {tempargs}\n")
+    
+    # grabbing final labels:
+    last_line = instructions.getInstructions()[-1]
+    for label in labels.getLabels():
+        if label["address"] == last_line["address"] + 1:
+            lines.append(f"{label['name']}:\n")
+
+        # if options_noargs["--debug-vars"]:
+        #     file.write("\n  Program Variables:\n")
+        #     for var in variables:
+        #         if variables[var]["type"] == "pre":
+        #             file.write(
+        #                 "{}: {} = {}\n".format(
+        #                     variables[var]["type"], var, variables[var]["value"]
+        #                 )
+        #             )
+        #     file.write("\n")
+        #     for var in variables:
+        #         if variables[var]["type"] == "rom":
+        #             file.write(
+        #                 "{}: {} (address {}) = {}\n".format(
+        #                     variables[var]["type"],
+        #                     var,
+        #                     variables[var]["address"],
+        #                     variables[var]["value"],
+        #                 )
+        #             )
+        #     file.write("\n")
+        #     for var in variables:
+        #         if variables[var]["type"] == "ram":
+        #             file.write(
+        #                 "{}: {} (address {})\n".format(
+        #                     variables[var]["type"], var, variables[var]["address"]
+        #                 )
+        #             )
+    return ''.join(lines)
 
 
 errorList = []
@@ -834,3 +887,113 @@ def assemble_variables(variables, ram_bit_width):
             machine[int(variables[var]["address"])] = variables[var]["value"]
 
     return machine
+
+# this is so awful and hacky
+def init_ram(instructions, variables, labels):
+    raminst = {}
+    for key, item in variables.getVariables().items():
+        if item['type'] == 'ram' and item['value'] is not None:
+            raminst[key] = item
+    
+    byval = {}
+    for key, item in raminst.items():
+        if item['value'] not in byval:
+            byval[item['value']] = []
+        item['name'] = key
+        byval[item['value']].append(item)
+
+    # print(byval)
+
+    # detect consecutive array elements
+    runs = []
+
+    for key, item in byval.items():
+        # 6 is our magic number -- roughly the number
+        # of instructions required for a loop
+        if len(item) > 6:
+            item.sort(key=lambda x: x['address'])
+            runstart = item[0]['address']
+            prevaddr = runstart
+            idx = 1
+            runvars = [item[0]]
+            while idx < len(item):
+                if item[idx]['address'] == prevaddr + 1:
+                    runvars.append(item[idx])
+                    idx += 1
+                    prevaddr += 1
+                    if idx == len(item):
+                        runend = item[idx - 1]['address']
+                        runlen = runend - runstart 
+                        if runlen > 6:
+                            copyvars = copy.deepcopy(runvars)
+                            runs.append({'value': key, 'vars': copyvars})
+                else:
+                    runend = item[idx - 1]['address']
+                    runlen = runend - runstart 
+                    if runlen > 6:
+                        copyvars = copy.deepcopy(runvars)
+                        runs.append({'value': key, 'vars': copyvars})
+                        runstart = item[idx]['address']
+                        prevaddr = runstart
+                        runvars = [item[idx]]
+                    else:
+                        runstart = item[idx]['address']
+                        prevaddr = runstart
+                        runvars = [item[idx]]
+                    idx += 1
+
+    # print(runs)
+    #removing runs from normal pool
+    for run in runs:
+        key = run['value']
+        for var in run['vars']:
+            byval[key].remove(var)
+
+    newinstrs = []
+    newlabels = []
+    addr = Globals.PGM_ADDRESS_BEGIN
+    initloops = 0
+    
+    for key, item in byval.items():
+        newinstrs.append({
+            "mnemonic": 'ldr',
+            "address": addr,
+            "arguments": ['a', key],
+            # these won't cause errors, so it doesn't matter
+            "line": -1,
+            "path": '',
+        })
+        addr += 1
+        for var in item:
+            newinstrs.append({
+                "mnemonic": 'str',
+                "address": addr,
+                "arguments": ['a', var['name']],
+                # these won't cause errors, so it doesn't matter
+                "line": -1,
+                "path": '',
+            })
+            addr += 1
+        for run in runs:
+            if run['value'] == key:
+                runstart = run['vars'][0]['address']
+                runend = run['vars'][len(run['vars']) - 1]['address']
+                newinstrs.append({"mnemonic": 'ldr', "address": addr, "arguments": ['f', runstart], "line": -1,"path": ''})
+                addr += 1
+                newlabels.append({"name": f'__init_loop{initloops}',"address": addr, "line": -1,"path": ''})
+                newinstrs.append({"mnemonic": 'spt', "address": addr, "arguments": ['a', 'ram'], "line": -1,"path": ''})
+                addr += 1
+                newinstrs.append({"mnemonic": 'add', "address": addr, "arguments": ['f', 1], "line": -1,"path": ''})
+                addr += 1
+                newinstrs.append({"mnemonic": 'cmp', "address": addr, "arguments": ['f', runend + 1], "line": -1,"path": ''})
+                addr += 1
+                newinstrs.append({"mnemonic": 'joc', "address": addr, "arguments": ['equal', f'__init_loop{initloops}_end'], "line": -1,"path": ''})
+                addr += 1
+                newinstrs.append({"mnemonic": 'jmp', "address": addr, "arguments": [f'__init_loop{initloops}'], "line": -1,"path": ''})
+                addr += 1
+                newlabels.append({"name": f'__init_loop{initloops}_end',"address": addr, "line": -1,"path": ''})
+                initloops += 1
+
+    instructions.insert(newinstrs, len(newinstrs))
+
+    labels.insert(newlabels, len(newinstrs))

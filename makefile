@@ -13,20 +13,23 @@ ASSEMBLER = ./assembler/assembler.py
 EXAMPLE  = ./programs/example.cor
 
 
-all: build_python parse_python
+all: build_python parse_python test_python
 
 test: build_java test_java
 
 clean: clean_java clean_python
 
-.PHONY: all test clean build_python build_java parse_python test_java clean_java clean_python
+.PHONY: all test clean build_python build_java parse_python test_java clean_java clean_python test_python
 
 build_python: ${GRAMMAR}
 	${ANTLR} -Dlanguage=Python3 -o ${PYTHON_PATH} ${GRAMMAR}
 
 parse_python: ${ASSEMBLER} ${EXAMPLE}
-	python3 ${ASSEMBLER} ${EXAMPLE}
+	python3 test.py
 
+test_python:
+	cd tests; py.test;
+	
 build_java: ${GRAMMAR}
 	${ANTLR} -o ${JAVA_PATH} ${GRAMMAR}; \
 	javac -d ${JAVA_PATH} ${JAVA_PATH}/Cor*.java

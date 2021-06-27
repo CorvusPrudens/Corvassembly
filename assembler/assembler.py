@@ -99,6 +99,8 @@ def main(argv) -> dict:
 
     labels.setInit(program_start_addr=_assembly_utils.Globals.PGM_ADDRESS_BEGIN)
 
+    _assembly_utils.init_ram(instructions, listener.getVariables(), labels)
+
     for i in range(len(_assembly_utils.Globals.INIT_INSTRUCTIONS) - 1, -1, -1):
         instructions.getInstructions().insert(
             0, _assembly_utils.Globals.INIT_INSTRUCTIONS[i]
@@ -110,7 +112,10 @@ def main(argv) -> dict:
         options_args, options_noargs, listener, labels, instructions
     )
 
-    return listener.directives
+    # this is a bit of a hack, but I don't feel like fixing it right now
+    testing = _assembly_utils.test_output(instructions, listener.getVariables(), labels)
+
+    return listener.directives, testing
 
 
 if __name__ == "__main__":

@@ -1,0 +1,78 @@
+
+pre INIT = 1
+
+ram value = 0
+ram state = 1
+ram init = INIT
+
+ram arr[] = {1, 2, 3}
+ram arr2[] = {
+    INIT, INIT, INIT, INIT,
+    INIT, INIT, INIT, INIT,
+}
+ram arr3[] = {
+    5, 5, 5, 5, 5, 5, 5, 5,
+}
+
+// Strings are also supported, of course
+ram arr4[] = "AAAAAAAA"
+
+// If the initializer list is shorter than the given
+// size, then the array will be filled with the last
+// element of the list, int this case 3
+ram arr5[20] = {1, 2, 3}
+
+// Consecutive addresses with the same initial value will
+// be iterated over if there are more than 6 or 7 
+// values. Naturally, this is mainly for arrays, but if enough
+// regular variables are consecutive and have the same value, 
+// they'll be iterated over too
+$expected
+ldr a, 0
+str a, value
+str a, arr4[8]
+ldr a, 1
+str a, state
+str a, init
+str a, arr[0]
+str a, arr5[0]
+ldr f, 70
+__init_loop0:
+spt a, ram
+add f, 1
+cmp f, 78
+joc equal, __init_loop0_end
+jmp __init_loop0
+__init_loop0_end:
+ldr a, 2
+str a, arr[1]
+str a, arr5[1]
+ldr a, 3
+str a, arr[2]
+ldr f, 97
+__init_loop1:
+spt a, ram
+add f, 1
+cmp f, 115
+joc equal, __init_loop1_end
+jmp __init_loop1
+__init_loop1_end:
+ldr a, 5
+ldr f, 78
+__init_loop2:
+spt a, ram
+add f, 1
+cmp f, 86
+joc equal, __init_loop2_end
+jmp __init_loop2
+__init_loop2_end:
+ldr a, 65
+ldr f, 86
+__init_loop3:
+spt a, ram
+add f, 1
+cmp f, 94
+joc equal, __init_loop3_end
+jmp __init_loop3
+__init_loop3_end:
+$end

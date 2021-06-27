@@ -179,6 +179,24 @@ class CorListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CorParser#assignment_ram.
+    def enterAssignment_ram(self, ctx:CorParser.Assignment_ramContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#assignment_ram.
+    def exitAssignment_ram(self, ctx:CorParser.Assignment_ramContext):
+        pass
+
+
+    # Enter a parse tree produced by CorParser#assignment_arr_ram.
+    def enterAssignment_arr_ram(self, ctx:CorParser.Assignment_arr_ramContext):
+        pass
+
+    # Exit a parse tree produced by CorParser#assignment_arr_ram.
+    def exitAssignment_arr_ram(self, ctx:CorParser.Assignment_arr_ramContext):
+        pass
+
+
     # Enter a parse tree produced by CorParser#expression.
     def enterExpression(self, ctx:CorParser.ExpressionContext):
         pass

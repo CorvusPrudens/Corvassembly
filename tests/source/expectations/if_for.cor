@@ -1,0 +1,22 @@
+if (cmp a, 20 is equal) {
+    for (ldr a, 0; cmp a, 256; add a, 1) {
+        str a, UART
+    }
+}
+
+$expected
+cmp a, 20
+joc equal, __if0_branch0_t
+jmp __if0_end
+__if0_branch0_t:
+ldr a, 0
+__loop0_begin:
+cmp a, 256
+joc equal, __loop0_end
+str a, UART
+__loop0_continue:
+add a, 1
+jmp __loop0_begin
+__loop0_end:
+__if0_end:
+$end

@@ -1,5 +1,6 @@
 import re
 import math
+import copy
 
 import antlr4
 
@@ -32,7 +33,7 @@ def extract_escapes(string, listener, linenum):
 class Variables:
     def __init__(self, sysvars=None, ram_start_addr=41):
         if sysvars:
-            self.vars = sysvars
+            self.vars = copy.deepcopy(sysvars)
         else:
             self.vars = {}
             sysvars = {}
@@ -647,7 +648,8 @@ class Labels:
 
     def insert(self, dictlist, num):
         for label in self.labels:
-            label["address"] += num
+            if label['name'] != '__pgm_start__':
+                label["address"] += num
         self.labels = dictlist + self.labels
 
 
@@ -833,7 +835,7 @@ class VusListener(CorListener):
             self.variables.add(
                 ctx.RAM().getText(),
                 self.scope(ctx.VARIABLE().getText()),
-                0,
+                None,
                 self,
                 linenum=linenum,
             )
@@ -866,7 +868,7 @@ class VusListener(CorListener):
             )
 
             for i in range(size):
-                self.variables.add(var_type, name + f"[{i}]", 0, self, linenum=linenum)
+                self.variables.add(var_type, name + f"[{i}]", None, self, linenum=linenum)
 
     # Exit a parse tree produced by CorParser#assignment.
     def assignment(self, ctx):
@@ -885,6 +887,131 @@ class VusListener(CorListener):
             self,
             linenum=linenum,
         )
+    
+    def assignment_ram(self, ctx):
+        linenum = self.stream.get(ctx.getSourceInterval()[0]).line
+        var = self.scope(ctx.getChild(1).getText())
+
+        self.variables.add(
+            'ram',
+            var,
+            self.variables.calc(
+                ctx.expression().getText(),
+                self,
+                linenum=linenum,
+                full_path=self.full_path,
+            ),
+            self,
+            linenum=linenum,
+        )
+
+        # print(list(self.variables.getVariables().items())[-1])
+
+    # Exit a parse tree produced by CorParser#assignment_ram_arr.
+    def assignment_ram_arr(self, ctx):
+        linenum = self.stream.get(ctx.getSourceInterval()[0]).line
+        var_type = 'ram'
+        name = self.scope(ctx.array().VARIABLE().getText())
+        num_dimensions = ctx.array().getChildCount() - 3
+
+        if num_dimensions > 2:
+            errmess = (
+                f'array "{name}" cannot be initialized with more than two dimension'
+            )
+            _assembly_utils.error(errmess, linenum, self.full_path, 4002)
+
+        if (
+            num_dimensions == 1
+            and ctx.array().arr_data() is not None
+            and (
+                len(ctx.array().arr_data().string()) != 0
+                or len(ctx.array().arr_data().arr_data()) != 0
+            )
+        ):
+            errmess = f'array "{name}" cannot contain subarrays'
+            _assembly_utils.error(errmess, linenum, self.full_path, 4002)
+
+        if num_dimensions == 1:
+            if ctx.array().string() is not None:
+                linenum = self.stream.get(
+                    ctx.array().string().getSourceInterval()[0]
+                ).line
+                chars = self.convertString(ctx.array().string().getText(), linenum)
+
+                self.variables.add(
+                    "pre", name, self.variables.size[var_type], self, size=len(chars) - 1, linenum=linenum, arr=True
+                )
+
+                for i in range(len(chars)):
+                    self.variables.add(
+                        var_type, name + f"[{i}]", chars[i], self, linenum=linenum
+                    )
+            else:
+                if ctx.array().array_init()[0].getChildCount() > 2:
+                    givenwidth = self.variables.calc(
+                        ctx.array().array_init()[0].getChild(1).getText(),
+                        self,
+                        full_path=self.full_path,
+                        linenum=linenum,
+                    )
+                    initializerWidth = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
+                    values = []
+                    if initializerWidth > givenwidth:
+                        errmess = f'initializer list ({initializerWidth}) longer than specified length ({givenwidth})'
+                        _assembly_utils.error()
+                        return
+                    if givenwidth >= initializerWidth:
+                        i = 0
+                        while i < givenwidth:
+                            if i < initializerWidth:
+                                tempval = self.variables.calc(
+                                    ctx.array().arr_data().getChild(1 + i * 2).getText(),
+                                    self,
+                                    full_path=self.full_path,
+                                    linenum=linenum,
+                                )
+                            else:
+                                tempval = self.variables.calc(
+                                    ctx.array().arr_data().getChild(1 + (initializerWidth - 1) * 2).getText(),
+                                    self,
+                                    full_path=self.full_path,
+                                    linenum=linenum,
+                                )
+                            values.append(tempval)
+                            i += 1
+                    for i in range(givenwidth):
+                        tempval = values[i]
+                        # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
+                        self.variables.add(
+                            var_type, name + f"[{i}]", tempval, self, linenum=linenum
+                        )
+                        
+                else:
+                    width = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
+                    self.variables.add(
+                        "pre", name, self.variables.size[var_type], self, size=width, linenum=linenum, arr=True
+                    )
+                    for i in range(width):
+
+                        linenum = self.stream.get(
+                            ctx.array()
+                            .arr_data()
+                            .getChild(1 + i * 2)
+                            .getSourceInterval()[0]
+                        ).line
+                        tempval = self.variables.calc(
+                            ctx.array().arr_data().getChild(1 + i * 2).getText(),
+                            self,
+                            full_path=self.full_path,
+                            linenum=linenum,
+                        )
+                        # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
+                        self.variables.add(
+                            var_type, name + f"[{i}]", tempval, self, linenum=linenum
+                        )
+
+    
+
 
     # Exit a parse tree produced by CorParser#instruction.
     def instruction(self, ctx):
@@ -902,6 +1029,10 @@ class VusListener(CorListener):
             self.assignment_arr(ctx)
         elif ctx_name == "DeclarationContext":
             self.declaration(ctx)
+        elif ctx_name == "Assignment_ramContext":
+            self.assignment_ram(ctx)
+        elif ctx_name == "Assignment_arr_ramContext":
+            self.assignment_ram_arr(ctx)
 
     # Exit a parse tree produced by CorParser#statement_loop.
     def exitStatement_loop(self, ctx: CorParser.Statement_loopContext):

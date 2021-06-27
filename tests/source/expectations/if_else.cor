@@ -1,0 +1,18 @@
+if (cmp a, 20 is equal) {
+    ldr a, 1
+} else {
+    ldr a, 2
+}
+
+$expected
+cmp a, 20
+joc equal, __if0_branch0_t
+jmp __if0_branch1
+__if0_branch0_t:
+ldr a, 1
+jmp __if0_end
+__if0_branch1:
+ldr a, 2
+__if0_branch2:
+__if0_end:
+$end

@@ -3,3 +3,4 @@ docsrc/assembler/assembler.zip
 _build/
 __pycache__/
 .antlr/
+test_log.txt
