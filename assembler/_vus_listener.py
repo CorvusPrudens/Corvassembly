@@ -979,6 +979,9 @@ class VusListener(CorListener):
                                 )
                             values.append(tempval)
                             i += 1
+                    self.variables.add(
+                        "pre", name, self.variables.size[var_type], self, size=givenwidth, linenum=linenum, arr=True
+                    )
                     for i in range(givenwidth):
                         tempval = values[i]
                         # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)

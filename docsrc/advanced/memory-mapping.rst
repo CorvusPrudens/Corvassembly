@@ -149,8 +149,8 @@ Flash
 
 +-------------------+---------------+-----------------------------------------------------------------------+
 |                   |               | | ``(S) Program security bit, (s) Configuration security bit,``       |
-| ``FLASH_STATUS``  | ``SsPE RWeB`` | | ``(P) 256 or 512 (packed) transfer, (E) Erase request,``            |
-|                   |               | | ``(R) Read request, (W) Write request, (e) error bit, (B) Busy bit``|
+| ``FLASH_STATUS``  | ``SsPE WReB`` | | ``(P) 256 or 512 (packed) transfer, (E) Erase request,``            |
+|                   |               | | ``(W) Write request, (R) Read request, (e) error bit, (B) Busy bit``|
 +-------------------+---------------+-----------------------------------------------------------------------+
 
 Read requests are safe anywhere within the Flash memory address space.
