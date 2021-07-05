@@ -679,6 +679,7 @@ class VusListener(CorListener):
             'prom': -1,
             'drom': -1,
             'name': -1,
+            'sector': -1,
         }
 
     def scope(self, name):

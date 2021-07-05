@@ -108,7 +108,10 @@ def main(argv) -> dict:
     _assembly_utils.set_interrupts(labels.getLabels(), instructions.getInstructions())
 
     # Final stage
-    _assembly_utils.generate_output(
+    # _assembly_utils.generate_output(
+    #     options_args, options_noargs, listener, labels, instructions
+    # )
+    _assembly_utils.generate_binary(
         options_args, options_noargs, listener, labels, instructions
     )
 

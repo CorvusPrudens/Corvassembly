@@ -80,7 +80,7 @@ keywords = [
     'SCOPE_RATE', 'UART', 'UART_STATUS', 'STACK', 'STATUS',
     'SCOPE_ADDR', 'GPIO', 'GPIO_DIR', 'TX_EMPTY',
     'SCOPE_DATA', 'TX_FULL', 'RX_EMPTY', 'RX_FULL',
-    'SCOPE_TRIGGER', 'continue', 'break', 'breakall',
+    'SCOPE_TRIGGER', 'continue', 'break', 'breakall', 'FLASH_DATA',
     'FLASH_READ', 'FLASH_WRITE', 'FLASH_STATUS', 'FLASH_PAGE',
     'FLASH_WRITE_WORD', 'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER',
     'TIMER_COMP', 'TIMER_PRES', 'TIMER_STATUS',

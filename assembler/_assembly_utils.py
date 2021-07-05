@@ -82,6 +82,7 @@ def usage():
     print("\nUsage: <infile> [[options] [parameters] ...]")
     print("If no options are given, the program will not generate any output.")
     print("\n\t-h\n\t   print this usage message")
+    print("\n\t-o output\n\t   specify the output binary name (defaults to 'out')")
     # print("\n\t-o outfile\n\t   generate output binary with the given name")
     print(
         "\n\t-p romname\n\t   generate program rom verilog hex with the given romname"
@@ -89,6 +90,7 @@ def usage():
     print("\n\t-d romname\n\t   generate data rom verilog hex with the given romname")
     print("\n\t-P bits\n\t   specify the number of bits in the program rom address")
     print("\n\t-D bits\n\t   specify the number of bits in the data rom address")
+    print("\n\t-s sector\n\t   indicate program sector (defaults to 0 (0x200000)")
     print(
         "\n\t--debug-vars\n\t   print out the organized variables for debugging checks"
     )
@@ -104,7 +106,7 @@ def usage():
 
 def parse_input(argv):
     infile = ""
-    options_args = {"-p": "", "-d": "", "-P": 10, "-D": 10, "--pexp": None, "--dexp": None, "--log": ""}
+    options_args = {"-p": "", "-d": "", "-o": "out", "-P": 10, "-D": 10, "-s": 0, "--pexp": None, "--dexp": None, "--log": ""}
     options_noargs = {"--debug-vars": False, "--debug-lines": False}
 
     if len(argv) < 2:
@@ -179,6 +181,57 @@ def generate_output(options_args, options_noargs, listener, labels, instructions
             explicit=options_args['--dexp'],
             mem_name="Data ROM"
         )
+
+
+def enbitten(data: 'list[int]', num_bytes: int, little_endian: bool = True) -> list:
+    output = []
+    for number in data:
+        for i in range(num_bytes):
+            if little_endian:
+                output.append((number >> (i * 8)) & 255)
+            else:
+                output.append((number >> ((num_bytes - 1 - i) * 8)) & 255)
+    return output
+
+
+def generate_binary(options_args, options_noargs, listener, labels, instructions):
+    debug(options_args, options_noargs, instructions, listener.getVariables(), labels)
+
+    prom = assemble_instruction(
+        instructions.getInstructions(),
+        listener.getVariables().getVariables(),
+        labels.getLabels(),
+    )
+    drom = assemble_variables(
+        listener.getVariables().getVariables(), Globals.DATA_WORD_WIDTH
+    )
+    ram = assemble_ram(
+        listener.getVariables().getVariables(), Globals.DATA_WORD_WIDTH
+    )
+    end_execution()
+
+    address = 0x2000 + int(options_args['-s']) * 0x1000
+
+    progbin = enbitten(prom, 4)
+    progbin += [0 for n in range(0x040000 - len(progbin))]
+
+    rambin = enbitten(ram, 2)
+    rambin += [0 for n in range(0x1000 - len(rambin))]
+
+    rombin = enbitten(drom, 2)
+    rombin += [0 for n in range(0x0800 - len(rombin))]
+
+    # TODO -- then allow extra data in the second half of the sector
+    # TODO -- add output binary name arg
+
+    output = progbin + rombin + rambin
+    output += [0 for n in range(0x100000 - len(output))]
+
+    outname = options_args["-o"]
+    outname = outname + '.bin' if '.bin' not in outname[-4:] else outname
+    with open(outname, 'wb') as file:
+        output = bytes(output)
+        file.write(output)
 
 
 def write_memory(code, outfile, memory_addr_bits, memory_bits, explicit=None, mem_name = 'Program ROM'):
@@ -481,6 +534,7 @@ MATH_IMM = 0b11
 LOAD_ROM = 0b01
 
 STORE_RAM = 0b00
+STORE_ROM = 0b01
 STORE_GPU = 0b10
 
 LOAD_PTR_RAM = 0b00
@@ -488,7 +542,8 @@ LOAD_PTR_ROM = 0b01
 LOAD_PTR_GPU = 0b10
 
 STORE_PTR_RAM = 0b00
-STORE_PTR_GPU = 0b01
+STORE_PTR_ROM = 0b01
+STORE_PTR_GPU = 0b10
 
 LOAD_CONST = ["rom", "pre"]
 LOAD_MEM = ["ram", "gpu"]
@@ -510,10 +565,10 @@ LOAD_DICT = {
 }
 
 # The extra keys are so that an incorrect instruction doesn't throw a KeyError
-STORE_DICT = {"ram": STORE_RAM, "gpu": STORE_GPU, "rom": 0, "pre": 0}
+STORE_DICT = {"ram": STORE_RAM, "rom": STORE_ROM, "gpu": STORE_GPU, "pre": 0}
 
 LOAD_PTR_DICT = {"ram": LOAD_PTR_RAM, "rom": LOAD_PTR_ROM, "gpu": LOAD_PTR_GPU}
-STORE_PTR_DICT = {"ram": STORE_PTR_RAM, "gpu": STORE_PTR_GPU}
+STORE_PTR_DICT = {"ram": STORE_PTR_RAM, "rom": STORE_PTR_ROM, "gpu": STORE_PTR_GPU}
 
 CONDITIONS = {
     "zero": 0b000001,
@@ -625,7 +680,7 @@ def assemble_argument2(word, argument, dict, instruction, variables, number):
 
 
 def assemble_argument2_store(word, argument, dict, instruction, variables, number):
-    valid_table = ["ram", "gpu"]
+    valid_table = ["ram", "rom", "gpu"]
 
     try:
         if isinstance(argument, str) and argument[0] == "&":
@@ -885,6 +940,22 @@ def assemble_variables(variables, ram_bit_width):
     for var in variables:
         if variables[var]["type"] == "rom":
             machine[int(variables[var]["address"])] = variables[var]["value"]
+
+    return machine
+
+def assemble_ram(variables, ram_bit_width):
+    biggest_addr = -1
+    for var in variables:
+        if (
+            variables[var]["type"] == "ram"
+            and int(variables[var]["address"]) > biggest_addr
+        ):
+            biggest_addr = variables[var]["address"]
+    machine = np.empty(biggest_addr + 1, dtype=f"u{math.ceil(ram_bit_width/8)}")
+
+    for var in variables:
+        if variables[var]["type"] == "ram":
+            machine[int(variables[var]["address"])] = variables[var]["value"] if variables[var]["value"] is not None else 0
 
     return machine
 
