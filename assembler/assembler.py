@@ -99,7 +99,8 @@ def main(argv) -> dict:
 
     labels.setInit(program_start_addr=_assembly_utils.Globals.PGM_ADDRESS_BEGIN)
 
-    _assembly_utils.init_ram(instructions, listener.getVariables(), labels)
+    # unnecessary with loading from flash
+    # _assembly_utils.init_ram(instructions, listener.getVariables(), labels)
 
     for i in range(len(_assembly_utils.Globals.INIT_INSTRUCTIONS) - 1, -1, -1):
         instructions.getInstructions().insert(

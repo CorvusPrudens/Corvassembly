@@ -4,3 +4,4 @@ _build/
 __pycache__/
 .antlr/
 test_log.txt
+out.bin

@@ -32,7 +32,7 @@ def extract_escapes(string, listener, linenum):
 
 class Variables:
     def __init__(self, sysvars=None, ram_start_addr=41):
-        if sysvars:
+        if sysvars is not None:
             self.vars = copy.deepcopy(sysvars)
         else:
             self.vars = {}
@@ -41,7 +41,7 @@ class Variables:
         self.eval_dict = {}
         for var in sysvars:
             if sysvars[var]["type"] == "rom" or sysvars[var]["type"] == "pre":
-                self.eval_dict[sysvars[var]["type"]] = sysvars[var]["value"]
+                self.eval_dict[sysvars[var]["name"]] = int(sysvars[var]["value"])
         self.variable_regex = re.compile(
             "(?<!&)(\\b|^)[A-Za-z_][A-Za-z_0-9.\\[\\]]*\\b"
         )
@@ -806,28 +806,71 @@ class VusListener(CorListener):
                         var_type, name + f"[{i}]", chars[i], self, linenum=linenum
                     )
             else:
-                width = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
-                self.variables.add(
-                    "pre", name, self.variables.size[var_type], self, size=width, linenum=linenum, arr=True
-                )
-                for i in range(width):
-
-                    linenum = self.stream.get(
-                        ctx.array()
-                        .arr_data()
-                        .getChild(1 + i * 2)
-                        .getSourceInterval()[0]
-                    ).line
-                    tempval = self.variables.calc(
-                        ctx.array().arr_data().getChild(1 + i * 2).getText(),
+                if ctx.array().array_init()[0].getChildCount() > 2:
+                    givenwidth = self.variables.calc(
+                        ctx.array().array_init()[0].getChild(1).getText(),
                         self,
                         full_path=self.full_path,
                         linenum=linenum,
                     )
-                    # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
+                    initializerWidth = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
+                    values = []
+                    if initializerWidth > givenwidth:
+                        errmess = f'initializer list ({initializerWidth}) longer than specified length ({givenwidth})'
+                        _assembly_utils.error()
+                        return
+                    if givenwidth >= initializerWidth:
+                        i = 0
+                        while i < givenwidth:
+                            if i < initializerWidth:
+                                tempval = self.variables.calc(
+                                    ctx.array().arr_data().getChild(1 + i * 2).getText(),
+                                    self,
+                                    full_path=self.full_path,
+                                    linenum=linenum,
+                                )
+                            else:
+                                tempval = self.variables.calc(
+                                    ctx.array().arr_data().getChild(1 + (initializerWidth - 1) * 2).getText(),
+                                    self,
+                                    full_path=self.full_path,
+                                    linenum=linenum,
+                                )
+                            values.append(tempval)
+                            i += 1
                     self.variables.add(
-                        var_type, name + f"[{i}]", tempval, self, linenum=linenum
+                        "pre", name, self.variables.size[var_type], self, size=givenwidth, linenum=linenum, arr=True
                     )
+                    for i in range(givenwidth):
+                        tempval = values[i]
+                        # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
+                        self.variables.add(
+                            var_type, name + f"[{i}]", tempval, self, linenum=linenum
+                        )
+                        
+                else:
+                    width = math.ceil((ctx.array().arr_data().getChildCount() - 2) / 2.0)
+                    self.variables.add(
+                        "pre", name, self.variables.size[var_type], self, size=width, linenum=linenum, arr=True
+                    )
+                    for i in range(width):
+
+                        linenum = self.stream.get(
+                            ctx.array()
+                            .arr_data()
+                            .getChild(1 + i * 2)
+                            .getSourceInterval()[0]
+                        ).line
+                        tempval = self.variables.calc(
+                            ctx.array().arr_data().getChild(1 + i * 2).getText(),
+                            self,
+                            full_path=self.full_path,
+                            linenum=linenum,
+                        )
+                        # print(name, ctx.array().arr_data().getChild(1 + i*2).getText(), tempval)
+                        self.variables.add(
+                            var_type, name + f"[{i}]", tempval, self, linenum=linenum
+                        )
 
     # Exit a parse tree produced by CorParser#declaration.
     def declaration(self, ctx):

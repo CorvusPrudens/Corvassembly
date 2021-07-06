@@ -12,6 +12,8 @@ class Globals:
     PGM_ADDRESS_BEGIN = 3
     PROGRAM_WORD_WIDTH = 32
     DATA_WORD_WIDTH = 16
+    RAM_SIZE = 2048
+    ROM_SIZE = 1024
 
     INIT_INSTRUCTIONS = [
         {
@@ -208,7 +210,6 @@ def generate_binary(options_args, options_noargs, listener, labels, instructions
     ram = assemble_ram(
         listener.getVariables().getVariables(), Globals.DATA_WORD_WIDTH
     )
-    end_execution()
 
     address = 0x2000 + int(options_args['-s']) * 0x1000
 
@@ -220,11 +221,16 @@ def generate_binary(options_args, options_noargs, listener, labels, instructions
 
     rombin = enbitten(drom, 2)
     rombin += [0 for n in range(0x0800 - len(rombin))]
+    if len(rombin) > Globals.ROM_SIZE * 2:
+        errmess = f'requested ROM size ({len(rombin) // 2}) greater than available space ({Globals.ROM_SIZE})'
+        error(errmess, -1, -1, 411, line_based=False)
+
+    end_execution()
 
     # TODO -- then allow extra data in the second half of the sector
     # TODO -- add output binary name arg
 
-    output = progbin + rombin + rambin
+    output = progbin + rambin + rombin
     output += [0 for n in range(0x100000 - len(output))]
 
     outname = options_args["-o"]
@@ -429,7 +435,7 @@ def end_execution():
         print(f"{len(warningList)} warning{warn_s}, {len(errorList)} error{error_s}")
 
 
-def error(message, line_num, filepath, errorcode, syntax=False, col=0, abort=False):
+def error(message, line_num, filepath, errorcode, syntax=False, col=0, abort=False, line_based=True):
     global errorList
     errorList.append(
         {
@@ -439,6 +445,7 @@ def error(message, line_num, filepath, errorcode, syntax=False, col=0, abort=Fal
             "code": errorcode,
             "syntax": syntax,
             "col": col,
+            "line_based": line_based
         }
     )
     if len(errorList) == 10:
@@ -458,23 +465,29 @@ def warning(message, line_num, filepath, errorcode):
 def error_print(entries):
     for entry in entries:
         try:
-            with open(entry["path"], "r") as file:
-                lines = file.readlines()
-                if entry["syntax"]:
-                    print(
-                        f'({entry["code"]}) {Colors.red}Error{Colors.stop} in file {Colors.green}"{entry["path"]}"{Colors.stop} at line {entry["line"]}:'
-                    )
-                    original = lines[entry["line"] - 1].rstrip(" \n")
-                    print(f"  {original}")
-                    print(f'  {" "*entry["col"]}{Colors.red}^{Colors.stop}')
-                    print(f'{Colors.blue}->{Colors.stop} {entry["message"]}\n')
-                else:
-                    print(
-                        f'({entry["code"]}) {Colors.red}Error{Colors.stop} in file {Colors.green}"{entry["path"]}"{Colors.stop} at line {entry["line"]}:'
-                    )
-                    original = lines[entry["line"] - 1].strip(" \n")
-                    print(f"  {Colors.cyan}{original}{Colors.stop}")
-                    print(f'{Colors.blue}->{Colors.stop} {entry["message"]}\n')
+            if entry['line_based']:
+                with open(entry["path"], "r") as file:
+                    lines = file.readlines()
+                    if entry["syntax"]:
+                        print(
+                            f'({entry["code"]}) {Colors.red}Error{Colors.stop} in file {Colors.green}"{entry["path"]}"{Colors.stop} at line {entry["line"]}:'
+                        )
+                        original = lines[entry["line"] - 1].rstrip(" \n")
+                        print(f"  {original}")
+                        print(f'  {" "*entry["col"]}{Colors.red}^{Colors.stop}')
+                        print(f'{Colors.blue}->{Colors.stop} {entry["message"]}\n')
+                    else:
+                        print(
+                            f'({entry["code"]}) {Colors.red}Error{Colors.stop} in file {Colors.green}"{entry["path"]}"{Colors.stop} at line {entry["line"]}:'
+                        )
+                        original = lines[entry["line"] - 1].strip(" \n")
+                        print(f"  {Colors.cyan}{original}{Colors.stop}")
+                        print(f'{Colors.blue}->{Colors.stop} {entry["message"]}\n')
+            else:
+                print(
+                    f'({entry["code"]}) {Colors.red}Error{Colors.stop}:'
+                )
+                print(f'{Colors.blue}->{Colors.stop} {entry["message"]}\n')
         except FileNotFoundError:
             # print(f'({entry["code"]}) Error in file \"{entry["path"]}\" at line {entry["line"]}:')
             # original = lines[entry['line'] - 1].strip(' \n')
@@ -944,17 +957,17 @@ def assemble_variables(variables, ram_bit_width):
     return machine
 
 def assemble_ram(variables, ram_bit_width):
-    biggest_addr = -1
-    for var in variables:
-        if (
-            variables[var]["type"] == "ram"
-            and int(variables[var]["address"]) > biggest_addr
-        ):
-            biggest_addr = variables[var]["address"]
-    machine = np.empty(biggest_addr + 1, dtype=f"u{math.ceil(ram_bit_width/8)}")
+
+    machine = np.zeros(Globals.RAM_SIZE, dtype=f"u{math.ceil(ram_bit_width/8)}")
+
+    highest = max([i['address'] for k, i in variables.items()])
+    if (highest >= Globals.RAM_SIZE):
+        errmess = f'requested RAM size ({highest + 1}) greater than available space ({Globals.RAM_SIZE})'
+        error(errmess, -1, -1, 410, line_based=False)
+        return machine
 
     for var in variables:
-        if variables[var]["type"] == "ram":
+        if variables[var]["type"] == "ram" and variables[var]["address"] >= Globals.RAM_ADDRESS_BEGIN:
             machine[int(variables[var]["address"])] = variables[var]["value"] if variables[var]["value"] is not None else 0
 
     return machine

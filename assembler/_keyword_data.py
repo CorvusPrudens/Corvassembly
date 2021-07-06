@@ -69,6 +69,26 @@ sysvars = [
     ["pre", "TX_FULL", "1"],
     ["pre", "RX_EMPTY", "8"],
     ["pre", "RX_FULL", "4"],
+
+    # TODO -- make this not hard coded!
+    ['pre', 'RAM_START', '64'],
+
+    ['pre', 'SECTOR_0', f'{0x2000}'],
+    ['pre', 'SECTOR_1', f'{0x3000}'],
+    ['pre', 'SECTOR_2', f'{0x4000}'],
+    ['pre', 'SECTOR_3', f'{0x5000}'],
+    ['pre', 'SECTOR_4', f'{0x6000}'],
+    ['pre', 'SECTOR_5', f'{0x7000}'],
+
+    ['pre', 'RAM_OFFSET', f'{0x0400}'],
+    ['pre', 'ROM_OFFSET', f'{0x0410}'],
+
+    ['pre', 'RAM_SIZE', f'{0x0800}'],
+    ['pre', 'ROM_SIZE', f'{0x0400}'],
+    ['pre', 'PAGE_SIZE', f'{0x0100}'],
+
+    ['pre', 'WIDTH', '128'],
+    ['pre', 'HEIGHT', '64'],
 ]
 
 keywords = [
@@ -95,4 +115,9 @@ keywords = [
     'R4017', 'R9000', 'R9001', 'R9002',
     'R9003', 'RA000', 'RA001', 'RA002',
     'RB000', 'RB001', 'RB002',
+    'RAM_START', 'SECTOR_0', 'SECTOR_1',
+    'SECTOR_2', 'SECTOR_3', 'SECTOR_4',
+    'SECTOR_5', 'RAM_OFFSET', 'ROM_OFFSET',
+    'RAM_SIZE', 'ROM_SIZE', 'PAGE_SIZE',
+    'WIDTH', 'HEIGHT',
 ]
