@@ -59,6 +59,7 @@ sysvars = [
     ['ram', 'DOWN', '61'],
     ['ram', 'LEFT', '62'],
     ['ram', 'RIGHT', '63'],
+    ['ram', 'INTERRUPT_MASK', '64'],
 
     ["pre", "FLASH_WRITE_WORD", "8"],
     ["pre", "FLASH_READ_WORD", "4"],
@@ -71,7 +72,7 @@ sysvars = [
     ["pre", "RX_FULL", "4"],
 
     # TODO -- make this not hard coded!
-    ['pre', 'RAM_START', '64'],
+    ['pre', 'RAM_START', '65'],
 
     ['pre', 'SECTOR_0', f'{0x2000}'],
     ['pre', 'SECTOR_1', f'{0x3000}'],
@@ -89,6 +90,9 @@ sysvars = [
 
     ['pre', 'WIDTH', '128'],
     ['pre', 'HEIGHT', '64'],
+
+    ['pre', 'INTERRUPT_FRAME', '1'],
+    ['pre', 'INTERRUPT_TIMER', '2'],
 ]
 
 keywords = [
@@ -97,27 +101,30 @@ keywords = [
     'pre', 'ram', 'rom', 'gpu',
     'zero', 'carry', 'negative', 'as',
     'for', 'equal', 'greater', 'less',
-    'SCOPE_RATE', 'UART', 'UART_STATUS', 'STACK', 'STATUS',
-    'SCOPE_ADDR', 'GPIO', 'GPIO_DIR', 'TX_EMPTY',
-    'SCOPE_DATA', 'TX_FULL', 'RX_EMPTY', 'RX_FULL',
-    'SCOPE_TRIGGER', 'continue', 'break', 'breakall', 'FLASH_DATA',
-    'FLASH_READ', 'FLASH_WRITE', 'FLASH_STATUS', 'FLASH_PAGE',
-    'FLASH_WRITE_WORD', 'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER',
-    'TIMER_COMP', 'TIMER_PRES', 'TIMER_STATUS',
-    'BUTT', 'BOOT',
-    'A', 'B', 'X', 'Y', 'UP', 'DOWN', 'LEFT', 'RIGHT',
-    'FRAME', 'R4000', 'R4001', 'R4002',
-    'R4003', 'R4004', 'R4005', 'R4006',
-    'R4007', 'R4008', 'R4009', 'R400A',
-    'R400B', 'R400C', 'R400D', 'R400E',
-    'R400F', 'R4010', 'R4011', 'R4012',
-    'R4013', 'R4014', 'R4015', 'R4016',
-    'R4017', 'R9000', 'R9001', 'R9002',
-    'R9003', 'RA000', 'RA001', 'RA002',
-    'RB000', 'RB001', 'RB002',
-    'RAM_START', 'SECTOR_0', 'SECTOR_1',
-    'SECTOR_2', 'SECTOR_3', 'SECTOR_4',
-    'SECTOR_5', 'RAM_OFFSET', 'ROM_OFFSET',
-    'RAM_SIZE', 'ROM_SIZE', 'PAGE_SIZE',
-    'WIDTH', 'HEIGHT',
+    'FRAME', 'TIMER',
+    # 'SCOPE_RATE', 'UART', 'UART_STATUS', 'STACK', 'STATUS',
+    # 'SCOPE_ADDR', 'GPIO', 'GPIO_DIR', 'TX_EMPTY',
+    # 'SCOPE_DATA', 'TX_FULL', 'RX_EMPTY', 'RX_FULL',
+    # 'SCOPE_TRIGGER', 'continue', 'break', 'breakall', 'FLASH_DATA',
+    # 'FLASH_READ', 'FLASH_WRITE', 'FLASH_STATUS', 'FLASH_PAGE',
+    # 'FLASH_WRITE_WORD', 'FLASH_READ_WORD', 'FLASH_ERASE_WORD', 'TIMER',
+    # 'TIMER_COMP', 'TIMER_PRES', 'TIMER_STATUS',
+    # 'BUTT', 'BOOT',
+    # 'A', 'B', 'X', 'Y', 'UP', 'DOWN', 'LEFT', 'RIGHT',
+    # 'FRAME', 'R4000', 'R4001', 'R4002',
+    # 'R4003', 'R4004', 'R4005', 'R4006',
+    # 'R4007', 'R4008', 'R4009', 'R400A',
+    # 'R400B', 'R400C', 'R400D', 'R400E',
+    # 'R400F', 'R4010', 'R4011', 'R4012',
+    # 'R4013', 'R4014', 'R4015', 'R4016',
+    # 'R4017', 'R9000', 'R9001', 'R9002',
+    # 'R9003', 'RA000', 'RA001', 'RA002',
+    # 'RB000', 'RB001', 'RB002',
+    # 'RAM_START', 'SECTOR_0', 'SECTOR_1',
+    # 'SECTOR_2', 'SECTOR_3', 'SECTOR_4',
+    # 'SECTOR_5', 'RAM_OFFSET', 'ROM_OFFSET',
+    # 'RAM_SIZE', 'ROM_SIZE', 'PAGE_SIZE',
+    # 'WIDTH', 'HEIGHT',
 ]
+
+keywords += [item[1] for item in sysvars]

@@ -8,7 +8,7 @@ from . import _keyword_data
 
 
 class Globals:
-    RAM_ADDRESS_BEGIN = 64
+    RAM_ADDRESS_BEGIN = 65
     PGM_ADDRESS_BEGIN = 3
     PROGRAM_WORD_WIDTH = 32
     DATA_WORD_WIDTH = 16
