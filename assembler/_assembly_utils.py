@@ -921,16 +921,16 @@ def assemble_instruction(instructions, variables, labels):
                 pass
 
         elif inst == "rti":
-            check_num_args(args, 1, inst, instructions[i])
-            try:
-                word = assemble_interrupt_vector(word, args[0], instructions[i])
-            except IndexError:
-                pass
+            check_num_args(args, 0, inst, instructions[i])
+            # try:
+            #     word = assemble_interrupt_vector(word, args[0], instructions[i])
+            # except IndexError:
+            #     pass
 
         elif inst == "ric":
-            check_num_args(args, 2, inst, instructions[i])
+            check_num_args(args, 1, inst, instructions[i])
             try:
-                word = assemble_interrupt_vector(word, args[1], instructions[i])
+                # word = assemble_interrupt_vector(word, args[1], instructions[i])
                 word = assemble_cond_jump(word, args[0], instructions[i])
             except IndexError:
                 pass

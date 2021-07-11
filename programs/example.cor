@@ -34,6 +34,27 @@ ram array_short[] = {
 }
 ram array_patt[20] = {1, 2, 6}
 
+[align]
+flash data = {
+  0, 1, 0, 1
+}
+
+struct sprite = {
+  ram page
+  ram sprite_ptr
+  ram xpos = 16
+  ram ypos = 16
+  ram array[10]
+}
+
+sprite bird = {
+  data->page,
+  data->address,
+  16,
+  16,
+  {0},
+}
+
 // test block
 $expect
 ldr a, 100

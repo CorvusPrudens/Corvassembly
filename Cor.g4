@@ -12,7 +12,7 @@ initial         : (statement | statement_loop | statement_if | file_import | dir
 
 directive       : PRAGMA (VARIABLE (NUMBER | VARIABLE | string)?)+;
 
-statement       : declaration | assignment | assignment_ram | assignment_arr | assignment_arr_ram | instruction;
+statement       : struct_def | data | instruction;
 
 statement_loop  : loop;
 
@@ -43,9 +43,11 @@ loop_cond       : REGISTER OPERATOR expression;
 loop_incr       : REGISTER (OP_SHORT | OPERATOR) expression?;
 */
 
-assignment      : CONST VARIABLE '=' expression;
+hint            : OBRACKET STRING (',' STRING)* ','? CBRACKET;
 
-assignment_arr  : CONST array;
+assignment      : hint? CONST VARIABLE '=' expression;
+
+assignment_arr  : hint? CONST array;
 
 declaration     : RAM VARIABLE array_init*;
 
@@ -66,13 +68,22 @@ math            : OPERATOR* OPAR* ((OPAR* (math_obj) CPAR* OPERATOR)+ OPAR*(math
 
 exp_number      : NUMBER;
 
+data            : assignment | assignment_arr | assignment_arr_ram | assignment_ram | declaration;
+
+struct_def      : STRUCT VARIABLE '=' OBRACE data+ CBRACE;
+
+struct_dec      : (VARIABLE VARIABLE)
+                | VARIABLE VARIABLE '=' OBRACE (expression)+ CBRACE;
+
 array           : VARIABLE (array_init)+ '=' (arr_data | string);
 
 exp_var         : VARIABLE array_init*;
 
 exp_char        : CHAR;
 
-exp_attr        : VARIABLE ATTRIBUTE;
+exp_attr        : VARIABLE attribute;
+
+attribute       : ATTR_OP VARIABLE;
 
 array_init      : OBRACKET expression? CBRACKET;
 
@@ -109,10 +120,12 @@ TEST_BLOCK             : '$' .*? '$end' -> skip;
 
 PRAGMA                 : '#pragma';
 
-RAM : 'ram';
-fragment ROM : 'rom';
-fragment PRE : 'pre';
-CONST : ROM | PRE;
+RAM                    : 'ram';
+fragment ROM           : 'rom';
+fragment PRE           : 'pre';
+fragment FLASH         : 'flash';
+CONST                  : ROM | PRE | FLASH;
+STRUCT                 : 'struct';
 
 GPU                    : 'gpu';
 IMPORT                 : 'import';
@@ -136,7 +149,7 @@ CONDITION              : 'zero'
                        | 'less'
                        ;
 
-ATTRIBUTE              : '->' ('end' | 'length');
+ATTR_OP                : '->';
 
 SEMI                   : ';';
 COLON                  : ':';
